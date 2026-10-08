@@ -18,6 +18,8 @@ DATA = ROOT / 'data' / 'combo'
 REVIEW = ROOT / 'review_all.md'
 
 START, END = '/*COMBO_START*/', '/*COMBO_END*/'
+SDATA = ROOT / 'data' / 'scripts'
+SSTART, SEND = '/*SCRIPTS_START*/', '/*SCRIPTS_END*/'
 FIELDS = ['花言葉', '技法', 'こじつけ', '締め', 'ひより', 'ツッコミ']
 # 既存264本の実測（最大 64/42/31）に少し余裕を持たせた上限。ツッコミは2文まで許すため40字（AI版と同じ）
 LIMIT = {2: 70, 3: 45, 4: 35, 5: 40}
@@ -119,6 +121,26 @@ def main():
                 else:
                     seen[key] = f'{fid}/{rid}'
 
+    # 生成台本（data/scripts/*.json、tools/import_scripts.py が作る）
+    scripts = {}
+    for p in sorted(SDATA.glob('*.json')):
+        fid = p.stem
+        d = json.loads(p.read_text(encoding='utf-8'))
+        if fid not in by_id:
+            errs.append(f'scripts/{fid}: 採用花に存在しない花id')
+            continue
+        for rid, items in d.items():
+            if rid not in rids:
+                errs.append(f'scripts/{fid}/{rid}: 未知の理由id')
+            for x in items:
+                if not (len(x.get('l', [])) >= 3 and all(w in ('b', 'g', 'n') and t for w, t in x['l'])
+                        and x.get('m') and x.get('s')):
+                    errs.append(f'scripts/{fid}/{rid}: 台本の形が崩れている')
+        scripts[fid] = d
+    s_combos = sum(len(v) for v in scripts.values())
+    s_total = sum(len(x) for v in scripts.values() for x in v.values())
+    print(f'台本 {s_total}本 / {s_combos}組み合わせ（全{len(by_id) * len(rids)}）')
+
     if errs:
         print(f'\n検査エラー {len(errs)}件:')
         print('\n'.join('  ' + e for e in errs))
@@ -130,7 +152,12 @@ def main():
     packed = {fid: {rid: combos[fid][rid] for rid in rids if rid in combos[fid]} for fid in order}
     body = 'const COMBO=' + json.dumps(packed, ensure_ascii=False, separators=(',', ':')) + ';'
     i, j = html.index(START) + len(START), html.index(END)
-    HTML.write_text(html[:i] + body + html[j:], encoding='utf-8', newline='\n')
+    html = html[:i] + body + html[j:]
+    sbody = 'const SCRIPTS=' + json.dumps({f['id']: scripts[f['id']] for f in flowers if f['id'] in scripts},
+                                          ensure_ascii=False, separators=(',', ':')) + ';'
+    i, j = html.index(SSTART) + len(SSTART), html.index(SEND)
+    html = html[:i] + sbody + html[j:]
+    HTML.write_text(html, encoding='utf-8', newline='\n')
 
     rs, _ = json.JSONDecoder().raw_decode(html[html.index('RS=[') + 3:])
     rid_src = re.search(r'const RID=\{(.*?)\}', html).group(1)
