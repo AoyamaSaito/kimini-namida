@@ -1,0 +1,322 @@
+<title>君に涙は 台本工房</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap">
+<style>
+/* 上に操作帯（キュー・生成）、下に組み合わせごとの台本カード。ゲーム本体の夕暮れ色を薄めて作業用に */
+:root{
+  --bg:#f6f3fa; --panel:#ffffff; --fg:#231c33; --muted:#6c6380; --line:#ddd5ea;
+  --accent:#a73f6b; --accent-fg:#ffffff; --ok:#2f7d4f; --ng:#9a3b3b; --new:#7a6a1e;
+  --boy:#2f5f9a; --girl:#b03b6e;
+  --display:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",serif;
+  --body:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17122b;--panel:#211a3a;--fg:#efe9ff;--muted:#a99fcc;--line:#3a3160;--accent:#e0708f;--accent-fg:#1a1028;--ok:#7fd3a0;--ng:#f09a9a;--new:#e8d17a;--boy:#9fd0ff;--girl:#ffb8cf;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17122b;--panel:#211a3a;--fg:#efe9ff;--muted:#a99fcc;--line:#3a3160;--accent:#e0708f;--accent-fg:#1a1028;--ok:#7fd3a0;--ng:#f09a9a;--new:#e8d17a;--boy:#9fd0ff;--girl:#ffb8cf;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px;line-height:1.7}
+.wrap{max-width:900px;margin:0 auto;padding-inline:16px;padding-block:24px 64px;display:grid;gap:20px}
+h1{font-family:var(--display);font-size:26px;margin:0}
+h1 small{display:block;font-family:var(--body);font-size:13px;color:var(--muted);font-weight:400}
+.bar{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.status{font-size:13px;color:var(--muted)}
+.status b{color:var(--fg)}
+button{font:inherit;font-weight:700;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--fg);padding:6px 12px;cursor:pointer}
+button.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+select{font:inherit;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--fg);max-width:100%}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12.5px;border:1px solid var(--line);border-radius:999px;padding:2px 10px;display:inline-flex;gap:6px;align-items:center}
+.chip button{border:0;padding:0 2px;background:none;color:var(--muted);font-weight:400}
+.chip.run{border-color:var(--accent);color:var(--accent)}
+.msg{font-size:13px;color:var(--ng);min-height:1em}
+.list{display:grid;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:10px;min-width:0}
+.card header{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+.card h2{font-family:var(--display);font-size:17px;margin:0}
+.meta{font-size:12px;color:var(--muted)}
+.badge{font-size:11.5px;font-weight:700;border-radius:4px;padding:1px 7px;border:1px solid currentColor}
+.badge.new{color:var(--new)} .badge.ok{color:var(--ok)} .badge.ng{color:var(--ng)}
+.script{display:grid;gap:3px;font-family:var(--display);font-size:15px}
+.ln{display:grid;grid-template-columns:4.2em 1fr;gap:8px;min-width:0}
+.ln .w{font-family:var(--body);font-size:12px;font-weight:700;padding-top:3px}
+.ln .t{overflow-wrap:anywhere}
+.ln.boy .w{color:var(--boy)} .ln.girl .w{color:var(--girl)} .ln.narration .w{color:var(--muted)} .ln.narration .t{color:var(--muted)}
+.ln.fixed .t{font-weight:700}
+.tsk{border-left:3px solid var(--accent);padding-left:10px;font-family:var(--display)}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.acts .ok{color:var(--ok)} .acts .ng{color:var(--ng)}
+.cands{display:grid;gap:6px}
+.cands button.cand{text-align:left;font-family:var(--display);font-weight:500;border-style:dashed}
+.empty{color:var(--muted);text-align:center;padding:30px 0}
+.filter{display:flex;gap:6px;flex-wrap:wrap}
+.filter button.on{border-color:var(--accent);color:var(--accent)}
+</style>
+
+<div class="wrap">
+  <h1>君に涙は 台本工房<small>AI版と同じプロンプトで、1組み合わせずつ台本を生成して貯める。採用したものをゲームに埋め込む。</small></h1>
+
+  <section class="bar" aria-label="生成">
+    <div class="status" id="status">準備中……</div>
+    <div class="row">
+      <select id="selF" aria-label="花"></select>
+      <select id="selR" aria-label="泣いている理由"></select>
+      <button type="button" id="bAdd">キューに追加</button>
+      <select id="selN" aria-label="本数"><option>20</option><option selected>100</option><option>300</option></select><button type="button" id="bNext">未生成をキューへ</button>
+    </div>
+    <div class="chips" id="queue"></div>
+    <div class="row">
+      <button type="button" class="primary" id="bRun">キューを順に生成</button>
+      <button type="button" id="bStop" disabled>止める</button>
+      <button type="button" id="bTskNg">ボツのツッコミを順に作り直す</button>
+      <span class="status" id="prog"></span>
+    </div>
+    <div class="msg" id="msg" role="status"></div>
+  </section>
+
+  <div class="filter" role="group" aria-label="表示">
+    <button type="button" data-f="all" class="on">すべて</button>
+    <button type="button" data-f="new">未判定</button>
+    <button type="button" data-f="ok">採用</button>
+    <button type="button" data-f="ng">ボツ</button>
+  </div>
+  <div class="list" id="list"><div class="empty">まだ台本がない。キューを生成すると、ここに並ぶ。</div></div>
+</div>
+
+<script>
+'use strict';
+const FL=[{"id":"himawari","name":"ヒマワリ","kana":"向日葵","m":["あなただけを見つめる","憧れ","情熱"],"d":1},{"id":"gerbera","name":"ガーベラ","kana":"花車","m":["希望","常に前進"],"d":1},{"id":"kasumi","name":"カスミソウ","kana":"霞草","m":["感謝","清らかな心","幸福"],"d":1},{"id":"sakura","name":"サクラ","kana":"桜","m":["精神の美","優美な女性"],"d":1},{"id":"redrose","name":"赤いバラ","kana":"薔薇","m":["あなたを愛しています","情熱"],"d":1},{"id":"whiterose","name":"白いバラ","kana":"薔薇","m":["純潔","私はあなたにふさわしい"],"d":1},{"id":"cosmos","name":"コスモス","kana":"秋桜","m":["乙女の真心","調和","謙虚"],"d":1},{"id":"suzuran","name":"スズラン","kana":"鈴蘭","m":["再び幸せが訪れる","純粋","謙遜"],"d":1},{"id":"margaret","name":"マーガレット","kana":"木春菊","m":["恋占い","真実の愛","信頼"],"d":1},{"id":"kikyou","name":"キキョウ","kana":"桔梗","m":["永遠の愛","誠実","変わらぬ愛"],"d":1},{"id":"poinsettia","name":"ポインセチア","kana":"猩々木","m":["祝福","聖夜","私の心は燃えている"],"d":1},{"id":"whitelily","name":"白いユリ","kana":"百合","m":["純粋","無垢","威厳"],"d":1},{"id":"pansy","name":"パンジー","kana":"三色菫","m":["もの思い","私を思って"],"d":1},{"id":"nanohana","name":"ナノハナ","kana":"菜の花","m":["快活","明るさ","小さな幸せ"],"d":1},{"id":"rindou","name":"リンドウ","kana":"竜胆","m":["悲しんでいるあなたを愛する","正義","誠実"],"d":1},{"id":"wasurenagusa","name":"ワスレナグサ","kana":"勿忘草","m":["私を忘れないで","真実の愛"],"d":2},{"id":"tanpopo","name":"タンポポ","kana":"蒲公英","m":["真心の愛","愛の神託","別離"],"d":2},{"id":"bluerose","name":"青いバラ","kana":"薔薇","m":["夢かなう","奇跡","神の祝福"],"d":2},{"id":"tsubaki","name":"赤いツバキ","kana":"椿","m":["控えめな素晴らしさ","謙虚な美徳"],"d":2},{"id":"asagao","name":"アサガオ","kana":"朝顔","m":["愛情の絆","はかない恋"],"d":2},{"id":"gladiolus","name":"グラジオラス","kana":"唐菖蒲","m":["密会","用心","勝利"],"d":2},{"id":"amaryllis","name":"アマリリス","kana":"金山慈姑","m":["おしゃべり","誇り"],"d":2},{"id":"strelitzia","name":"ストレリチア","kana":"極楽鳥花","m":["輝かしい未来","気取った恋"],"d":2},{"id":"sweetpea","name":"スイートピー","kana":"麝香豌豆","m":["門出","別離","優しい思い出"],"d":3},{"id":"dahlia","name":"ダリア","kana":"天竺牡丹","m":["華麗","裏切り","移り気"],"d":3},{"id":"lavender","name":"ラベンダー","kana":"薫衣草","m":["沈黙","あなたを待っています","不信感"],"d":3},{"id":"hasu","name":"ハス","kana":"蓮","m":["清らかな心","離れゆく愛"],"d":3},{"id":"suisen","name":"スイセン","kana":"水仙","m":["うぬぼれ","自己愛"],"d":3},{"id":"miyakowasure","name":"ミヤコワスレ","kana":"都忘れ","m":["別れ","しばしの憩い"],"d":3},{"id":"hyacinth","name":"紫のヒヤシンス","kana":"風信子","m":["悲しみ","悲哀","初恋のひたむきさ"],"d":3},{"id":"cyclamen","name":"シクラメン","kana":"篝火花","m":["はにかみ","嫉妬","疑惑"],"d":3},{"id":"clover","name":"シロツメクサ","kana":"白詰草","m":["幸運","約束","私を思って","復讐"],"d":3},{"id":"trumpet","name":"ラッパスイセン","kana":"喇叭水仙","m":["尊敬","報われぬ恋"],"d":3},{"id":"ikarisou","name":"イカリソウ","kana":"錨草","m":["あなたを離さない","人生の出発"],"d":3},{"id":"lupinus","name":"ルピナス","kana":"昇り藤","m":["想像力","いつも幸せ","貪欲"],"d":3},{"id":"nokogiri","name":"ノコギリソウ","kana":"鋸草","m":["戦い","勇敢"],"d":3},{"id":"xmasrose","name":"クリスマスローズ","kana":"ヘレボルス","m":["私の不安を和らげて","追憶","中傷"],"d":3},{"id":"hirugao","name":"ヒルガオ","kana":"昼顔","m":["絆","情事"],"d":3},{"id":"gekka","name":"ゲッカビジン","kana":"月下美人","m":["ただ一度だけ会いたくて","はかない美"],"d":3},{"id":"nigella","name":"ニゲラ","kana":"黒種草","m":["夢の中の恋","当惑"],"d":3},{"id":"fukujuso","name":"フクジュソウ","kana":"福寿草","m":["永久の幸福","悲しき思い出"],"d":3},{"id":"anthurium","name":"アンスリウム","kana":"大紅団扇","m":["情熱","煩悩"],"d":3},{"id":"clematis","name":"クレマチス","kana":"鉄線","m":["精神の美","旅人の喜び","策略"],"d":3},{"id":"ajisai","name":"アジサイ","kana":"紫陽花","m":["移り気","浮気","冷淡"],"d":4},{"id":"muscari","name":"ムスカリ","kana":"葡萄風信子","m":["失望","失意","通じ合う心"],"d":4},{"id":"ytulip","name":"黄色いチューリップ","kana":"鬱金香","m":["望みのない恋","名声"],"d":4},{"id":"yrose","name":"黄色いバラ","kana":"薔薇","m":["嫉妬","薄らぐ愛"],"d":4},{"id":"anemone","name":"アネモネ","kana":"牡丹一華","m":["はかない恋","見捨てられた"],"d":4},{"id":"digitalis","name":"ジギタリス","kana":"狐の手袋","m":["不誠実","熱愛"],"d":4},{"id":"ykiku","name":"黄色いキク","kana":"菊","m":["破れた恋"],"d":4},{"id":"kinsenka","name":"キンセンカ","kana":"金盞花","m":["別れの悲しみ","失望","寂しさ"],"d":4},{"id":"erica","name":"エリカ","kana":"ヒース","m":["孤独","寂しさ"],"d":4},{"id":"odamaki","name":"オダマキ","kana":"苧環","m":["愚か","断固として勝つ"],"d":4},{"id":"kyouchikutou","name":"キョウチクトウ","kana":"夾竹桃","m":["危険な愛","油断しない"],"d":4},{"id":"hoozuki","name":"ホオズキ","kana":"鬼灯","m":["偽り","ごまかし","心の平安"],"d":4},{"id":"misohagi","name":"ミソハギ","kana":"禊萩","m":["悲哀","愛の悲しみ"],"d":4},{"id":"asebi","name":"アセビ","kana":"馬酔木","m":["犠牲","献身","あなたと二人で旅をしよう"],"d":4},{"id":"murasakitsuyu","name":"ムラサキツユクサ","kana":"紫露草","m":["尊敬しているが愛してはいない"],"d":4},{"id":"yellowlily","name":"黄色いユリ","kana":"百合","m":["偽り","陽気"],"d":4},{"id":"marigold","name":"マリーゴールド","kana":"万寿菊","m":["絶望","嫉妬","悲しみ"],"d":5},{"id":"ycarnation","name":"黄色いカーネーション","kana":"阿蘭陀石竹","m":["軽蔑","嫉妬"],"d":5},{"id":"scabiosa","name":"スカビオサ","kana":"西洋松虫草","m":["不幸な愛","私はすべてを失った"],"d":5},{"id":"azami","name":"アザミ","kana":"薊","m":["報復","厳格","独立"],"d":5},{"id":"hanazuou","name":"ハナズオウ","kana":"花蘇芳","m":["裏切り","疑惑","不信仰"],"d":5},{"id":"higanbana","name":"ヒガンバナ","kana":"彼岸花","m":["悲しい思い出","諦め","また会う日を楽しみに"],"d":5},{"id":"otogiriso","name":"オトギリソウ","kana":"弟切草","m":["恨み","敵意","秘密"],"d":5},{"id":"lobelia","name":"ロベリア","kana":"瑠璃溝隠","m":["悪意","敵意","謙遜"],"d":5},{"id":"torikabuto","name":"トリカブト","kana":"鳥兜","m":["復讐","人嫌い","騎士道"],"d":5},{"id":"kuroyuri","name":"クロユリ","kana":"黒百合","m":["呪い","復讐","恋"],"d":5},{"id":"snowdrop","name":"スノードロップ","kana":"待雪草","m":["希望","慰め","あなたの死を望みます"],"d":5},{"id":"blackrose","name":"黒いバラ","kana":"薔薇","m":["恨み","憎しみ","決して滅びることのない愛"],"d":5},{"id":"orangelily","name":"オレンジのユリ","kana":"百合","m":["華麗","愉快","憎悪"],"d":5},{"id":"colchicum","name":"イヌサフラン","kana":"コルチカム","m":["私の最良の日々は過ぎ去った"],"d":5},{"id":"rafflesia","name":"ラフレシア","kana":"世界最大級の花・強烈な腐臭","m":["夢うつつ"],"d":5,"odd":true},{"id":"gobou","name":"ゴボウの花","kana":"根菜売り場から","m":["いじめないで","触らないで"],"d":4,"odd":true},{"id":"flytrap","name":"ハエトリソウ","kana":"食虫植物","m":["捕らえる","ずる賢い"],"d":5,"odd":true},{"id":"okura","name":"オクラの花","kana":"家庭菜園から","m":["恋によって身が細る"],"d":4,"odd":true},{"id":"dokudami","name":"ドクダミ","kana":"独特の匂い","m":["白い追憶","野生"],"d":4,"odd":true},{"id":"hekuso","name":"ヘクソカズラ","kana":"漢字で書くと屁糞葛","m":["人嫌い","誤解を解きたい"],"d":5,"odd":true},{"id":"inufuguri","name":"オオイヌノフグリ","kana":"名前の由来は聞かないで","m":["信頼","忠実","清らか"],"d":4,"odd":true},{"id":"nazuna","name":"ナズナ","kana":"ぺんぺん草","m":["あなたに私のすべてを捧げます"],"d":3,"odd":true},{"id":"negi","name":"ネギ坊主","kana":"ネギの花","m":["くじけない心","愛嬌"],"d":3,"odd":true},{"id":"artichoke","name":"アーティチョーク","kana":"食べられるつぼみ","m":["警告","傷つく恋","独立"],"d":5,"odd":true},{"id":"cabbage","name":"キャベツ","kana":"野菜売り場から","m":["利益"],"d":4,"odd":true},{"id":"nasu","name":"ナスの花","kana":"家庭菜園から","m":["優美","真実"],"d":3,"odd":true},{"id":"jagaimo","name":"ジャガイモの花","kana":"家庭菜園から","m":["慈愛","恩恵"],"d":3,"odd":true},{"id":"wata","name":"ワタ","kana":"綿","m":["優秀","繊細"],"d":3,"odd":true},{"id":"pineapple","name":"パイナップル","kana":"果物売り場から","m":["完全無欠","あなたは完璧"],"d":4,"odd":true},{"id":"cactus","name":"サボテン","kana":"鉢植え","m":["枯れない愛","燃える心"],"d":3,"odd":true},{"id":"kochoran","name":"胡蝶蘭","kana":"開店祝いでおなじみ","m":["幸福が飛んでくる","純粋な愛"],"d":3,"odd":true},{"id":"whitekiku","name":"白いキク","kana":"供花の定番","m":["真実","誠実"],"d":4,"odd":true},{"id":"redcarnation","name":"赤いカーネーション","kana":"母の日の定番","m":["母への愛","純粋な愛"],"d":4,"odd":true},{"id":"bamboo","name":"竹の花","kana":"百年に一度咲き、咲くと枯れる","m":["節度","節操のある"],"d":4,"odd":true},{"id":"artificial","name":"造花のバラ","kana":"ポリエステル製","m":["あなたを愛しています","情熱"],"d":4,"odd":true},{"id":"dried","name":"ドライフラワーのスターチス","kana":"水分ゼロ","m":["変わらぬ心","途絶えぬ記憶"],"d":3,"odd":true},{"id":"oshibana","name":"押し花のパンジー","kana":"しおり・厚さ0.2mm","m":["もの思い","私を思って"],"d":3,"odd":true},{"id":"daikon","name":"ダイコンの花","kana":"家庭菜園から","m":["適応力","潔白"],"d":3,"odd":true},{"id":"bouquet","name":"売れ残りの花束","kana":"半額シール付き・カスミソウ多め","m":["感謝","清らかな心"],"d":4,"odd":true},{"id":"bulb","name":"チューリップの球根","kana":"まだ咲いていない","m":["思いやり","博愛"],"d":4,"odd":true},{"id":"petal","name":"サクラの花びら一枚","kana":"花本体は見当たらない","m":["精神の美","優美な女性"],"d":4,"odd":true}];
+const RS=[{"id":"kingyo","text":"飼っていた金魚（名前はきんちゃん）が今朝死んでしまった","line":"きんちゃんが……今朝……お空に……","cause":"運命"},{"id":"pudding","text":"楽しみにしていたプリンを兄に食べられた","line":"楽しみにしてた……プリン……お兄ちゃんに食べられた……","cause":"プリン泥棒"},{"id":"oshi","text":"推しのアイドルが結婚を発表した。祝いたいのに涙が止まらない","line":"推しが……結婚発表……おめでたいのに……涙が止まらないの……","cause":"推しの結婚報道"},{"id":"juken","text":"第一志望の大学に落ちた","line":"第一志望……ダメだった……","cause":"不合格通知"},{"id":"taikai","text":"部活の最後の大会で自分のミスで負けた","line":"最後の大会……私のミスで……","cause":"あの一球"},{"id":"tamanegi","text":"実は玉ねぎを切っていただけ（本人は別に悲しくない）","line":"（玉ねぎを刻みながら）……え？ あ、これは玉ねぎで……","cause":"玉ねぎ"},{"id":"eiga","text":"さっき観た映画で犬が死んだ","line":"さっき観た映画が……犬が……犬がぁ……","cause":"あの映画の脚本家"},{"id":"furare","text":"三年間片思いしていた相手にフラれた","line":"……フラれちゃった。三年も好きだったのに。","cause":"あの人"},{"id":"gacha","text":"ソシャゲのガチャを天井まで回したのに目当てのキャラが出なかった","line":"天井まで回したのに……すり抜けた……","cause":"ガチャの確率"},{"id":"kasa","text":"お気に入りの傘をコンビニで盗られた","line":"傘……コンビニで盗られた……お気に入りだったのに……","cause":"傘泥棒"},{"id":"sumaho","text":"スマホを落として画面がバキバキに割れた","line":"スマホ……落としたら……画面が蜘蛛の巣みたいに……","cause":"重力"},{"id":"report","text":"三時間かけたレポートが保存前にパソコンの再起動で消えた","line":"レポート……保存する前にパソコンが……三時間分……","cause":"強制再起動"},{"id":"maegami","text":"美容院で「おまかせ」と言ったら前髪を切られすぎた","line":"前髪……『おまかせ』って言ったら……こんなに短く……","cause":"美容師さんのハサミ"},{"id":"akaten","text":"数学のテストで赤点を取って追試になった","line":"数学……赤点……追試……","cause":"数学"},{"id":"tenkou","text":"親友が来月転校してしまう","line":"親友が……来月、転校しちゃうの……","cause":"転勤の辞令"},{"id":"geki","text":"文化祭の劇で一番大事な台詞を噛んだ","line":"文化祭の劇……一番大事な台詞……噛んじゃった……","cause":"滑舌"},{"id":"save","text":"百時間遊んだゲームのセーブデータが消えた","line":"百時間やったセーブデータが……消えた……","cause":"上書き保存"},{"id":"loveletter","text":"ラブレターを隣の人の靴箱に入れてしまった","line":"ラブレター……隣の靴箱に入れちゃった……","cause":"靴箱の配置"},{"id":"yakisoba","text":"カップ焼きそばの湯切りで麺を全部シンクに落とした","line":"カップ焼きそばの湯切りで……麺が全部シンクに……","cause":"流し台"},{"id":"kafun","text":"花粉症がひどくて涙が止まらない（花を贈られると悪化しかねない）","line":"……花粉症……今年すごくて……","cause":"花粉"},{"id":"baito","text":"バイトで注文を三回も間違えて怒られた","line":"バイトで……注文、三回も間違えて……","cause":"あの日のシフト"},{"id":"tanjoubi","text":"今日が誕生日なのに誰も気づいてくれない（蒼真も気づいていなかった可能性がある）","line":"今日、私の誕生日なのに……誰も気づいてくれない……","cause":"みんなの忘れっぽさ"},{"id":"wasabi","text":"寿司のわさびが効きすぎただけ（悲しくはない）","line":"（お寿司を食べながら）……っ……わさびが……ツーンって……","cause":"わさび"},{"id":"cookie","text":"手作りクッキーで砂糖と塩を間違えた","line":"手作りクッキー……砂糖と塩、間違えた……","cause":"似てる容器"}];
+
+const FLM=Object.fromEntries(FL.map(f=>[f.id,f])), RSM=Object.fromEntries(RS.map(r=>[r.id,r]));
+const PILOT=[['inufuguri','kingyo'],['rafflesia','tanjoubi'],['flytrap','kasa'],['hekuso','loveletter'],['gobou','pudding'],['torikabuto','tamanegi'],['ajisai','furare'],['kuroyuri','juken'],['colchicum','oshi'],['okura','gacha']];
+const RR={1:'N',2:'R',3:'SR',4:'SSR',5:'UR'};
+const NEGW=/呪|復讐|死|恨|悪意|敵意|軽蔑|絶望|裏切|報復|失|嫉妬|憎|不幸|孤独|寂し|偽り|ごまかし|愚か|危険|中傷|不信|別離|別れ|情事|密会|疑惑|浮気|移り気|うぬぼれ|煩悩|策略|貪欲|戦い|当惑|悲し|悲哀|犠牲|見捨て|破れ|望みのない|不誠実|薄らぐ|離れゆく|報われぬ|いじめないで|触らないで|身が細る|尊敬しているが|過ぎ去った|人嫌い|警告|傷つく|捕らえる|ずる賢い|あなたを離さない|冷淡|気取り屋|おしゃべり|過度を慎め/;
+const ANGLES=['意味の反転','主語のすり替え','時制の読み替え','字の分解','語感や響き','花の形や色','花の生態や性質','花の名前や別名','伝説や由来','花の用途','数字や規模の誇張','謎の新説'];
+const hash=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h};
+/* v3: 呼び出しごとに「使う花言葉」と「こじつけの切り口」を割り当て、同じ花の24本が同じ手口に揃わないようにする */
+function assign(f,r,extra){
+  const ri=RS.findIndex(x=>x.id===r.id)+(extra||0)*7;
+  const neg=f.m.filter(x=>NEGW.test(x)), worst=neg[0]||f.m[0], others=f.m.filter(x=>x!==worst);
+  const meaning=(others.length&&ri%2)?others[Math.floor(ri/2)%others.length]:worst;
+  const angle=ANGLES[(ri+hash('a'+f.id))%ANGLES.length];
+  return{meaning,angle};
+}
+
+/* ===== AI版（claude.ai「君に涙は、似合わない」）から移植。文言は変えない ===== */
+const TSK={1:'普通にいい話で逆に困る。',2:'ちょっと無理があるが、まあ許せる範囲。',3:'苦しい。かなり苦しい。',4:'無理筋だが、本人は自信満々。',5:'これで成立するなら何でも成立する。'};
+const TSK_BAN=/解決|元の問題|根本|何も変わ|状況は変わ|現実は変わ|問題は残|戻ってこない|返ってこない|戻らない|帰ってこない|(?:[うくぐすつぬぶむる]|すん)な(?:[。！!、…」]|$)/;
+function buildPrompt(f,r,a){
+  return `あなたはノベルゲームのシナリオライターです。以下のギャグ場面のセリフを書いてください。
+
+【お約束】泣いている女の子に、キザな男が花を贈り、花言葉を引用して慰める。女の子は最後にうっとりして「ｽﾃｷ……」と言う。
+【今回の肝】贈る花はガチャでランダムに決まった。どんな花言葉でも、男は大真面目に、強引なこじつけで『いい話』にしてしまう。花言葉なんて曖昧だから、何でも成立してしまう——という皮肉が笑いどころ。
+
+登場人物：蒼真（男。キザで自信満々。一人称は「俺」。ひよりを「君」と呼ぶ）／ひより（泣いている女の子）
+場面：放課後、夕暮れの公園のベンチ。
+ひよりは蒼真と同級生で、タメ口で話し、蒼真を「蒼真くん」と呼ぶ。
+泣いている理由：${r.text}
+贈る花：${f.name}（${f.kana}）
+この花の実在する花言葉：${f.m.join('、')}
+${f.odd?`これは色物枠。特徴：${f.kana}。この特徴にも触れること（ひよりがツッコミかけてもよい）。\n`:''}こじつけ難易度：${f.d}/5
+今回使う花言葉：${a.meaning}
+こじつけの切り口：${a.angle}（これを軸にする。ほかの手口を混ぜてもよい）
+
+ルール：
+- 1行目は蒼真の、ベタで気障な第一声（「君に涙は似合わないよ」系。言い回しは毎回変える）。
+- 蒼真は花の名前と、「今回使う花言葉」を、そのままの言葉で口にする。ぼかしたり言い換えたりしない。
+- ネガティブな花言葉なら、ひよりが一度だけ素で戸惑う（短く）。
+- その後、蒼真が苦しい理屈（意味の反転、主語のすり替え、時制の読み替え、語感、謎の新説など）で、泣いている理由とも絡めて感動的な話にねじ曲げる。本人はまったくふざけておらず大真面目。理屈は苦しいほど良い。
+- 花言葉がポジティブな場合は、泣いている理由との結びつけ方を強引にする。
+- 地の文（narration）を1〜2行入れてもよい。ただし「夕暮れの公園で〜」のような場面の説明は、ゲーム側で表示済みなので書かない。
+- 全体で6〜9行。1行は全角70文字以内。セリフに「」は付けない。
+- 最後の「ｽﾃｷ……」は書かない（こちらで付ける）。ひよりの最後のセリフは、陥落寸前の短い反応にする。
+- 下品・暴力的・差別的な表現は使わない。
+- 「泣いている理由（元の問題）は解決していない」「〇〇は戻ってこない」「状況は何も変わっていない」型のツッコミは禁止（毎回それになりがちなため）。
+- 「〇〇するな。」「盛るな。」のような、命令・禁止口調（〜な。）のツッコミも禁止。
+- 1行目の第一声で、夕焼け・夕陽を使った言い回しは避ける（毎回それになりがちなため）。
+
+ツッコミ（tsukkomi）の決まり：
+- 結果画面に出る、この場面を見ていた誰かの一言。狙いは笑い。ユーモアを全力で発揮する。
+- 型にはまるほどつまらない。ありがちな言い回しから外れるほど良い。掛詞・見立て・意外な角度からのオチなど、上手いことを言えたら最高。
+- 一番おかしい一点に絞る。台本のあらすじをまとめない。
+- 避ける言い回し：理屈の誤りを正論で正す／「根拠がない」「〜は違う」「〜のはず」のような事実確認／「いつの間にか〜になっていた」型の要約／「花屋が見たら」「〜のが悔しい」「〜すぎる」のような決まり文句／登場人物への呼びかけ。
+- 句読点は使わない。「、」も文末の「。」も付けない。2文にするときは全角スペースで区切る。40文字以内。
+- 候補を頭の中で3つ考え、一番笑えるものだけを書く。
+
+次のJSONだけを返す（他の文章は不要）：
+{"lines":[{"who":"boy","text":"..."},{"who":"girl","text":"..."},{"who":"narration","text":"..."}],"used_meaning":"引用した花言葉","technique":"使ったこじつけ技法の名前（12文字以内、それっぽく）","kojitsuke":理屈の無理やり度を0〜100の整数で,"tsukkomi":"上の決まりに従ったツッコミ（40文字以内）"}`;
+}
+function buildTskPrompt(f,r,d){
+  const W={boy:'蒼真',girl:'ひより',narration:'地の文'};
+  return `ノベルゲームのギャグ場面に付ける、ツッコミの一言を書いてください。笑いを取る一言がほしい。
+
+場面：泣いている女の子（ひより）に、キザな男（蒼真）が花を贈り、花言葉を強引にこじつけて慰める。最後にひよりは「ｽﾃｷ……」と陥落する。
+泣いている理由：${r.text}
+贈った花：${f.name}（${f.kana}）
+台本：
+${d.lines.map(l=>W[l.who]+'：'+l.text).join(String.fromCharCode(10))}
+ひより：ｽﾃｷ……
+
+${TR}
+- 命令・禁止口調（〜な。）、「元の問題は解決していない」型は使わない。
+
+次のJSONだけを返す：{"tsukkomi":"..."}`;
+}
+function buildCandPrompt(f,r,d){
+  return buildTskPrompt(f,r,d).replace('- 候補を頭の中で3つ考え、一番笑えるものだけを書く。','').replace('次のJSONだけを返す：{"tsukkomi":"..."}',
+    '今回は候補を5つ書く。5つはそれぞれ違う角度から攻める（同じオチの言い換えは不可）。'+String.fromCharCode(10,10)+'次のJSONだけを返す：{"candidates":["...","...","...","...","..."]}');
+}
+const TR=`ツッコミ（tsukkomi）の決まり：
+- 結果画面に出る、この場面を見ていた誰かの一言。狙いは笑い。ユーモアを全力で発揮する。
+- 型にはまるほどつまらない。ありがちな言い回しから外れるほど良い。掛詞・見立て・意外な角度からのオチなど、上手いことを言えたら最高。
+- 一番おかしい一点に絞る。台本のあらすじをまとめない。
+- 避ける言い回し：理屈の誤りを正論で正す／「根拠がない」「〜は違う」「〜のはず」のような事実確認／「いつの間にか〜になっていた」型の要約／「花屋が見たら」「〜のが悔しい」「〜すぎる」のような決まり文句／登場人物への呼びかけ。
+- 句読点は使わない。「、」も文末の「。」も付けない。2文にするときは全角スペースで区切る。40文字以内。
+- 候補を頭の中で3つ考え、一番笑えるものだけを書く。`;
+const tidyTsk=s=>String(s).trim().replace(/[、，]/g,'').replace(/[。．]+$/,'').replace(/[。．]\s*/g,'　');
+function validate(o,f){
+  if(typeof o==='string'){try{o=JSON.parse(o)}catch(e){return null}}
+  if(!o||!Array.isArray(o.lines)||o.lines.length<3)return null;
+  const lines=[];
+  for(const l of o.lines){
+    if(!l)continue;
+    const who=(l.who==='boy'||l.who==='girl')?l.who:'narration';
+    let tx=String(l.text==null?'':l.text).trim().replace(/^[「『]+/,'').replace(/[」』]+$/,'').trim();
+    if(!tx||/^ｽﾃｷ/.test(tx))continue;
+    lines.push({who,text:tx});if(lines.length>=11)break;
+  }
+  if(lines.length<3)return null;
+  let k=Number(o.kojitsuke);k=isFinite(k)?Math.max(0,Math.min(100,Math.round(k))):f.d*18;
+  const rawT=String(o.tsukkomi||'');
+  return{lines,used_meaning:String(o.used_meaning||f.m[0]),technique:String(o.technique||'強行突破'),kojitsuke:k,
+    tsukkomi:(rawT&&!TSK_BAN.test(rawT))?tidyTsk(rawT).slice(0,80):TSK[f.d],tsukkomiBanned:!!rawT&&TSK_BAN.test(rawT)};
+}
+/* ===== 移植ここまで ===== */
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let queue=PILOT.map(x=>x.slice()), running=false, ctl=null, sample=null, db=null, docs=[], filt='all';
+try{const q=JSON.parse(localStorage.getItem('kobo-queue')||'null');if(Array.isArray(q))queue=q.filter(x=>FLM[x[0]]&&RSM[x[1]])}catch(e){}
+const saveQ=()=>{try{localStorage.setItem('kobo-queue',JSON.stringify(queue))}catch(e){}};
+
+$('#selF').innerHTML=FL.map(f=>`<option value="${f.id}">★${f.d} ${esc(f.name)}${f.odd?'（色物）':''}</option>`).join('');
+$('#selR').innerHTML=RS.map(r=>`<option value="${r.id}">${esc(r.text)}</option>`).join('');
+function drawQueue(){
+  $('#queue').innerHTML=queue.length?queue.map(([f,r],i)=>`<span class="chip${running&&i===0?' run':''}">${esc(FLM[f].name)} × ${esc(RSM[r].cause)}<button type="button" data-i="${i}" aria-label="キューから外す">✕</button></span>`).join(''):'<span class="status">キューは空。</span>';
+  $('#bRun').disabled=running||!queue.length||!sample||!db;
+  $('#bStop').disabled=!running;
+}
+$('#queue').addEventListener('click',e=>{const b=e.target.closest('button[data-i]');if(!b||running)return;queue.splice(+b.dataset.i,1);saveQ();drawQueue()});
+$('#bNext').onclick=()=>{
+  if(running)return;
+  const have=new Set(docs.filter(d=>/^artifact-v[3-6]$/.test(d.prompt)).map(d=>d.fid+'|'+d.rid)), inQ=new Set(queue.map(x=>x[0]+'|'+x[1]));
+  const N=+$('#selN').value, order=FL.slice().sort((a,b)=>b.d-a.d||(a.odd?1:0)-(b.odd?1:0));
+  let n=0;
+  /* 花を混ぜて積む：1巡目は各花に1本ずつ、2巡目も1本ずつ……（理由は花ごとにずらす） */
+  outer:for(let k=0;k<RS.length;k++){for(const f of order){const r=RS[(k+hash(f.id))%RS.length],key=f.id+'|'+r.id;
+    if(!have.has(key)&&!inQ.has(key)){queue.push([f.id,r.id]);inQ.add(key);if(++n>=N)break outer}}}
+  saveQ();drawQueue();$('#msg').textContent=n?`未生成の組み合わせを${n}本キューに入れた（★の高い花から、花を混ぜて）。`:'未生成の組み合わせはもうない。';
+};
+$('#bAdd').onclick=()=>{queue.push([$('#selF').value,$('#selR').value]);saveQ();drawQueue()};
+
+function status(){
+  const n=docs.length,ok=docs.filter(d=>d.status==='ok').length,ng=docs.filter(d=>d.status==='ng').length;
+  $('#status').innerHTML=(!sample?'Claude を呼べない環境です（claude.ai で開いてください）。':!db?'保存先に接続できません。':'')+` 台本 <b>${n}</b> 本（採用 <b>${ok}</b>・ボツ <b>${ng}</b>・未判定 <b>${n-ok-ng}</b>）`;
+}
+function cardHTML(d){
+  const f=FLM[d.fid]||{name:d.fid,d:0},r=RSM[d.rid]||{cause:d.rid,line:''};
+  const lines=[{who:'girl',text:r.line,fixed:1}].concat(d.lines||[]).concat([{who:'girl',text:'ｽﾃｷ……',fixed:1}]);
+  const W={boy:'蒼真',girl:'ひより',narration:'地の文'};
+  return `<article class="card" data-id="${esc(d._id)}">
+  <header><h2>${esc(f.name)} × ${esc(r.cause)}</h2><span class="meta">${RR[f.d]||''}　『${esc(d.used_meaning)}』／${esc(d.technique)}／こじつけ度 ${d.kojitsuke}%${d.angle?'／切り口：'+esc(d.angle):''}</span>
+  <span class="badge ${d.status||'new'}">${d.status==='ok'?'採用':d.status==='ng'?'ボツ':'未判定'}</span></header>
+  <div class="script">${lines.map(l=>`<div class="ln ${l.who}${l.fixed?' fixed':''}"><span class="w">${W[l.who]}</span><span class="t">${esc(l.text)}</span></div>`).join('')}</div>
+  <div class="tsk">${esc(d.tsukkomi)}${d.tsukkomiOld?'<div class="meta">前のツッコミ：'+esc(d.tsukkomiOld)+'</div>':''}${d.tsukkomiBanned?'<span class="meta">（禁止型だったため定型に差し替え）</span>':''}</div>
+  ${(d.cands&&d.cands.length)?`<div class="cands"><span class="meta">候補（押すと差し替えて採用）</span>${d.cands.map((c,i)=>`<button type="button" class="cand" data-act="pick" data-i="${i}">${esc(c)}</button>`).join('')}</div>`:''}
+  <div class="acts"><button type="button" class="ok" data-act="ok">採用</button><button type="button" class="ng" data-act="ng">ボツ</button><button type="button" data-act="tsk">ツッコミだけ作り直す</button><button type="button" data-act="cand">候補を5つ出す</button><button type="button" data-act="again">同じ組み合わせをもう1本</button></div>
+  </article>`;
+}
+function drawList(){
+  status();
+  const v=docs.filter(d=>filt==='all'||(d.status||'new')===filt).sort((a,b)=>(a.fid+a.rid).localeCompare(b.fid+b.rid)||a.createdAt-b.createdAt);
+  $('#list').innerHTML=v.length?v.map(cardHTML).join(''):'<div class="empty">該当する台本はまだない。</div>';
+}
+document.querySelector('.filter').addEventListener('click',e=>{const b=e.target.closest('button[data-f]');if(!b)return;filt=b.dataset.f;document.querySelectorAll('.filter button').forEach(x=>x.classList.toggle('on',x===b));drawList()});
+$('#list').addEventListener('click',async e=>{
+  const b=e.target.closest('button[data-act]');if(!b||!db)return;
+  const id=b.closest('.card').dataset.id,d=docs.find(x=>x._id===id);if(!d)return;
+  if(b.dataset.act==='again'){if(!running){queue.unshift([d.fid,d.rid]);saveQ();drawQueue();$('#msg').textContent='キューの先頭に追加した。「キューを順に生成」で作る。'}return}
+  if(b.dataset.act==='pick'){const c=(d.cands||[])[+b.dataset.i];if(!c)return;b.disabled=true;
+    try{await db.collection('scripts').doc(id).update({tsukkomi:c,tsukkomiOld:d.tsukkomiOld||d.tsukkomi,cands:[],status:'ok'})}catch(err){$('#msg').textContent='保存できなかった（'+(err&&err.code||'不明')+'）。'}
+    return}
+  if(b.dataset.act==='cand'){if(running)return;b.disabled=true;$('#msg').textContent='候補を考えている……';
+    try{const f=FLM[d.fid],r=RSM[d.rid];ctl=new AbortController();
+      const o=await sample.json(buildCandPrompt(f,r,d),{modelTier:'default',cache:false,signal:ctl.signal});
+      const cs=(o&&Array.isArray(o.candidates)?o.candidates:[]).map(x=>tidyTsk(x).slice(0,80)).filter(x=>x&&!TSK_BAN.test(x)).slice(0,5);
+      if(!cs.length)throw{code:'bad_shape'};
+      await db.collection('scripts').doc(id).update({cands:cs});$('#msg').textContent='候補を出した。カードの候補を押すと差し替わる。'}
+    catch(err){$('#msg').textContent=(CODE[err&&err.code]||'うまくいかなかった（'+(err&&err.code||'不明')+'）。')}
+    b.disabled=false;return}
+  if(b.dataset.act==='tsk'){if(running)return;b.disabled=true;$('#msg').textContent='ツッコミを作り直している……';
+    try{await redoTsk(d);$('#msg').textContent='ツッコミを作り直した。'}catch(err){$('#msg').textContent=(CODE[err&&err.code]||'うまくいかなかった（'+(err&&err.code||'不明')+'）。')}
+    b.disabled=false;return}
+  b.disabled=true;
+  try{await db.collection('scripts').doc(id).update({status:b.dataset.act})}catch(err){$('#msg').textContent='保存できなかった（'+(err&&err.code||'不明')+'）。'}
+  b.disabled=false;
+});
+
+async function generateOne(fid,rid){
+  const f=FLM[fid],r=RSM[rid];
+  const a=assign(f,r,docs.filter(d=>d.fid===fid&&d.rid===rid&&/^artifact-v[3-6]$/.test(d.prompt)).length);
+  ctl=new AbortController();
+  const o=await sample.json(buildPrompt(f,r,a),{modelTier:'default',cache:false,signal:ctl.signal});
+  const v=validate(o,f);
+  if(!v)throw{code:'bad_shape'};
+  const now=Date.now();
+  await db.collection('scripts').doc(`${fid}__${rid}__${now}`).set({fid,rid,...v,status:'new',createdAt:now,prompt:'artifact-v6',assignedMeaning:a.meaning,angle:a.angle});
+}
+async function redoTsk(d){
+  const f=FLM[d.fid],r=RSM[d.rid];ctl=new AbortController();
+  const o=await sample.json(buildTskPrompt(f,r,d),{modelTier:'default',cache:false,signal:ctl.signal});
+  const t=String(o&&o.tsukkomi||'').trim();
+  if(!t||TSK_BAN.test(t))throw{code:'bad_shape'};
+  await db.collection('scripts').doc(d._id).update({tsukkomi:tidyTsk(t).slice(0,80),tsukkomiOld:d.tsukkomiOld||d.tsukkomi,tsukkomiRev:(d.tsukkomiRev||0)+1,status:'new'});
+}
+const CODE={not_granted:'Claude の利用が許可されなかった。',rate_limited:'混み合っているか利用上限に達した。少し待ってから押し直してほしい。',invalid_json:'返答がJSONにならなかった。押し直せば作り直す。',bad_shape:'返答の形式が崩れていた。押し直せば作り直す。',refused:'この組み合わせは断られた。',cancelled:'止めた。',session_expired:'ログインし直してほしい。'};
+$('#bRun').onclick=async()=>{
+  if(running||!sample||!db)return;
+  running=true;$('#msg').textContent='';drawQueue();
+  let done=0;
+  while(running&&queue.length){
+    const [fid,rid]=queue[0];
+    $('#prog').textContent=`生成中：${FLM[fid].name} × ${RSM[rid].cause}（Claude が考えている……）`;
+    try{await generateOne(fid,rid);queue.shift();saveQ();done++;drawQueue()}
+    catch(e){$('#msg').textContent=(CODE[e&&e.code]||'うまくいかなかった（'+(e&&e.code||'不明')+'）。')+' キューはそのまま残してある。';break}
+  }
+  running=false;ctl=null;$('#prog').textContent=done?`${done} 本できた。`:'';drawQueue();
+};
+$('#bTskNg').onclick=async()=>{
+  if(running||!sample||!db)return;
+  const targets=docs.filter(d=>d.status==='ng');if(!targets.length){$('#msg').textContent='ボツの台本はない。';return}
+  running=true;drawQueue();$('#msg').textContent='';let done=0;
+  for(const d of targets){if(!running)break;
+    $('#prog').textContent=`ツッコミ作り直し中：${done+1}/${targets.length}（${FLM[d.fid].name} × ${RSM[d.rid].cause}）`;
+    try{await redoTsk(d);done++}catch(e){$('#msg').textContent=(CODE[e&&e.code]||'うまくいかなかった（'+(e&&e.code||'不明')+'）。')+' 残りはボツのまま。';break}}
+  running=false;ctl=null;$('#prog').textContent=done?`${done} 本のツッコミを作り直した（未判定に戻してある）。`:'';drawQueue();
+};
+$('#bStop').onclick=()=>{running=false;if(ctl)ctl.abort()};
+
+drawQueue();
+(async()=>{
+  const C=window.claude;
+  sample=C&&C.use?await C.use('sample'):null;
+  db=C&&C.use?await C.use('db'):null;
+  drawQueue();status();
+  if(db){
+    db.collection('scripts').onSnapshot(snap=>{docs=snap.docs.map(x=>({_id:x.id,...x.data()}));drawList()},err=>{$('#msg').textContent='保存先との接続が切れた（'+err.code+'）。再読み込みしてほしい。'});
+  }
+})();
+</script>
