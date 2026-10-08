@@ -1,0 +1,1059 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><title>君に涙は、似合わない — 花言葉こじつけシミュレータ</title><meta name="description" content="泣いている女の子に、ガチャで引いた花を贈る。どんな花言葉でも、強引なこじつけで必ず「ｽﾃｷ……」になるノベルゲーム風シミュレータ。"><meta property="og:title" content="君に涙は、似合わない — 花言葉こじつけシミュレータ"><meta property="og:description" content="どんな花言葉でも、だいたい成立する。"><meta property="og:type" content="website"><meta name="theme-color" content="#14102e"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="君に涙は"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%A5%80%3C/text%3E%3C/svg%3E"></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;700;800&family=Zen+Maru+Gothic:wght@400;500;700&display=swap">
+<style>
+/* Layout: 固定論理解像度のステージを画面に合わせて等倍率で拡大縮小。余白は背景SVGのぼかし複製で埋める。 */
+:root{
+  --night:#14102e; --dusk:#2a2150; --veil:rgba(20,16,50,.88);
+  --rose:#e0708f; --rose2:#a73f6b; --gold:#d9b36a; --cream:#f6ecff; --ink:#160f2a;
+  --font-serif:'Shippori Mincho B1','Hiragino Mincho ProN','Yu Mincho','MS PMincho',serif;
+  --font-ui:'Zen Maru Gothic','Hiragino Maru Gothic ProN','Hiragino Sans','Yu Gothic',sans-serif;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--night);color:var(--cream);font-family:var(--font-ui);overflow:hidden;position:relative;-webkit-tap-highlight-color:transparent}
+#wrap{position:absolute;inset:0;overflow:hidden;background:var(--night);user-select:none;-webkit-user-select:none}
+#bgfill{position:absolute;inset:-6%;filter:blur(28px) brightness(.42)}
+#bgfill svg{width:100%;height:100%;display:block}
+#stage{position:absolute;left:50%;top:50%;transform-origin:center center;overflow:hidden;background:#2a2a5e;box-shadow:0 0 40px rgba(0,0,0,.6)}
+#stage *{box-sizing:border-box}
+button{font-family:inherit;color:inherit}
+button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+/* --- stage layers --- */
+#bg{position:absolute;inset:0;z-index:0}
+#bg svg{width:100%;height:100%;display:block}
+.petal{fill:#f7b6cc;opacity:.85;animation:fall linear infinite;transform-box:fill-box;transform-origin:center}
+@keyframes fall{from{transform:translate(0,-80px) rotate(0)}to{transform:translate(-420px,1020px) rotate(540deg)}}
+#veil{position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,rgba(255,196,226,.82),rgba(255,140,200,.62));opacity:0;transition:opacity 1.2s;pointer-events:none}
+.pink #veil{opacity:1}
+#cast{position:absolute;inset:0;z-index:5;pointer-events:none}
+.char{position:absolute;bottom:0}
+.char svg{height:100%;width:auto;display:block;overflow:visible;filter:drop-shadow(3px 0 0 rgba(255,168,110,.6))}
+.char .sil{fill:var(--ink)}
+.char .hair{fill:#2b1d48}
+.char .ln{stroke:var(--ink);fill:none;stroke-linecap:round;stroke-linejoin:round}
+#girl .p-happy,#girl.happy .p-cry{display:none}
+#girl.happy .p-happy{display:inline}
+#girl.happy svg{filter:drop-shadow(0 0 7px #ff8fc8) drop-shadow(0 0 16px #ffc2e2)}
+#girl.cry svg{animation:bob 1.1s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(3px)}}
+.tear{fill:#9bd1ff;animation:tear 1.2s ease-in infinite}
+.tear.t2{animation-delay:.5s}
+@keyframes tear{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(46px);opacity:0}}
+#boy .p-reach,#boy.reach .p-norm{display:none}
+#boy.reach .p-reach{display:inline}
+#sparks{position:absolute;inset:0;z-index:8;pointer-events:none;overflow:hidden}
+.sp{position:absolute;bottom:-20px;color:#fff;text-shadow:0 0 8px #ffd9ee;animation:rise linear forwards;opacity:0}
+.sp.b{border:2px solid rgba(255,255,255,.8);border-radius:50%;background:rgba(255,255,255,.18);text-shadow:none}
+@keyframes rise{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:1}100%{transform:translateY(-640px) scale(1.1);opacity:0}}
+#dim{position:absolute;inset:0;z-index:9;background:rgba(10,6,30,.55);opacity:0;pointer-events:none;transition:opacity .3s}
+#dim.on{opacity:1}
+/* gacha card */
+#gacha{position:absolute;z-index:12;left:50%;transform:translateX(-50%);perspective:900px;cursor:pointer}
+.card{position:relative;width:var(--cw);height:calc(var(--cw)*1.44);transform-style:preserve-3d;transition:transform .7s cubic-bezier(.3,1.3,.5,1)}
+.card.shake{animation:shake .45s ease-in-out infinite}
+@keyframes shake{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+.card.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:10px;overflow:hidden;border:3px solid var(--gold);box-shadow:0 8px 30px rgba(0,0,0,.6)}
+.face.back{background:repeating-linear-gradient(45deg,#2c2160 0 12px,#3d2d7c 12px 24px);display:grid;place-items:center;font:800 calc(var(--cw)*.55)/1 var(--font-serif);color:var(--gold);text-shadow:0 0 18px rgba(217,179,106,.7)}
+.face.front{transform:rotateY(180deg);background:#fbf4ea;color:#2a2038;display:flex;flex-direction:column;--rc:#8b97a8}
+.face.front.ur{background:linear-gradient(160deg,#1a1224,#2d1020);color:#f6ecff}
+.face.front{border-color:var(--rc)}
+.rband{background:var(--rc);color:#fff;display:flex;justify-content:space-between;align-items:center;padding:3px 8px;font:700 calc(var(--cw)*.075)/1.2 var(--font-ui);letter-spacing:.06em}
+.rband b{font-family:var(--font-serif);font-size:1.25em}
+.cfl{flex:1;min-height:0;padding:4px 10px 0}
+.cfl svg{width:100%;height:100%;display:block}
+.cname{text-align:center;font:800 calc(var(--cw)*.105)/1.2 var(--font-serif);padding:0 6px}
+.ckana{text-align:center;font:500 calc(var(--cw)*.062)/1.3 var(--font-serif);opacity:.75;padding:0 8px 2px}
+.cm{font:500 calc(var(--cw)*.062)/1.45 var(--font-serif);padding:4px 8px 8px;text-align:center;border-top:1px dashed rgba(128,128,128,.5);margin:0 8px}
+.oddtag{position:absolute;right:-26px;top:20px;background:var(--gold);color:#2a2038;font:800 calc(var(--cw)*.06)/1 var(--font-ui);padding:3px 30px;transform:rotate(38deg);letter-spacing:.1em}
+.stars{letter-spacing:1px;font-size:.9em}
+/* choices */
+#choices{position:absolute;z-index:14;left:0;right:0;top:var(--chTop);display:flex;flex-direction:column;align-items:center;gap:12px}
+.band{width:70%;border:0;background:linear-gradient(90deg,transparent,rgba(24,18,60,.9) 14%,rgba(24,18,60,.9) 86%,transparent);color:var(--cream);font:600 var(--chFs)/1.3 var(--font-serif);padding:14px 10px;cursor:pointer;border-top:1px solid rgba(217,179,106,.45);border-bottom:1px solid rgba(217,179,106,.45);letter-spacing:.08em;transition:transform .15s}
+.band:hover,.band:focus{transform:scale(1.03);color:#fff;background:linear-gradient(90deg,transparent,rgba(120,40,90,.92) 14%,rgba(120,40,90,.92) 86%,transparent)}
+.band:hover::before,.band:focus::before{content:'❀ ';color:var(--gold)}
+.band:hover::after,.band:focus::after{content:' ❀';color:var(--gold)}
+/* textbox */
+#tb{position:absolute;z-index:16;left:6%;width:88%;bottom:var(--tbBottom);height:var(--tbH);background:rgba(18,13,48,.84);border:1.5px solid var(--gold);padding:var(--tbPad);cursor:pointer;outline:none;color:var(--cream);box-shadow:0 0 0 3px rgba(18,13,48,.5),0 8px 24px rgba(0,0,0,.45)}
+#tb::before,#tb::after{content:'';position:absolute;width:22px;height:22px;border:2px solid var(--gold)}
+#tb::before{left:-6px;top:-6px;border-right:0;border-bottom:0}
+#tb::after{right:-6px;bottom:-6px;border-left:0;border-top:0}
+#tbName{position:absolute;left:22px;top:-19px;background:linear-gradient(90deg,var(--rose2),var(--rose));color:#fff;padding:3px 22px;font:700 var(--nameFs)/1.4 var(--font-serif);letter-spacing:.3em;border:1px solid var(--gold);text-shadow:0 1px 2px rgba(0,0,0,.4)}
+#tbText{font:500 var(--tbFs)/1.7 var(--font-serif);letter-spacing:.04em;white-space:pre-wrap;overflow:hidden;height:100%}
+#tb.nar #tbText{color:#d9cdea;font-style:normal}
+#tb.big #tbText{font-size:calc(var(--tbFs)*2.2);font-weight:800;text-align:center;color:#ffe6f2;text-shadow:0 0 16px #ff8fc8;line-height:1.3;padding-top:.1em}
+#arrow{position:absolute;right:16px;bottom:8px;color:var(--gold);animation:arr .8s ease-in-out infinite;font-size:16px}
+@keyframes arr{50%{transform:translateY(5px)}}
+#ctrl{position:absolute;z-index:17;left:6%;width:88%;bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+#mode{display:none!important;font:500 11px/1 var(--font-ui);color:rgba(255,255,255,.75);background:rgba(0,0,0,.35);padding:5px 8px;border-radius:10px;white-space:nowrap}
+#ctrlBtns{display:flex;gap:5px}
+#ctrl button{white-space:nowrap;font:500 12px/1 var(--font-ui);padding:6px 10px;border-radius:12px;border:1px solid rgba(217,179,106,.6);background:rgba(18,13,48,.8);color:var(--cream);cursor:pointer}
+#ctrl button.on{background:var(--rose);color:#fff;border-color:#fff}
+/* title */
+#title{position:absolute;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--tgap);background:radial-gradient(ellipse at 50% 40%,rgba(20,14,50,.45),rgba(12,8,32,.9));text-align:center}
+#title h1{margin:0;font:800 var(--h1) var(--font-serif);letter-spacing:.14em;color:#fff;text-shadow:0 0 22px rgba(224,112,143,.8),0 3px 0 #7a2a52;padding-left:.14em}
+#title h1 em{font-style:normal;color:var(--rose)}
+#title h2{margin:0;font:600 var(--h2) var(--font-serif);letter-spacing:.3em;color:var(--gold)}
+#title .rule{width:46%;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.menu{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.menu button{width:240px;font:700 20px/1 var(--font-serif);letter-spacing:.3em;padding:13px 0 13px .3em;background:rgba(20,14,50,.7);border:1px solid var(--gold);color:var(--cream);cursor:pointer}
+.menu button:hover,.menu button:focus{background:var(--rose2);color:#fff}
+#title small{font:400 12px/1.5 var(--font-ui);color:rgba(246,236,255,.65)}
+/* result */
+#result{position:absolute;inset:0;z-index:35;background:rgba(14,10,40,.96);display:flex;align-items:center;justify-content:center;padding:var(--rpad)}
+#result[hidden]{display:none}
+.rbox{position:relative;width:100%;max-height:100%;display:grid;grid-template-columns:var(--rcols);gap:var(--rgap);align-items:center}
+.rfl{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.rfl svg{width:var(--rfw);height:auto}
+.rfl .nm{font:800 26px/1.2 var(--font-serif)}
+.chip{display:inline-block;color:#fff;font:700 13px/1 var(--font-ui);padding:4px 10px;border-radius:10px;letter-spacing:.08em}
+.rinfo{display:flex;flex-direction:column;gap:9px;min-width:0}
+.quote{font:700 var(--qfs)/1.5 var(--font-serif);color:#ffe6f2}
+.row{display:grid;grid-template-columns:7.2em 1fr;gap:8px;align-items:center;font:500 13px/1.4 var(--font-ui)}
+.row .k{color:var(--gold);letter-spacing:.1em}
+.bar{height:12px;background:rgba(255,255,255,.14);border-radius:6px;overflow:hidden;position:relative}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--rose2),var(--rose));transition:width 1.4s cubic-bezier(.2,.8,.2,1);border-radius:6px}
+.bar i.s{background:linear-gradient(90deg,#ff8fc8,#ffd27a)}
+.bar b{position:absolute;right:6px;top:-1px;font:700 10px/12px var(--font-ui);color:#fff}
+.tsk{font:500 14px/1.6 var(--font-serif);color:#d9cdea;border-left:3px solid var(--rose);padding-left:10px}
+.total{font:500 12px/1 var(--font-ui);color:rgba(246,236,255,.7)}
+.rbtns{display:flex;flex-wrap:wrap;gap:8px}
+.rbtns button,.mbtn{font:700 14px/1 var(--font-serif);padding:10px 14px;background:rgba(20,14,50,.85);border:1px solid var(--gold);color:var(--cream);cursor:pointer;letter-spacing:.1em}
+.rbtns button:first-child{background:var(--rose2);border-color:#fff}
+.rbtns button:hover,.mbtn:hover{background:var(--rose);color:#fff}
+.stamp{position:absolute;right:0;top:calc(var(--stTop));width:var(--stW);aspect-ratio:1;border-radius:50%;border:5px double #d4183c;color:#d4183c;display:grid;place-items:center;font:800 calc(var(--stW)*.34)/1 var(--font-serif);transform:rotate(-14deg) scale(3);opacity:0;pointer-events:none;background:rgba(255,255,255,.04);letter-spacing:.05em}
+.stamp.go{animation:stamp .5s .25s cubic-bezier(.3,1.6,.5,1) forwards}
+@keyframes stamp{to{transform:rotate(-14deg) scale(1);opacity:.95}}
+/* modals */
+.modal{position:absolute;inset:0;z-index:40;background:rgba(10,7,30,.82);display:flex;align-items:center;justify-content:center}
+.modal[hidden]{display:none}
+.mbox{width:90%;height:88%;background:var(--dusk);border:1.5px solid var(--gold);display:flex;flex-direction:column;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+.mhead{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(217,179,106,.4);font:700 20px/1 var(--font-serif);letter-spacing:.2em}
+.mhead small{font:500 12px/1 var(--font-ui);letter-spacing:.05em;color:var(--gold);margin-left:12px}
+.mx{background:none;border:1px solid var(--gold);width:34px;height:34px;font-size:18px;cursor:pointer;line-height:1}
+.mbody{flex:1;min-height:0;overflow:auto;padding:14px 16px}
+#logList{display:flex;flex-direction:column;gap:10px}
+.lg .n{display:inline-block;background:var(--rose2);padding:1px 10px;font:700 12px/1.5 var(--font-serif);margin-right:8px;letter-spacing:.2em}
+.lg{font:500 14px/1.7 var(--font-serif);overflow-wrap:anywhere}
+.lg.c{color:var(--gold)}
+.lg.nr{color:#c9bddc}
+.set{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.set .lb{font:700 14px/1.2 var(--font-serif);letter-spacing:.1em;color:var(--gold)}
+.segs{display:flex;flex-wrap:wrap;gap:6px}
+.seg{font:500 13px/1.2 var(--font-ui);padding:8px 12px;border:1px solid rgba(217,179,106,.6);background:rgba(20,14,50,.6);cursor:pointer}
+.seg.on{background:var(--rose);border-color:#fff;color:#fff}
+.set p{margin:0;font:400 12px/1.5 var(--font-ui);color:rgba(246,236,255,.65)}
+#zGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--zmin),1fr));gap:8px}
+.zc{border:1px solid rgba(217,179,106,.4);background:rgba(20,14,50,.7);padding:6px 4px 6px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;min-width:0;--rc:#8b97a8}
+.zc:hover{background:rgba(120,40,90,.5)}
+.zc svg{width:100%;max-width:64px;height:auto}
+.zc .zn{font:600 11px/1.2 var(--font-serif);overflow-wrap:anywhere}
+.zc .zr{font:700 10px/1 var(--font-ui);color:#fff;background:var(--rc);padding:2px 6px;border-radius:8px}
+.zc .zt{font:500 10px/1 var(--font-ui);color:var(--gold)}
+.zc.un{cursor:default}
+.zc.un .zq{font:800 28px/64px var(--font-serif);color:rgba(246,236,255,.35);height:64px}
+#zDetail{position:absolute;inset:0;background:var(--dusk);display:flex;flex-direction:column}
+#zDetail[hidden]{display:none}
+.dtl{display:grid;grid-template-columns:var(--dcols);gap:16px;align-items:center}
+.dtl svg{width:var(--dfw);height:auto;justify-self:center}
+.dtl h3{margin:0 0 6px;font:800 24px/1.3 var(--font-serif)}
+.dtl p{margin:0 0 10px;font:500 14px/1.7 var(--font-serif);overflow-wrap:anywhere}
+.dtl .k{color:var(--gold);font:700 12px/1 var(--font-ui);letter-spacing:.1em;display:block;margin-bottom:3px}
+/* modes */
+#stage.r169{--chTop:70px;--chFs:24px;--tbBottom:38px;--tbH:136px;--tbPad:18px 26px;--tbFs:21px;--nameFs:16px;--cw:178px;--h1:62px;--h2:20px;--tgap:14px;--rpad:34px 48px;--rcols:230px 1fr;--rgap:30px;--rfw:170px;--qfs:24px;--stTop:-6px;--stW:96px;--zmin:92px;--dcols:200px 1fr;--dfw:180px}
+#stage.r169 #gacha{top:28px}
+#stage.r169 #girl{left:540px;height:410px}
+#stage.r169 #boy{left:250px;height:430px}
+#stage.r43{--chTop:100px;--chFs:26px;--tbBottom:40px;--tbH:170px;--tbPad:22px 30px;--tbFs:24px;--nameFs:18px;--cw:210px;--h1:60px;--h2:22px;--tgap:18px;--rpad:50px 56px;--rcols:250px 1fr;--rgap:32px;--rfw:190px;--qfs:26px;--stTop:-8px;--stW:104px;--zmin:100px;--dcols:220px 1fr;--dfw:200px}
+#stage.r43 #gacha{top:50px}
+#stage.r43 #girl{left:540px;height:500px}
+#stage.r43 #boy{left:160px;height:520px}
+#stage.r916{--chTop:90px;--chFs:22px;--tbBottom:40px;--tbH:200px;--tbPad:20px 20px;--tbFs:20px;--nameFs:15px;--cw:210px;--h1:42px;--h2:16px;--tgap:16px;--rpad:30px 22px;--rcols:1fr;--rgap:14px;--rfw:120px;--qfs:21px;--stTop:-6px;--stW:76px;--zmin:76px;--dcols:1fr;--dfw:150px}
+#stage.r916 #gacha{top:80px}
+#stage.r916 #girl{left:232px;height:380px}
+#stage.r916 #boy{left:2px;height:400px}
+#stage.r916 .band{width:92%}
+#stage.r916 .menu button{width:210px}
+#stage.r916 #title h1{line-height:1.35}
+#stage.r916 .rbox{overflow:visible;padding-top:30px}
+#stage.r916 #ctrl button{padding:6px 7px;font-size:11px}
+#stage.r916 #mode{font-size:10px;padding:5px 6px}
+#stage.r916 .row{grid-template-columns:6.4em 1fr}
+@media (prefers-reduced-motion:reduce){.petal{animation-duration:30s!important}.card.shake{animation:none}}
+
+/* ===== スマホ対応：小さい文字・ボタンを --ui 倍に ===== */
+html,body{touch-action:manipulation;overscroll-behavior:none;-webkit-touch-callout:none;-webkit-text-size-adjust:100%}
+#stage{--ui:1}
+#ctrl button{font-size:calc(12px*var(--ui));padding:calc(6px*var(--ui)) calc(10px*var(--ui));border-radius:calc(12px*var(--ui))}
+#stage.r916 #ctrl button{font-size:calc(11px*var(--ui));padding:calc(7px*var(--ui)) calc(7px*var(--ui))}
+#ctrlBtns{gap:calc(5px*var(--ui))}
+.row{font-size:calc(13px*var(--ui))}
+.tsk{font-size:calc(14px*var(--ui))}
+.total{font-size:calc(12px*var(--ui))}
+.chip{font-size:calc(13px*var(--ui))}
+.rbtns button,.mbtn{font-size:calc(14px*var(--ui));padding:calc(10px*var(--ui)) calc(14px*var(--ui))}
+.mhead{font-size:calc(20px*var(--ui))}
+.mhead small{font-size:calc(12px*var(--ui))}
+.mx{width:calc(34px*var(--ui));height:calc(34px*var(--ui));font-size:calc(18px*var(--ui))}
+.seg{font-size:calc(13px*var(--ui));padding:calc(8px*var(--ui)) calc(12px*var(--ui))}
+.set .lb{font-size:calc(14px*var(--ui))}
+.set p{font-size:calc(12px*var(--ui))}
+.lg{font-size:calc(14px*var(--ui))}
+.zc .zn{font-size:calc(11px*var(--ui))}
+.zc .zr{font-size:calc(10px*var(--ui))}
+.dtl p{font-size:calc(14px*var(--ui))}
+#title small{font-size:calc(12px*var(--ui))}
+#arrow{font-size:calc(16px*var(--ui))}
+.bar{height:calc(12px*var(--ui));border-radius:calc(6px*var(--ui))}
+.bar b{font-size:calc(10px*var(--ui));line-height:calc(12px*var(--ui))}
+#stage.r916 .row{grid-template-columns:7.6em 1fr}
+</style>
+
+<div id="wrap">
+  <div id="bgfill" aria-hidden="true"></div>
+  <div id="stage" class="r169">
+    <div id="bg" aria-hidden="true"></div>
+    <div id="veil"></div>
+    <div id="cast">
+      <div class="char" id="boy"></div>
+      <div class="char" id="girl"></div>
+    </div>
+    <div id="sparks"></div>
+    <div id="dim"></div>
+    <div id="gacha" hidden></div>
+    <div id="choices" hidden></div>
+    <div id="tb" tabindex="-1" hidden><div id="tbName" hidden></div><div id="tbText"></div><span id="arrow" hidden>▼</span></div>
+    <div id="ctrl" hidden>
+      <div id="mode"></div>
+      <div id="ctrlBtns">
+        <button id="bLog" type="button">ログ</button>
+        <button id="bAuto" type="button">オート</button>
+        <button id="bSkip" type="button">スキップ</button>
+        <button id="bSet" type="button">設定</button>
+        <button id="bTitle" type="button">タイトル</button>
+      </div>
+    </div>
+    <div id="title">
+      <h2>花言葉こじつけシミュレータ</h2>
+      <div class="rule"></div>
+      <h1>君に涙は、<br><em>似合わない</em></h1>
+      <div class="rule"></div>
+      <div class="menu">
+        <button id="mStart" type="button">はじめる</button>
+        <button id="mZukan" type="button">花図鑑</button>
+        <button id="mSet" type="button">設定</button>
+        <button id="mFull" type="button" hidden>全画面で遊ぶ</button>
+      </div>
+      <small id="hint">Enter / Space / ↓ または クリックで進行</small>
+    </div>
+    <div id="result" hidden></div>
+    <div class="modal" id="mLog" hidden><div class="mbox"><div class="mhead"><span>ログ</span><button class="mx" type="button" data-close>✕</button></div><div class="mbody" id="logBody"><div id="logList"></div></div></div></div>
+    <div class="modal" id="mSet2" hidden><div class="mbox"><div class="mhead"><span>設定</span><button class="mx" type="button" data-close>✕</button></div><div class="mbody" id="setBody"></div></div></div>
+    <div class="modal" id="mZ" hidden><div class="mbox"><div class="mhead"><span>花図鑑<small id="zCount"></small></span><button class="mx" type="button" data-close>✕</button></div><div class="mbody"><div id="zGrid"></div></div>
+      <div id="zDetail" hidden><div class="mhead"><span id="zdT">花</span><button class="mx" type="button" id="zdBack">✕</button></div><div class="mbody" id="zdBody"></div></div></div></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const FL=[{"id":"himawari","name":"ヒマワリ","kana":"向日葵","color":"#f5c518","shape":"pointed","m":["あなただけを見つめる","憧れ","情熱"],"d":1,"n":16,"center":"#6b4220"},{"id":"gerbera","name":"ガーベラ","kana":"花車","color":"#ff6f61","shape":"round","m":["希望","常に前進"],"d":1,"n":20},{"id":"kasumi","name":"カスミソウ","kana":"霞草","color":"#ffffff","shape":"cluster","m":["感謝","清らかな心","幸福"],"d":1,"small":true},{"id":"nadeshiko","name":"ナデシコ","kana":"撫子","color":"#f28cb1","shape":"pointed","m":["純愛","大胆","才能"],"d":1,"n":5},{"id":"sakura","name":"サクラ","kana":"桜","color":"#f7c6d0","shape":"round","m":["精神の美","優美な女性"],"d":1,"n":5},{"id":"petunia","name":"ペチュニア","kana":"衝羽根朝顔","color":"#b05fc4","shape":"round","m":["心の安らぎ","あなたと一緒なら心がやわらぐ"],"d":1,"n":5},{"id":"kalanchoe","name":"カランコエ","kana":"紅弁慶","color":"#e8463a","shape":"round","m":["たくさんの小さな思い出","幸福を告げる"],"d":1,"n":4},{"id":"nejibana","name":"ネジバナ","kana":"捩花","color":"#e88fb0","shape":"spike","m":["思慕"],"d":1},{"id":"redrose","name":"赤いバラ","kana":"薔薇","color":"#c8102e","shape":"rose","m":["あなたを愛しています","情熱"],"d":1},{"id":"whiterose","name":"白いバラ","kana":"薔薇","color":"#ffffff","shape":"rose","m":["純潔","私はあなたにふさわしい"],"d":1},{"id":"pinkrose","name":"ピンクのバラ","kana":"薔薇","color":"#f4a7bb","shape":"rose","m":["感謝","上品","しとやか"],"d":1},{"id":"cosmos","name":"コスモス","kana":"秋桜","color":"#f497c0","shape":"round","m":["乙女の真心","調和","謙虚"],"d":1,"n":8},{"id":"suzuran","name":"スズラン","kana":"鈴蘭","color":"#ffffff","shape":"bell","m":["再び幸せが訪れる","純粋","謙遜"],"d":1},{"id":"margaret","name":"マーガレット","kana":"木春菊","color":"#ffffff","shape":"pointed","m":["恋占い","真実の愛","信頼"],"d":1,"n":18,"center":"#f2c230"},{"id":"freesia","name":"フリージア","kana":"浅黄水仙","color":"#f8d24a","shape":"tulip","m":["あどけなさ","親愛の情"],"d":1},{"id":"redtulip","name":"赤いチューリップ","kana":"鬱金香","color":"#e3263a","shape":"tulip","m":["愛の告白","真実の愛"],"d":1},{"id":"pinktulip","name":"ピンクのチューリップ","kana":"鬱金香","color":"#f59ab8","shape":"tulip","m":["愛の芽生え","誠実な愛"],"d":1},{"id":"ranunculus","name":"ラナンキュラス","kana":"花金鳳花","color":"#ff9a76","shape":"rose","m":["晴れやかな魅力","とても魅力的"],"d":1},{"id":"jasmine","name":"ジャスミン","kana":"茉莉花","color":"#ffffff","shape":"pointed","m":["愛らしさ","優美"],"d":1,"n":5},{"id":"kuchinashi","name":"クチナシ","kana":"梔子","color":"#fffaf0","shape":"pointed","m":["とても幸せです","喜びを運ぶ"],"d":1,"n":6,"center":"#f3e2a0"},{"id":"hanamizuki","name":"ハナミズキ","kana":"花水木","color":"#f6c9d6","shape":"round","m":["返礼","私の想いを受けてください"],"d":1,"n":4,"center":"#7da35a"},{"id":"lilac","name":"ライラック","kana":"紫丁香花","color":"#b79ce0","shape":"cluster","m":["思い出","友情","恋の芽生え"],"d":1},{"id":"iris","name":"アイリス","kana":"菖蒲","color":"#5b56c9","shape":"lily","m":["希望","良い便り","メッセージ"],"d":1},{"id":"bluestar","name":"ブルースター","kana":"瑠璃唐綿","color":"#7fb2e8","shape":"pointed","m":["幸福な愛","信じあう心"],"d":1,"n":5},{"id":"daisy","name":"デイジー","kana":"雛菊","color":"#ffffff","shape":"pointed","m":["希望","平和","純潔"],"d":1,"n":20,"center":"#f2c230"},{"id":"statice","name":"スターチス","kana":"花浜匙","color":"#8f7ad8","shape":"cluster","m":["変わらぬ心","途絶えぬ記憶"],"d":1},{"id":"chamomile","name":"カモミール","kana":"加密列","color":"#ffffff","shape":"pointed","m":["逆境に耐える","苦難の中の力"],"d":1,"n":14,"center":"#f2c230"},{"id":"alstro","name":"アルストロメリア","kana":"百合水仙","color":"#f39a5b","shape":"lily","m":["未来への憧れ","持続"],"d":1},{"id":"eustoma","name":"トルコキキョウ","kana":"土耳古桔梗","color":"#a88ce0","shape":"rose","m":["優美","希望"],"d":1},{"id":"stock","name":"ストック","kana":"紫羅欄花","color":"#d79be0","shape":"spike","m":["永遠の美","愛の絆"],"d":1},{"id":"kikyou","name":"キキョウ","kana":"桔梗","color":"#6f63d6","shape":"pointed","m":["永遠の愛","誠実","変わらぬ愛"],"d":1,"n":5},{"id":"ume","name":"ウメ","kana":"梅","color":"#e75480","shape":"round","m":["高潔","忍耐","忠実"],"d":1,"n":5},{"id":"kinmokusei","name":"キンモクセイ","kana":"金木犀","color":"#f39a2a","shape":"cluster","m":["謙虚","初恋","陶酔"],"d":1,"small":true},{"id":"bougain","name":"ブーゲンビリア","kana":"筏葛","color":"#d0308a","shape":"round","m":["情熱","あなたしか見えない"],"d":1,"n":3},{"id":"hibiscus","name":"ハイビスカス","kana":"仏桑花","color":"#e8344e","shape":"round","m":["繊細な美","新しい恋"],"d":1,"n":5},{"id":"plumeria","name":"プルメリア","kana":"印度素馨","color":"#fff6e0","shape":"round","m":["気品","恵まれた人"],"d":1,"n":5,"center":"#f6c453"},{"id":"geranium","name":"赤いゼラニウム","kana":"天竺葵","color":"#e23b3b","shape":"round","m":["君ありて幸福"],"d":1,"n":5},{"id":"poinsettia","name":"ポインセチア","kana":"猩々木","color":"#c8102e","shape":"pointed","m":["祝福","聖夜","私の心は燃えている"],"d":1,"n":8},{"id":"shakuyaku","name":"シャクヤク","kana":"芍薬","color":"#f6a8c0","shape":"rose","m":["はにかみ","恥じらい","誠実"],"d":1},{"id":"botan","name":"ボタン","kana":"牡丹","color":"#e05a8a","shape":"rose","m":["風格","富貴","王者の風格"],"d":1},{"id":"whitelily","name":"白いユリ","kana":"百合","color":"#ffffff","shape":"lily","m":["純粋","無垢","威厳"],"d":1},{"id":"yaguruma","name":"ヤグルマギク","kana":"矢車菊","color":"#4f7fe0","shape":"pointed","m":["幸福","教育","繊細"],"d":1,"n":10},{"id":"pansy","name":"パンジー","kana":"三色菫","color":"#7c4fd0","shape":"round","m":["もの思い","私を思って"],"d":1,"n":5},{"id":"viola","name":"ビオラ","kana":"三色菫","color":"#9b7fe6","shape":"round","m":["誠実な愛","少女の恋"],"d":1,"n":5},{"id":"mimosa","name":"ミモザ","kana":"銀葉アカシア","color":"#f8d93c","shape":"cluster","m":["感謝","友情","秘密の恋"],"d":1},{"id":"nanohana","name":"ナノハナ","kana":"菜の花","color":"#f7e03c","shape":"cluster","m":["快活","明るさ","小さな幸せ"],"d":1},{"id":"edelweiss","name":"エーデルワイス","kana":"西洋薄雪草","color":"#f4f4f4","shape":"pointed","m":["大切な思い出","勇気"],"d":1,"n":8},{"id":"poppy","name":"赤いヒナゲシ","kana":"雛罌粟","color":"#e8343a","shape":"round","m":["いたわり","思いやり","慰め"],"d":1,"n":4,"center":"#24162e"},{"id":"rindou","name":"リンドウ","kana":"竜胆","color":"#4b5fc8","shape":"bell","m":["悲しんでいるあなたを愛する","正義","誠実"],"d":1},{"id":"rosemary","name":"ローズマリー","kana":"迷迭香","color":"#8fa6e0","shape":"spike","m":["追憶","私を思って","記憶"],"d":1},{"id":"nemophila","name":"ネモフィラ","kana":"瑠璃唐草","color":"#8cc2f0","shape":"round","m":["どこでも成功","可憐"],"d":1,"n":5},{"id":"pentas","name":"ペンタス","kana":"草山丹花","color":"#f06292","shape":"cluster","m":["願い事","希望が叶う"],"d":1},{"id":"salvia","name":"赤いサルビア","kana":"緋衣草","color":"#e53935","shape":"spike","m":["燃える思い","家族愛"],"d":1},{"id":"yukiyanagi","name":"ユキヤナギ","kana":"雪柳","color":"#ffffff","shape":"cluster","m":["愛嬌","気まま","殊勝"],"d":1,"small":true},{"id":"tsutsuji","name":"ツツジ","kana":"躑躅","color":"#f06292","shape":"round","m":["節度","慎み"],"d":1,"n":5},{"id":"sazanka","name":"サザンカ","kana":"山茶花","color":"#e8557a","shape":"round","m":["困難に打ち勝つ","ひたむきさ"],"d":1,"n":6},{"id":"sumire","name":"スミレ","kana":"菫","color":"#7a55c8","shape":"round","m":["謙虚","小さな幸せ","誠実"],"d":1,"n":5},{"id":"wasurenagusa","name":"ワスレナグサ","kana":"勿忘草","color":"#7aa7e6","shape":"round","m":["私を忘れないで","真実の愛"],"d":2,"n":5,"center":"#f6d365"},{"id":"tanpopo","name":"タンポポ","kana":"蒲公英","color":"#f7d032","shape":"pointed","m":["真心の愛","愛の神託","別離"],"d":2,"n":24,"center":"#e0a500"},{"id":"bluerose","name":"青いバラ","kana":"薔薇","color":"#4a7fd6","shape":"rose","m":["夢かなう","奇跡","神の祝福"],"d":2},{"id":"tsubaki","name":"赤いツバキ","kana":"椿","color":"#c8102e","shape":"round","m":["控えめな素晴らしさ","謙虚な美徳"],"d":2,"n":6},{"id":"begonia","name":"ベゴニア","kana":"秋海棠の仲間","color":"#f2708f","shape":"round","m":["片思い","愛の告白"],"d":2,"n":4},{"id":"fuji","name":"フジ","kana":"藤","color":"#a98be0","shape":"spike","m":["優しさ","歓迎","決して離れない"],"d":2},{"id":"asagao","name":"アサガオ","kana":"朝顔","color":"#5a6fe0","shape":"round","m":["愛情の絆","はかない恋"],"d":2,"n":5},{"id":"hiiragi","name":"ヒイラギ","kana":"柊","color":"#ffffff","shape":"cluster","m":["用心深さ","先見の明","保護"],"d":2,"small":true},{"id":"gladiolus","name":"グラジオラス","kana":"唐菖蒲","color":"#ef5b5b","shape":"spike","m":["密会","用心","勝利"],"d":2},{"id":"amaryllis","name":"アマリリス","kana":"金山慈姑","color":"#d6283e","shape":"lily","m":["おしゃべり","誇り"],"d":2},{"id":"keitou","name":"ケイトウ","kana":"鶏頭","color":"#d81b60","shape":"cluster","m":["おしゃれ","気取り屋"],"d":2},{"id":"hyakunichi","name":"ヒャクニチソウ","kana":"百日草","color":"#f0624d","shape":"pointed","m":["不在の友を思う","絆"],"d":2,"n":16},{"id":"saffron","name":"サフラン","kana":"番紅花","color":"#a07ad8","shape":"tulip","m":["歓喜","陽気","過度を慎め"],"d":2},{"id":"strelitzia","name":"ストレリチア","kana":"極楽鳥花","color":"#f28c28","shape":"lily","m":["輝かしい未来","気取った恋"],"d":2},{"id":"harujion","name":"ハルジオン","kana":"春紫苑","color":"#f8e0ec","shape":"pointed","m":["追想の愛"],"d":2,"n":24,"center":"#f2c230"},{"id":"sweetpea","name":"スイートピー","kana":"麝香豌豆","color":"#f3a6c8","shape":"round","m":["門出","別離","優しい思い出"],"d":3,"n":4},{"id":"dahlia","name":"ダリア","kana":"天竺牡丹","color":"#c2185b","shape":"pointed","m":["華麗","裏切り","移り気"],"d":3,"n":16},{"id":"lavender","name":"ラベンダー","kana":"薫衣草","color":"#9b7fd4","shape":"spike","m":["沈黙","あなたを待っています","不信感"],"d":3},{"id":"hasu","name":"ハス","kana":"蓮","color":"#f6b8c6","shape":"pointed","m":["清らかな心","離れゆく愛"],"d":3,"n":8},{"id":"suisen","name":"スイセン","kana":"水仙","color":"#fff3b0","shape":"pointed","m":["うぬぼれ","自己愛"],"d":3,"n":6,"center":"#f2a900"},{"id":"miyakowasure","name":"ミヤコワスレ","kana":"都忘れ","color":"#8c7ad6","shape":"pointed","m":["別れ","しばしの憩い"],"d":3,"n":18},{"id":"hyacinth","name":"紫のヒヤシンス","kana":"風信子","color":"#7b4fb3","shape":"spike","m":["悲しみ","悲哀","初恋のひたむきさ"],"d":3},{"id":"cyclamen","name":"シクラメン","kana":"篝火花","color":"#e0457b","shape":"pointed","m":["はにかみ","嫉妬","疑惑"],"d":3,"n":5},{"id":"clover","name":"シロツメクサ","kana":"白詰草","color":"#ffffff","shape":"cluster","m":["幸運","約束","私を思って","復讐"],"d":3,"small":true},{"id":"trumpet","name":"ラッパスイセン","kana":"喇叭水仙","color":"#f8d83a","shape":"pointed","m":["尊敬","報われぬ恋"],"d":3,"n":6,"center":"#f29a00"},{"id":"ikarisou","name":"イカリソウ","kana":"錨草","color":"#c69be0","shape":"bell","m":["あなたを離さない","人生の出発"],"d":3},{"id":"lupinus","name":"ルピナス","kana":"昇り藤","color":"#7a6ad8","shape":"spike","m":["想像力","いつも幸せ","貪欲"],"d":3},{"id":"nokogiri","name":"ノコギリソウ","kana":"鋸草","color":"#f4f4f4","shape":"cluster","m":["戦い","勇敢"],"d":3,"small":true},{"id":"xmasrose","name":"クリスマスローズ","kana":"ヘレボルス","color":"#e9d7e8","shape":"round","m":["私の不安を和らげて","追憶","中傷"],"d":3,"n":5,"center":"#c8d36b"},{"id":"hirugao","name":"ヒルガオ","kana":"昼顔","color":"#f6bcd2","shape":"round","m":["絆","情事"],"d":3,"n":5},{"id":"gekka","name":"ゲッカビジン","kana":"月下美人","color":"#ffffff","shape":"pointed","m":["ただ一度だけ会いたくて","はかない美"],"d":3,"n":16},{"id":"nigella","name":"ニゲラ","kana":"黒種草","color":"#7fa6e0","shape":"pointed","m":["夢の中の恋","当惑"],"d":3,"n":5},{"id":"fukujuso","name":"フクジュソウ","kana":"福寿草","color":"#f6c71a","shape":"pointed","m":["永久の幸福","悲しき思い出"],"d":3,"n":14},{"id":"anthurium","name":"アンスリウム","kana":"大紅団扇","color":"#d81b3c","shape":"tulip","m":["情熱","煩悩"],"d":3},{"id":"clematis","name":"クレマチス","kana":"鉄線","color":"#8b6fd8","shape":"pointed","m":["精神の美","旅人の喜び","策略"],"d":3,"n":6},{"id":"ajisai","name":"アジサイ","kana":"紫陽花","color":"#7f8fd6","shape":"cluster","m":["移り気","浮気","冷淡"],"d":4},{"id":"muscari","name":"ムスカリ","kana":"葡萄風信子","color":"#3f51b5","shape":"spike","m":["失望","失意","通じ合う心"],"d":4},{"id":"ytulip","name":"黄色いチューリップ","kana":"鬱金香","color":"#f6d23c","shape":"tulip","m":["望みのない恋","名声"],"d":4},{"id":"yrose","name":"黄色いバラ","kana":"薔薇","color":"#f7cf3d","shape":"rose","m":["嫉妬","薄らぐ愛"],"d":4},{"id":"anemone","name":"アネモネ","kana":"牡丹一華","color":"#d7263d","shape":"round","m":["はかない恋","見捨てられた"],"d":4,"n":6,"center":"#24162e"},{"id":"digitalis","name":"ジギタリス","kana":"狐の手袋","color":"#c46fb0","shape":"bell","m":["不誠実","熱愛"],"d":4},{"id":"ykiku","name":"黄色いキク","kana":"菊","color":"#f2c94c","shape":"pointed","m":["破れた恋"],"d":4,"n":24,"center":"#c98d12"},{"id":"kinsenka","name":"キンセンカ","kana":"金盞花","color":"#f39c12","shape":"pointed","m":["別れの悲しみ","失望","寂しさ"],"d":4,"n":20,"center":"#8a4a10"},{"id":"erica","name":"エリカ","kana":"ヒース","color":"#d881b5","shape":"bell","m":["孤独","寂しさ"],"d":4},{"id":"odamaki","name":"オダマキ","kana":"苧環","color":"#6a5acd","shape":"pointed","m":["愚か","断固として勝つ"],"d":4,"n":5},{"id":"kyouchikutou","name":"キョウチクトウ","kana":"夾竹桃","color":"#f48fb1","shape":"round","m":["危険な愛","油断しない"],"d":4,"n":5},{"id":"hoozuki","name":"ホオズキ","kana":"鬼灯","color":"#f26b1d","shape":"bell","m":["偽り","ごまかし","心の平安"],"d":4},{"id":"misohagi","name":"ミソハギ","kana":"禊萩","color":"#d65db1","shape":"spike","m":["悲哀","愛の悲しみ"],"d":4},{"id":"asebi","name":"アセビ","kana":"馬酔木","color":"#ffffff","shape":"bell","m":["犠牲","献身","あなたと二人で旅をしよう"],"d":4},{"id":"murasakitsuyu","name":"ムラサキツユクサ","kana":"紫露草","color":"#6a5ad0","shape":"round","m":["尊敬しているが愛してはいない"],"d":4,"n":3},{"id":"yellowlily","name":"黄色いユリ","kana":"百合","color":"#f7d23c","shape":"lily","m":["偽り","陽気"],"d":4},{"id":"marigold","name":"マリーゴールド","kana":"万寿菊","color":"#f57c00","shape":"round","m":["絶望","嫉妬","悲しみ"],"d":5,"n":20,"center":"#a34a00"},{"id":"ycarnation","name":"黄色いカーネーション","kana":"阿蘭陀石竹","color":"#f4d03f","shape":"round","m":["軽蔑","嫉妬"],"d":5,"n":10,"center":"#d9a514"},{"id":"scabiosa","name":"スカビオサ","kana":"西洋松虫草","color":"#8e7cc3","shape":"cluster","m":["不幸な愛","私はすべてを失った"],"d":5},{"id":"azami","name":"アザミ","kana":"薊","color":"#a14fbf","shape":"cluster","m":["報復","厳格","独立"],"d":5},{"id":"hanazuou","name":"ハナズオウ","kana":"花蘇芳","color":"#d65db1","shape":"cluster","m":["裏切り","疑惑","不信仰"],"d":5},{"id":"higanbana","name":"ヒガンバナ","kana":"彼岸花","color":"#d32f2f","shape":"lily","m":["悲しい思い出","諦め","また会う日を楽しみに"],"d":5},{"id":"otogiriso","name":"オトギリソウ","kana":"弟切草","color":"#f5c400","shape":"round","m":["恨み","敵意","秘密"],"d":5,"n":5,"center":"#c27d00"},{"id":"lobelia","name":"ロベリア","kana":"瑠璃溝隠","color":"#3d5afe","shape":"round","m":["悪意","敵意","謙遜"],"d":5,"n":5,"center":"#ffffff"},{"id":"torikabuto","name":"トリカブト","kana":"鳥兜","color":"#4b47b8","shape":"bell","m":["復讐","人嫌い","騎士道"],"d":5},{"id":"kuroyuri","name":"クロユリ","kana":"黒百合","color":"#3a1f3d","shape":"lily","m":["呪い","復讐","恋"],"d":5},{"id":"snowdrop","name":"スノードロップ","kana":"待雪草","color":"#ffffff","shape":"bell","m":["希望","慰め","あなたの死を望みます"],"d":5},{"id":"blackrose","name":"黒いバラ","kana":"薔薇","color":"#2b0f1f","shape":"rose","m":["恨み","憎しみ","決して滅びることのない愛"],"d":5},{"id":"orangelily","name":"オレンジのユリ","kana":"百合","color":"#f57c1f","shape":"lily","m":["華麗","愉快","憎悪"],"d":5},{"id":"colchicum","name":"イヌサフラン","kana":"コルチカム","color":"#c79be0","shape":"tulip","m":["私の最良の日々は過ぎ去った"],"d":5},{"id":"rafflesia","name":"ラフレシア","kana":"世界最大級の花・強烈な腐臭","color":"#b3261e","shape":"round","m":["夢うつつ"],"d":5,"n":5,"center":"#5a1410","odd":true,"spots":true},{"id":"gobou","name":"ゴボウの花","kana":"根菜売り場から","color":"#9a5ab8","shape":"cluster","m":["いじめないで","触らないで"],"d":4,"odd":true},{"id":"flytrap","name":"ハエトリソウ","kana":"食虫植物","color":"#7fbf4a","shape":"flytrap","m":["捕らえる","ずる賢い"],"d":5,"odd":true},{"id":"okura","name":"オクラの花","kana":"家庭菜園から","color":"#f6e27a","shape":"round","m":["恋によって身が細る"],"d":4,"n":5,"center":"#7a1f2a","odd":true},{"id":"dokudami","name":"ドクダミ","kana":"独特の匂い","color":"#ffffff","shape":"round","m":["白い追憶","野生"],"d":4,"n":4,"center":"#e8d36b","odd":true},{"id":"hekuso","name":"ヘクソカズラ","kana":"漢字で書くと屁糞葛","color":"#f4f0f0","shape":"bell","m":["人嫌い","誤解を解きたい"],"d":5,"odd":true},{"id":"inufuguri","name":"オオイヌノフグリ","kana":"名前の由来は聞かないで","color":"#5f8de0","shape":"round","m":["信頼","忠実","清らか"],"d":4,"n":4,"odd":true},{"id":"nazuna","name":"ナズナ","kana":"ぺんぺん草","color":"#ffffff","shape":"cluster","m":["あなたに私のすべてを捧げます"],"d":3,"small":true,"odd":true},{"id":"negi","name":"ネギ坊主","kana":"ネギの花","color":"#ece8d2","shape":"broccoli","m":["くじけない心","愛嬌"],"d":3,"odd":true},{"id":"artichoke","name":"アーティチョーク","kana":"食べられるつぼみ","color":"#8a5ac8","shape":"cluster","m":["警告","傷つく恋","独立"],"d":5,"odd":true},{"id":"cabbage","name":"キャベツ","kana":"野菜売り場から","color":"#9cc76a","shape":"cabbage","m":["利益"],"d":4,"odd":true},{"id":"nasu","name":"ナスの花","kana":"家庭菜園から","color":"#8e6ad0","shape":"pointed","m":["優美","真実"],"d":3,"n":5,"center":"#f2d23c","odd":true},{"id":"jagaimo","name":"ジャガイモの花","kana":"家庭菜園から","color":"#e6dcf4","shape":"pointed","m":["慈愛","恩恵"],"d":3,"n":5,"center":"#f2d23c","odd":true},{"id":"wata","name":"ワタ","kana":"綿","color":"#ffffff","shape":"puff","m":["優秀","繊細"],"d":3,"odd":true},{"id":"pineapple","name":"パイナップル","kana":"果物売り場から","color":"#e8b830","shape":"pineapple","m":["完全無欠","あなたは完璧"],"d":4,"odd":true},{"id":"cactus","name":"サボテン","kana":"鉢植え","color":"#5f9a4a","shape":"cactus","m":["枯れない愛","燃える心"],"d":3,"odd":true},{"id":"kochoran","name":"胡蝶蘭","kana":"開店祝いでおなじみ","color":"#ffffff","shape":"pointed","m":["幸福が飛んでくる","純粋な愛"],"d":3,"n":5,"odd":true},{"id":"whitekiku","name":"白いキク","kana":"供花の定番","color":"#ffffff","shape":"pointed","m":["真実","誠実"],"d":4,"n":24,"center":"#e6e0a8","odd":true},{"id":"redcarnation","name":"赤いカーネーション","kana":"母の日の定番","color":"#d81b3c","shape":"round","m":["母への愛","純粋な愛"],"d":4,"n":10,"odd":true},{"id":"bamboo","name":"竹の花","kana":"百年に一度咲き、咲くと枯れる","color":"#c9b77a","shape":"spike","m":["節度","節操のある"],"d":4,"odd":true},{"id":"artificial","name":"造花のバラ","kana":"ポリエステル製","color":"#ff4fa3","shape":"rose","m":["あなたを愛しています","情熱"],"d":4,"odd":true,"tag":true},{"id":"dried","name":"ドライフラワーのスターチス","kana":"水分ゼロ","color":"#a07a9a","shape":"cluster","m":["変わらぬ心","途絶えぬ記憶"],"d":3,"odd":true},{"id":"oshibana","name":"押し花のパンジー","kana":"しおり・厚さ0.2mm","color":"#9a6ad8","shape":"pressed","m":["もの思い","私を思って"],"d":3,"odd":true},{"id":"daikon","name":"ダイコンの花","kana":"家庭菜園から","color":"#efe6f4","shape":"pointed","m":["適応力","潔白"],"d":3,"n":4,"center":"#e6d36b","odd":true},{"id":"bouquet","name":"売れ残りの花束","kana":"半額シール付き・カスミソウ多め","color":"#f39bb0","shape":"bouquet","m":["感謝","清らかな心"],"d":4,"odd":true},{"id":"bulb","name":"チューリップの球根","kana":"まだ咲いていない","color":"#c79a6b","shape":"bulb","m":["思いやり","博愛"],"d":4,"odd":true},{"id":"petal","name":"サクラの花びら一枚","kana":"花本体は見当たらない","color":"#f7c6d0","shape":"petal","m":["精神の美","優美な女性"],"d":4,"odd":true}], RS=[{"text":"飼っていた金魚（名前はきんちゃん）が今朝死んでしまった","line":"きんちゃんが……今朝……お空に……","cause":"運命"},{"text":"楽しみにしていたプリンを兄に食べられた","line":"楽しみにしてた……プリン……お兄ちゃんに食べられた……","cause":"プリン泥棒"},{"text":"推しのアイドルが結婚を発表した。祝いたいのに涙が止まらない","line":"推しが……結婚発表……おめでたいのに……涙が止まらないの……","cause":"推しの結婚報道"},{"text":"第一志望の大学に落ちた","line":"第一志望……ダメだった……","cause":"不合格通知"},{"text":"部活の最後の大会で自分のミスで負けた","line":"最後の大会……私のミスで……","cause":"あの一球"},{"text":"実は玉ねぎを切っていただけ（本人は別に悲しくない）","line":"（玉ねぎを刻みながら）……え？ あ、これは玉ねぎで……","cause":"玉ねぎ"},{"text":"ICカードの入った財布を落とした","line":"お財布……落としちゃった……ICカードも入ってたのに……","cause":"落とし物"},{"text":"さっき観た映画で犬が死んだ","line":"さっき観た映画が……犬が……犬がぁ……","cause":"あの映画の脚本家"},{"text":"三年間片思いしていた相手にフラれた","line":"……フラれちゃった。三年も好きだったのに。","cause":"あの人"},{"text":"ソシャゲのガチャを天井まで回したのに目当てのキャラが出なかった","line":"天井まで回したのに……すり抜けた……","cause":"ガチャの確率"},{"text":"お気に入りの傘をコンビニで盗られた","line":"傘……コンビニで盗られた……お気に入りだったのに……","cause":"傘泥棒"},{"text":"目にゴミが入っただけ（でも涙は本物）","line":"……目にゴミが……入っただけ……","cause":"風"},{"text":"スマホを落として画面がバキバキに割れた","line":"スマホ……落としたら……画面が蜘蛛の巣みたいに……","cause":"重力"},{"text":"三時間かけたレポートが保存前にパソコンの再起動で消えた","line":"レポート……保存する前にパソコンが……三時間分……","cause":"強制再起動"},{"text":"美容院で「おまかせ」と言ったら前髪を切られすぎた","line":"前髪……『おまかせ』って言ったら……こんなに短く……","cause":"美容師さんのハサミ"},{"text":"通っていたラーメン屋が今日で閉店する","line":"通ってたラーメン屋さん……今日で閉店だって……","cause":"閉店のお知らせ"},{"text":"数学のテストで赤点を取って追試になった","line":"数学……赤点……追試……","cause":"数学"},{"text":"ライブのチケット抽選に全部落ちた","line":"ライブのチケット……全滅……","cause":"抽選"},{"text":"親友が来月転校してしまう","line":"親友が……来月、転校しちゃうの……","cause":"転勤の辞令"},{"text":"明日が卒業式で実感がわかないまま寂しい","line":"明日で……卒業なんて……実感ないのに……","cause":"時間"},{"text":"文化祭の劇で一番大事な台詞を噛んだ","line":"文化祭の劇……一番大事な台詞……噛んじゃった……","cause":"滑舌"},{"text":"アイスの当たり棒を洗濯してしまい文字が消えた","line":"アイスの当たり棒……洗濯しちゃって……文字が消えて……","cause":"洗濯機"},{"text":"推しの配信者が活動終了を発表した","line":"推しの配信者さんが……活動終了って……","cause":"引退発表"},{"text":"百時間遊んだゲームのセーブデータが消えた","line":"百時間やったセーブデータが……消えた……","cause":"上書き保存"},{"text":"好きな人に彼女がいることを知った","line":"好きな人に……彼女がいたの……知らなかった……","cause":"あの人の彼女"},{"text":"自転車がパンクしたうえに雨が降ってきた","line":"自転車パンクして……雨も降ってきて……もう……","cause":"空模様"},{"text":"ラブレターを隣の人の靴箱に入れてしまった","line":"ラブレター……隣の靴箱に入れちゃった……","cause":"靴箱の配置"},{"text":"家族の中で自分にだけ飼い犬が懐かない","line":"うちの犬……家族の中で私にだけ懐かないの……","cause":"犬の気まぐれ"},{"text":"楽しみにしていた旅行が台風で中止になった","line":"楽しみにしてた旅行……台風で中止……","cause":"台風"},{"text":"並んだのに目の前で限定スイーツが売り切れた","line":"並んだのに……目の前で限定スイーツ売り切れ……","cause":"前の人"},{"text":"カップ焼きそばの湯切りで麺を全部シンクに落とした","line":"カップ焼きそばの湯切りで……麺が全部シンクに……","cause":"流し台"},{"text":"小説の最後のページで泣かされた","line":"この小説の最後のページが……ずるくて……","cause":"あの作家"},{"text":"花粉症がひどくて涙が止まらない（花を贈られると悪化しかねない）","line":"……花粉症……今年すごくて……","cause":"花粉"},{"text":"母に部屋の漫画を全部捨てられた","line":"お母さんに……漫画、全部捨てられた……","cause":"大掃除"},{"text":"合唱コンクールで一票差で負けた","line":"合唱コンクール……一票差で負けた……","cause":"審査員"},{"text":"バイトで注文を三回も間違えて怒られた","line":"バイトで……注文、三回も間違えて……","cause":"あの日のシフト"},{"text":"大事なうさぎのぬいぐるみ（うさ吉）の耳が取れた","line":"ぬいぐるみの……うさ吉の耳が……取れちゃった……","cause":"経年劣化"},{"text":"鍵アカウントのつもりの投稿を本アカウントでしてしまった","line":"鍵アカのつもりで投稿したら……本垢だった……","cause":"アカウント切り替え"},{"text":"弟にゲームで初めて負けた","line":"弟に……ゲームで初めて負けた……","cause":"弟の成長"},{"text":"夢の中でフラれた","line":"夢の中で……フラれた……夢なのに……","cause":"夢"},{"text":"今日が誕生日なのに誰も気づいてくれない（蒼真も気づいていなかった可能性がある）","line":"今日、私の誕生日なのに……誰も気づいてくれない……","cause":"みんなの忘れっぽさ"},{"text":"寿司のわさびが効きすぎただけ（悲しくはない）","line":"（お寿司を食べながら）……っ……わさびが……ツーンって……","cause":"わさび"},{"text":"あくびをしただけ（悲しくはない）","line":"……ふぁ……あ、ごめん、あくびしただけ……","cause":"眠気"},{"text":"卒業アルバムの写真で自分だけ半目だった","line":"卒業アルバムの写真……私だけ半目……","cause":"シャッター"},{"text":"大好きなアニメが今日で最終回だった","line":"大好きなアニメが……今日で最終回……","cause":"最終回"},{"text":"夏休みが終わり、祖母の家から帰らなければならない","line":"おばあちゃんちから……帰りたくない……","cause":"夏休みの終わり"},{"text":"新しい靴で靴擦れして痛い","line":"新しい靴……靴擦れが……痛くて……","cause":"新品の靴"},{"text":"手作りクッキーで砂糖と塩を間違えた","line":"手作りクッキー……砂糖と塩、間違えた……","cause":"似てる容器"}], RR={"1":{"label":"N","name":"余裕","color":"#8b97a8"},"2":{"label":"R","name":"ちょい無理","color":"#4f9bcb"},"3":{"label":"SR","name":"苦しい","color":"#9b74e0"},"4":{"label":"SSR","name":"無理筋","color":"#e0a02e"},"5":{"label":"UR","name":"地獄","color":"#c4163f"}};
+const $=s=>document.querySelector(s);
+const wrap=$('#wrap'),stage=$('#stage'),tb=$('#tb'),tbText=$('#tbText'),tbName=$('#tbName'),arrow=$('#arrow');
+const boyEl=$('#boy'),girlEl=$('#girl'),gachaEl=$('#gacha'),choicesEl=$('#choices'),resultEl=$('#result'),titleEl=$('#title'),ctrlEl=$('#ctrl'),dim=$('#dim');
+
+/* ---------- storage ---------- */
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const cfg=Object.assign({speed:32,ai:'default',autoWait:1400,ratio:'auto'},store.get('hk-cfg',{}));
+let zk=store.get('hk-zukan',{}); let stats=Object.assign({tries:0,success:0},store.get('hk-stats',{}));
+
+/* ---------- helpers ---------- */
+const rnd=n=>Math.floor(Math.random()*n);
+const pick=a=>a[rnd(a.length)];
+function hx(h,a){const n=parseInt(h.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const t=a<0?0:255,p=Math.abs(a);r=Math.round(r+(t-r)*p);g=Math.round(g+(t-g)*p);b=Math.round(b+(t-b)*p);return `rgb(${r},${g},${b})`}
+function seeded(str){let h=1779033703;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19}let a=h>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- background svg ---------- */
+function bgSVG(p,animate){
+  let petals='';
+  if(animate){for(let i=0;i<14;i++){const x=80+i*115+rnd(40),dur=7+rnd(60)/10,del=-(rnd(90)/10);petals+=`<ellipse class="petal" cx="${x}" cy="0" rx="9" ry="5" style="animation-duration:${dur}s;animation-delay:${del}s"/>`}}
+  let b1='',b2='';
+  const r=seeded('bld');
+  for(let x=-20;x<1640;x+=70+Math.floor(r()*40)){const h=90+r()*150;b1+=`<rect x="${x}" y="${600-h}" width="${60+r()*30}" height="${h+60}" />`}
+  for(let x=-40;x<1640;x+=90+Math.floor(r()*60)){const h=60+r()*100;b2+=`<rect x="${x}" y="${620-h}" width="${80+r()*40}" height="${h+60}" />`}
+  let wins='';const r2=seeded('win');
+  for(let i=0;i<70;i++){wins+=`<rect x="${r2()*1600}" y="${440+r2()*150}" width="6" height="8" fill="#ffd98a" opacity="${.3+r2()*.6}"/>`}
+  const tree=(x,flip)=>`<g transform="translate(${x},0) scale(${flip?-1:1},1)"><rect x="-18" y="380" width="36" height="420" fill="#1d1636"/><path d="M-4,500 C-60,470 -120,440 -170,380" stroke="#1d1636" stroke-width="14" fill="none"/><g fill="#2a1d48"><circle cx="0" cy="300" r="150"/><circle cx="-130" cy="360" r="105"/><circle cx="125" cy="350" r="110"/><circle cx="-30" cy="200" r="105"/></g><g fill="#c97aa0" opacity=".55"><circle cx="-60" cy="240" r="9"/><circle cx="40" cy="190" r="10"/><circle cx="90" cy="320" r="8"/><circle cx="-140" cy="340" r="9"/><circle cx="10" cy="310" r="10"/><circle cx="-90" cy="150" r="8"/><circle cx="60" cy="260" r="7"/></g></g>`;
+  let fence='';for(let x=480;x<1100;x+=26){fence+=`<rect x="${x}" y="640" width="8" height="70"/>`}
+  return `<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="${p}sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2a5e"/><stop offset=".25" stop-color="#6b4482"/><stop offset=".5" stop-color="#c46a86"/><stop offset=".75" stop-color="#f3a07c"/><stop offset="1" stop-color="#ffc996"/></linearGradient>
+<radialGradient id="${p}sun"><stop offset="0" stop-color="#fff2c8"/><stop offset=".35" stop-color="#ffc77a" stop-opacity=".9"/><stop offset="1" stop-color="#ff9a6a" stop-opacity="0"/></radialGradient>
+<radialGradient id="${p}lamp"><stop offset="0" stop-color="#fff0b0"/><stop offset=".3" stop-color="#ffd878" stop-opacity=".7"/><stop offset="1" stop-color="#ffd878" stop-opacity="0"/></radialGradient>
+<linearGradient id="${p}gr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b2a5a"/><stop offset="1" stop-color="#17112d"/></linearGradient>
+</defs>
+<rect width="1600" height="900" fill="url(#${p}sky)"/>
+<circle cx="1000" cy="590" r="300" fill="url(#${p}sun)"/><circle cx="1000" cy="590" r="62" fill="#fff4d0"/>
+<g fill="#ffd3a8" opacity=".35"><rect x="150" y="250" width="420" height="10" rx="5"/><rect x="260" y="290" width="300" height="8" rx="4"/><rect x="1100" y="200" width="380" height="10" rx="5"/><rect x="1180" y="240" width="260" height="8" rx="4"/></g>
+<g fill="#5a3f78">${b1}</g><g fill="#3b2a5a">${b2}</g>${wins}
+<rect y="640" width="1600" height="260" fill="url(#${p}gr)"/>
+<path d="M0,760 C400,720 1200,720 1600,760 L1600,900 L0,900Z" fill="#241a40"/>
+${tree(190,false)}${tree(1420,true)}
+<g fill="#1d1636">${fence}<rect x="470" y="660" width="660" height="8"/><rect x="470" y="690" width="660" height="8"/></g>
+<g fill="#1a1230"><rect x="560" y="690" width="480" height="18" rx="4"/><rect x="560" y="660" width="480" height="14" rx="4"/><rect x="575" y="705" width="14" height="52"/><rect x="1011" y="705" width="14" height="52"/><rect x="575" y="640" width="14" height="30"/><rect x="1011" y="640" width="14" height="30"/></g>
+<g><circle cx="1290" cy="470" r="130" fill="url(#${p}lamp)"/><rect x="1284" y="470" width="12" height="300" fill="#1a1230"/><rect x="1262" y="455" width="56" height="22" rx="8" fill="#1a1230"/><rect x="1270" y="460" width="40" height="14" rx="5" fill="#fff0b0"/></g>
+${petals}
+</svg>`;
+}
+$('#bg').innerHTML=bgSVG('a',true);
+$('#bgfill').innerHTML=bgSVG('b',false);
+
+/* ---------- flower drawing ---------- */
+const HC=-14;
+function stemLeaves(){return '<path d="M0,10 C-2,30 2,44 0,58" stroke="#4d8a4b" stroke-width="3.2" fill="none" stroke-linecap="round"/><path d="M0,42 C-12,38 -19,30 -21,24 C-10,24 -3,32 0,42Z" fill="#5da05a"/><path d="M0,36 C12,32 19,24 21,18 C10,18 3,26 0,36Z" fill="#5da05a"/>'}
+function flowerInner(f){
+  const c=f.color, st=hx(c,-.32), sw=`stroke="${st}" stroke-width="1.1"`, rng=seeded(f.id);
+  const ctr=f.center||'#f4cf4a'; let s='';
+  const sh=f.shape;
+  const hasStem=['round','pointed','rose','lily','tulip','cluster'].includes(sh);
+  if(hasStem) s+=stemLeaves();
+  if(sh==='round'){
+    const n=f.n||5, ry=n>10?15:17, rx=Math.max(3.5,Math.min(11,Math.PI*ry*1.15/n));
+    for(let i=0;i<n;i++)s+=`<ellipse cx="0" cy="${-ry}" rx="${rx}" ry="${ry}" transform="translate(0,${HC}) rotate(${360/n*i})" fill="${c}" ${sw}/>`;
+    if(f.spots){for(let i=0;i<n;i++){const a=(360/n*i)*Math.PI/180;s+=`<circle cx="${Math.sin(a)*15}" cy="${HC-Math.cos(a)*15}" r="2.4" fill="#fff" opacity=".85"/><circle cx="${Math.sin(a)*24}" cy="${HC-Math.cos(a)*24}" r="1.8" fill="#fff" opacity=".8"/>`}}
+    s+=`<circle cx="0" cy="${HC}" r="${n>10?7:6}" fill="${ctr}" stroke="${hx(ctr,-.3)}" stroke-width="1"/><circle cx="-1.5" cy="${HC-1.5}" r="1.6" fill="#fff" opacity=".5"/>`;
+  }else if(sh==='pointed'){
+    const n=f.n||8, L=n>12?33:31, w=Math.max(2.6,Math.min(8,150/n));
+    const pet=`M0,0 C${-w},${-L*.35} ${-w*.8},${-L*.75} 0,${-L} C${w*.8},${-L*.75} ${w},${-L*.35} 0,0Z`;
+    if(n>12)for(let i=0;i<n;i++)s+=`<path d="${pet}" transform="translate(0,${HC}) rotate(${360/n*(i+.5)}) scale(.78)" fill="${hx(c,-.12)}" ${sw}/>`;
+    for(let i=0;i<n;i++)s+=`<path d="${pet}" transform="translate(0,${HC}) rotate(${360/n*i})" fill="${c}" ${sw}/>`;
+    const cr=f.center?(n>12?11:7):6;
+    s+=`<circle cx="0" cy="${HC}" r="${cr}" fill="${ctr}" stroke="${hx(ctr,-.3)}"/>`;
+    if(f.center&&n>12)for(let i=0;i<14;i++){s+=`<circle cx="${(rng()-.5)*14}" cy="${HC+(rng()-.5)*14}" r=".9" fill="${hx(ctr,.3)}"/>`}
+  }else if(sh==='rose'){
+    for(let i=0;i<5;i++){const a=(72*i)*Math.PI/180;s+=`<circle cx="${Math.sin(a)*15}" cy="${HC-Math.cos(a)*15}" r="13" fill="${c}" ${sw}/>`}
+    s+=`<circle cx="0" cy="${HC}" r="14" fill="${hx(c,-.08)}" ${sw}/><path d="M0,${HC} m-4,0 a4,4 0 1,1 4,4 a8,8 0 0,1 -8,-8 a11,11 0 0,1 11,-11" fill="none" stroke="${st}" stroke-width="1.4" stroke-linecap="round"/>`;
+    if(f.tag)s+=`<g transform="translate(20,30) rotate(18)"><path d="M-8,-2 L-4,-14" stroke="#999" stroke-width="1"/><path d="M0,0 L18,0 L22,6 L22,26 L0,26Z" fill="#fff" stroke="#888"/><circle cx="4" cy="5" r="1.6" fill="#999"/><text x="12" y="21" font-size="8.5" text-anchor="middle" fill="#c4163f" font-family="sans-serif" font-weight="700">¥300</text></g>`;
+  }else if(sh==='lily'){
+    const hg=f.id==='higanbana';
+    if(hg){
+      for(let i=0;i<6;i++){const a=60*i,d=`M0,0 C${-6},-12 ${-4},-24 ${i%2?-12:12},-36`;s+=`<path d="${d}" transform="translate(0,${HC}) rotate(${a})" fill="none" stroke="${c}" stroke-width="3.4" stroke-linecap="round"/>`}
+      for(let i=0;i<9;i++){const a=(40*i)*Math.PI/180,x=Math.sin(a)*(26+i%3*3),y=-Math.cos(a)*(26+i%3*3);s+=`<path d="M0,${HC} Q${x*.3+6},${HC+y*.4} ${x},${HC+y}" fill="none" stroke="${c}" stroke-width="1.2"/><circle cx="${x}" cy="${HC+y}" r="1.8" fill="${hx(c,-.2)}"/>`}
+    }else{
+      const L=35,w=8.5,pet=`M0,0 C${-w},${-L*.2} ${-w},${-L*.7} 0,${-L} C${w},${-L*.7} ${w},${-L*.2} 0,0Z`;
+      for(let i=0;i<3;i++)s+=`<path d="${pet}" transform="translate(0,${HC}) rotate(${120*i})" fill="${hx(c,-.1)}" ${sw}/>`;
+      for(let i=0;i<3;i++)s+=`<path d="${pet}" transform="translate(0,${HC}) rotate(${60+120*i})" fill="${c}" ${sw}/>`;
+      for(let i=0;i<5;i++){const a=(72*i+20)*Math.PI/180;s+=`<path d="M0,${HC} L${Math.sin(a)*12},${HC-Math.cos(a)*12}" stroke="#7a5a2a" stroke-width="1"/><circle cx="${Math.sin(a)*12}" cy="${HC-Math.cos(a)*12}" r="1.8" fill="#d9822b"/>`}
+    }
+  }else if(sh==='tulip'){
+    s+=`<g transform="translate(0,-8)"><path d="M0,-42 C-12,-30 -15,-8 0,8 C15,-8 12,-30 0,-42Z" fill="${hx(c,.1)}" ${sw}/><path d="M-21,-34 C-25,-8 -11,10 0,10 C-5,-8 -10,-22 -21,-34Z" fill="${c}" ${sw}/><path d="M21,-34 C25,-8 11,10 0,10 C5,-8 10,-22 21,-34Z" fill="${c}" ${sw}/></g>`;
+  }else if(sh==='bell'){
+    s+=`<path d="M-6,58 C-6,24 8,-12 2,-40" stroke="#4d8a4b" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M-4,44 C-16,40 -24,32 -26,26 C-14,26 -6,34 -4,44Z" fill="#5da05a"/>`;
+    const bell=(x,y,sz)=>`<g transform="translate(${x},${y}) scale(${sz})"><path d="M0,-4 L0,0" stroke="#4d8a4b" stroke-width="1.6"/><path d="M-11,16 C-12,0 -8,-4 0,-4 C8,-4 12,0 11,16 C8,12 5,18 0,14 C-5,18 -8,12 -11,16Z" fill="${c}" ${sw}/></g>`;
+    s+=bell(12,-34,.95)+bell(-8,-16,1)+bell(10,2,1.05)+bell(-6,20,.9);
+  }else if(sh==='spike'){
+    s+=`<path d="M0,58 L0,-40" stroke="#4d8a4b" stroke-width="3" stroke-linecap="round"/><path d="M0,46 C-13,42 -20,34 -22,28 C-11,28 -3,36 0,46Z" fill="#5da05a"/>`;
+    for(let i=0;i<10;i++){const y=-38+i*7.5,r=3+i*.55,side=i%2?1:-1;s+=`<ellipse cx="${side*(r*.8+1)}" cy="${y}" rx="${r}" ry="${r*.8}" fill="${hx(c,(rng()-.5)*.2)}" ${sw}/>`}
+    s+=`<circle cx="0" cy="-42" r="2.6" fill="${hx(c,.1)}" ${sw}/>`;
+  }else if(sh==='cluster'){
+    const sm=f.small,N=sm?38:17,R=sm?4:8.2,RR2=sm?28:25;
+    for(let i=0;i<N;i++){const a=rng()*6.283,d=Math.sqrt(rng())*RR2;s+=`<circle cx="${Math.cos(a)*d}" cy="${HC+Math.sin(a)*d*.85}" r="${R*(.8+rng()*.4)}" fill="${hx(c,(rng()-.5)*.22)}" stroke="${st}" stroke-width=".8"/>`}
+  }else if(sh==='flytrap'){
+    s+=`<path d="M0,58 C-3,40 3,30 0,20" stroke="#4d8a4b" stroke-width="3.5" fill="none"/>`;
+    s+=`<path d="M-26,8 Q0,38 26,8Z" fill="${hx(c,-.2)}" stroke="${hx(c,-.5)}" stroke-width="1.2"/><ellipse cx="0" cy="8" rx="22" ry="5" fill="#c4163f"/>`;
+    for(let i=0;i<8;i++){const x=-21+i*6;s+=`<path d="M${x},9 l3,-9 l3,9z M${x},8 l3,10 l3,-10z" fill="#f3f0e0" stroke="${hx(c,-.5)}" stroke-width=".5"/>`}
+    s+=`<path d="M-26,8 Q0,-30 26,8Z" fill="${c}" stroke="${hx(c,-.5)}" stroke-width="1.2"/><path d="M-14,2 Q0,-16 14,2" fill="none" stroke="${hx(c,-.3)}" stroke-width="1"/>`;
+  }else if(sh==='broccoli'){
+    s+=`<path d="M0,58 L0,10" stroke="#8cc26a" stroke-width="4" stroke-linecap="round"/><path d="M0,46 C-14,44 -22,36 -24,28 C-12,28 -3,36 0,46Z" fill="#6aa850"/>`;
+    s+=`<line x1="0" y1="10" x2="-14" y2="-6" stroke="#8cc26a" stroke-width="1.5"/><line x1="0" y1="10" x2="14" y2="-6" stroke="#8cc26a" stroke-width="1.5"/><line x1="0" y1="10" x2="0" y2="-14" stroke="#8cc26a" stroke-width="1.5"/>`;
+    for(let i=0;i<46;i++){const a=rng()*6.283,d=Math.sqrt(rng())*27;s+=`<circle cx="${Math.cos(a)*d}" cy="${-18+Math.sin(a)*d*.9}" r="${3.6+rng()*2}" fill="${hx(c,(rng()-.5)*.14)}" stroke="#b8b090" stroke-width=".6"/>`}
+  }else if(sh==='cabbage'){
+    s+=`<ellipse cx="0" cy="40" rx="44" ry="14" fill="${hx(c,.2)}" stroke="${hx(c,-.4)}"/>`;
+    s+=`<circle cx="0" cy="4" r="38" fill="${c}" stroke="${hx(c,-.4)}" stroke-width="1.5"/>`;
+    for(const r of[28,20,12])s+=`<path d="M${-r},4 C${-r*.7},${4-r*1.2} ${r*.7},${4-r*1.2} ${r},4" fill="none" stroke="${hx(c,-.3)}" stroke-width="2"/>`;
+    s+=`<path d="M0,40 L0,-10 M-16,34 L-20,6 M16,34 L20,6" stroke="${hx(c,.45)}" stroke-width="1.6" fill="none"/>`;
+  }else if(sh==='puff'){
+    s+=`<path d="M0,58 C-2,40 2,30 0,18" stroke="#6b4a2a" stroke-width="3" fill="none"/>`;
+    s+=`<path d="M-18,14 L0,22 L18,14 L12,2 L-12,2Z" fill="#6b4a2a"/>`;
+    for(let i=0;i<9;i++){const a=rng()*6.283,d=rng()*17;s+=`<circle cx="${Math.cos(a)*d}" cy="${-14+Math.sin(a)*d}" r="${11+rng()*3}" fill="#fff" stroke="#ddd" stroke-width="1"/>`}
+    s+=`<circle cx="0" cy="-14" r="12" fill="#fff"/><circle cx="-8" cy="-22" r="5" fill="#f2f2f2"/>`;
+  }else if(sh==='pineapple'){
+    for(let i=0;i<9;i++){const a=-70+i*17.5;s+=`<path d="M0,-6 C-5,-20 -3,-36 0,-50 C3,-36 5,-20 0,-6Z" transform="rotate(${a} 0 -6)" fill="${i%2?'#4f8f3a':'#6aaa4a'}" stroke="#3a6a2a" stroke-width=".8"/>`}
+    s+=`<ellipse cx="0" cy="18" rx="21" ry="30" fill="${c}" stroke="${hx(c,-.45)}" stroke-width="1.5"/>`;
+    for(let y=-8;y<=46;y+=9)for(let x=-18;x<=18;x+=9){const ox=((y/9)%2?4.5:0),X=x+ox;if((X/20)**2+((y-18)/28)**2<.75)s+=`<path d="M${X-3},${y-3} l6,6 M${X+3},${y-3} l-6,6" stroke="${hx(c,-.5)}" stroke-width="1"/>`}
+  }else if(sh==='cactus'){
+    s+=`<path d="M-17,34 L17,34 L13,58 L-13,58Z" fill="#b4693c" stroke="#7a4220"/><rect x="-19" y="30" width="38" height="7" fill="#c97c4a" stroke="#7a4220"/>`;
+    const body=(col,w)=>`<path d="M-11,34 L-11,-12 M11,34 L11,-14" stroke="${col}" stroke-width="0"/><rect x="${-11-(w-8)/2}" y="${-26-(w-8)/2}" width="${22+(w-8)}" height="${60+(w-8)}" rx="${11+(w-8)/2}" fill="${col}"/><path d="M-11,12 L-23,12 L-23,-8" stroke="${col}" stroke-width="${w}" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M11,4 L23,4 L23,-14" stroke="${col}" stroke-width="${w}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+    s+=body(hx(c,-.4),12)+body(c,8.5);
+    for(let i=0;i<16;i++)s+=`<path d="M${-8+rng()*16},${-20+rng()*50} l2,-3 M${-8+rng()*16},${-20+rng()*50} l-2,-3" stroke="#fff" stroke-width=".8"/>`;
+    for(let i=0;i<6;i++){const a=i*60;s+=`<ellipse cx="0" cy="-5" rx="3" ry="5" transform="translate(0,-26) rotate(${a})" fill="#ff7aa8"/>`}
+    s+=`<circle cx="0" cy="-26" r="3" fill="#ffd84a"/>`;
+  }else if(sh==='pressed'){
+    s+=`<g transform="rotate(-6)"><rect x="-22" y="-48" width="44" height="98" rx="3" fill="#efe3c0" stroke="#b9a678" stroke-width="1.2"/><circle cx="0" cy="-40" r="3" fill="#8a7a50"/><path d="M0,-38 C-8,-30 8,-24 0,-18" stroke="#c4163f" stroke-width="1.6" fill="none"/><path d="M0,50 l-4,10 M0,50 l4,10 M0,50 l0,12" stroke="#c4163f" stroke-width="1.4"/></g>`;
+    for(let i=0;i<5;i++){const a=72*i;s+=`<ellipse cx="0" cy="-9" rx="8.5" ry="10" transform="translate(0,2) rotate(${a})" fill="${i<2?hx(c,-.1):c}" stroke="${hx(c,-.35)}" stroke-width=".8" opacity=".95"/>`}
+    s+=`<circle cx="0" cy="2" r="4" fill="#f4cf4a"/><path d="M-6,0 L6,4 M-6,4 L6,0" stroke="#4a2a6a" stroke-width=".7"/>`;
+  }else if(sh==='bouquet'){
+    s+=`<path d="M-32,-4 L32,-4 L7,58 L-7,58Z" fill="#d7b98a" stroke="#9b7b4a" stroke-width="1.2"/><path d="M-10,-4 L-2,56 M10,-4 L2,56" stroke="#b99a6a" stroke-width="1"/>`;
+    const fl=[[-20,-20,11,c],[0,-30,12,'#fff3c4'],[20,-20,11,'#ff9bb8'],[-8,-10,10,hx(c,.35)],[10,-12,10,'#e86a8a']];
+    for(const [x,y,r,col] of fl)s+=`<circle cx="${x}" cy="${y}" r="${r}" fill="${col}" stroke="${hx(String(col).startsWith('#')?col:c,-.3)}" stroke-width="1"/><circle cx="${x}" cy="${y}" r="${r*.35}" fill="${hx(c,-.25)}" opacity=".6"/>`;
+    for(let i=0;i<22;i++)s+=`<circle cx="${-30+rng()*60}" cy="${-34+rng()*34}" r="2.2" fill="#fff"/>`;
+    s+=`<path d="M-8,6 L8,6 L0,12Z M-8,16 L8,16 L0,10Z" fill="#c4163f"/><circle cx="0" cy="11" r="3" fill="#a30f30"/>`;
+    s+=`<g transform="translate(20,36) rotate(-12)"><circle r="13" fill="#e33" stroke="#fff" stroke-width="1.5"/><text y="3.2" font-size="9" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="800">半額</text></g>`;
+  }else if(sh==='bulb'){
+    for(let i=0;i<7;i++)s+=`<path d="M${-10+i*3.4},34 C${-14+i*4.6},44 ${-12+i*4},50 ${-16+i*5.4},56" stroke="#e8dcc0" stroke-width="1.3" fill="none"/>`;
+    s+=`<path d="M0,-26 C5,-14 26,-6 23,16 C21,36 -21,36 -23,16 C-26,-6 -5,-14 0,-26Z" fill="${c}" stroke="${hx(c,-.45)}" stroke-width="1.5"/><path d="M0,-26 C-6,-10 -12,6 -8,30 M0,-26 C6,-10 12,6 8,30" fill="none" stroke="${hx(c,-.3)}" stroke-width="1"/><path d="M0,-26 C-2,-34 2,-40 0,-44" stroke="${hx(c,-.4)}" stroke-width="2" fill="none"/>`;
+  }else if(sh==='petal'){
+    s+=`<g transform="translate(0,6) rotate(24)"><path d="M0,-34 C-8,-34 -10,-38 -12,-44 C-18,-30 -26,-8 -14,18 C-8,30 8,30 14,18 C26,-8 18,-30 12,-44 C10,-38 8,-34 0,-34Z" fill="${c}" stroke="${hx(c,-.3)}" stroke-width="1.2"/><path d="M0,-30 C-2,-10 -2,10 0,26" stroke="${hx(c,-.2)}" stroke-width="1" fill="none"/></g><g fill="#fff" opacity=".8"><path d="M30,-30 l2,6 l6,2 l-6,2 l-2,6 l-2,-6 l-6,-2 l6,-2z"/></g>`;
+  }
+  return s;
+}
+function flowerSVG(f,cls){return `<svg viewBox="-50 -52 100 108" ${cls?`class="${cls}"`:''} xmlns="http://www.w3.org/2000/svg">${flowerInner(f)}</svg>`}
+
+/* ---------- characters ---------- */
+girlEl.className='char cry';
+girlEl.innerHTML=`<svg viewBox="0 0 160 340" xmlns="http://www.w3.org/2000/svg">
+<path class="hair" d="M52,60 C46,14 114,14 108,60 L118,176 C102,182 96,154 96,120 L64,120 C64,154 58,182 42,176Z"/>
+<rect class="sil" x="73" y="82" width="14" height="14"/>
+<path class="sil" d="M60,92 L100,92 L104,170 L56,170Z"/>
+<path class="sil" d="M54,162 L106,162 L128,240 L32,240Z"/>
+<path class="ln" d="M68,240 L66,322 M92,240 L94,322" stroke-width="9"/>
+<ellipse class="sil" cx="64" cy="326" rx="10" ry="5"/><ellipse class="sil" cx="96" cy="326" rx="10" ry="5"/>
+<circle class="sil" cx="80" cy="64" r="24"/>
+<path class="hair" d="M53,64 C52,32 108,32 107,64 C98,48 64,48 53,64Z"/>
+<g fill="#6b2d5c"><path d="M104,40 L126,28 L126,52Z"/><path d="M104,40 L84,30 L84,50Z"/><circle cx="104" cy="40" r="5"/></g>
+<g class="p-cry"><path class="ln" d="M64,104 L48,132 L68,88" stroke-width="8"/><path class="ln" d="M96,104 L112,132 L92,88" stroke-width="8"/><circle class="sil" cx="68" cy="84" r="7"/><circle class="sil" cx="92" cy="84" r="7"/>
+<ellipse class="tear t1" cx="66" cy="96" rx="2.6" ry="4.2"/><ellipse class="tear t2" cx="96" cy="96" rx="2.6" ry="4.2"/></g>
+<g class="p-happy"><path class="ln" d="M64,104 L54,134 L78,130" stroke-width="8"/><path class="ln" d="M96,104 L106,134 L82,130" stroke-width="8"/><circle class="sil" cx="80" cy="130" r="8"/></g>
+</svg>`;
+boyEl.innerHTML=`<svg viewBox="0 0 200 360" xmlns="http://www.w3.org/2000/svg">
+<path class="ln" d="M58,236 L54,340 M84,236 L90,340" stroke-width="15"/>
+<ellipse class="sil" cx="50" cy="344" rx="14" ry="6"/><ellipse class="sil" cx="96" cy="344" rx="14" ry="6"/>
+<path class="sil" d="M42,92 L98,92 L106,196 L112,240 L28,240 L34,196Z"/>
+<path class="ln" d="M70,94 L58,150 M70,94 L82,150" stroke="#2b1d48" stroke-width="3"/>
+<rect class="sil" x="63" y="80" width="14" height="14"/>
+<circle class="sil" cx="70" cy="62" r="23"/>
+<path class="hair" d="M44,60 L38,30 L54,40 L56,12 L70,34 L84,10 L90,38 L106,24 L98,58 C90,44 52,44 44,60Z"/>
+<path class="ln p-norm" d="M44,100 L34,162 L38,222" stroke-width="12"/>
+<path class="ln p-norm" d="M96,100 L108,162 L102,222" stroke-width="12"/>
+<g class="p-reach"><path class="ln" d="M44,100 L34,162 L38,222" stroke-width="12"/><path class="ln" d="M96,102 L132,114 L164,108" stroke-width="11"/><circle class="sil" cx="166" cy="108" r="7"/>
+<svg id="hand" x="142" y="56" width="48" height="52" viewBox="-50 -52 100 108" overflow="visible"></svg></g>
+</svg>`;
+
+/* ---------- engine ---------- */
+class Abort extends Error{}
+let token=0,skipMode=false,autoMode=false;
+const ui={typing:false,skipType:false,waiting:false,adv:false,lock:true,gachaWait:false,flip:false,guard:0};
+const wakers=new Set();
+const poke=()=>[...wakers].forEach(f=>f());
+const chk=t=>{if(t!==token)throw new Abort()};
+function sleep(ms,t){return new Promise((res,rej)=>{let h;const done=()=>{clearTimeout(h);wakers.delete(done);t!==token?rej(new Abort()):res()};h=setTimeout(done,ms);wakers.add(done)})}
+const logs=[];
+function pushLog(n,t,cls){logs.push({n,t,cls});if(logs.length>200)logs.shift()}
+const modalOpen=()=>!!stage.querySelector('.modal:not([hidden])');
+function refocus(){try{tb.focus({preventScroll:true})}catch(e){}}
+function syncBtns(){$('#bAuto').classList.toggle('on',autoMode);$('#bSkip').classList.toggle('on',skipMode)}
+function setMode(txt){$('#mode').textContent='台詞: '+txt}
+function modeText(){return ''}
+
+async function say(who,text,o={}){
+  const t=token;chk(t);
+  const nar=who!=='boy'&&who!=='girl';
+  const name=who==='boy'?'蒼真':who==='girl'?'ひより':'';
+  const shown=nar?text:'「'+text+'」';
+  pushLog(name,shown,nar?'nr':'');
+  tb.hidden=false;tbName.hidden=!name;tbName.textContent=name;
+  tb.classList.toggle('nar',nar);tb.classList.toggle('big',!!o.big);
+  arrow.hidden=true;tbText.textContent='';
+  ui.typing=true;ui.skipType=false;ui.guard=performance.now()+150;
+  const sp=cfg.speed;
+  for(let i=1;i<=shown.length;i++){
+    chk(t);
+    if(ui.skipType||sp===0||skipMode){tbText.textContent=shown;break}
+    tbText.textContent=shown.slice(0,i);
+    await sleep(/[、。！？…]/.test(shown[i-1])?sp*5:sp,t);
+  }
+  tbText.textContent=shown;ui.typing=false;
+  if(o.noWait)return;
+  arrow.hidden=false;
+  await waitAdvance(t,shown.length);
+  arrow.hidden=true;
+}
+async function waitAdvance(t,len){
+  ui.waiting=true;ui.adv=false;let start=performance.now();
+  try{
+    for(;;){
+      chk(t);
+      if(modalOpen()||ui.lock){start=performance.now()}
+      else{
+        if(ui.adv){ui.adv=false;break}
+        const el=performance.now()-start;
+        if(skipMode&&el>=90)break;
+        if(autoMode&&el>=cfg.autoWait+len*28)break;
+      }
+      await sleep(30,t);
+    }
+  }finally{ui.waiting=false}
+}
+function advance(){
+  if(modalOpen()||ui.lock)return;
+  // オート・スキップ中の入力は、まずモードを止めるだけにする（勝手に読み飛ばさない）
+  if(skipMode||autoMode){skipMode=false;autoMode=false;syncBtns();return}
+  if(ui.gachaWait){ui.flip=true;poke();return}
+  // 行が出た直後・全文表示した直後の連打は無視（ダブルクリックで1行飛ばさないため）
+  const now=performance.now();if(now<ui.guard)return;
+  if(ui.typing){ui.skipType=true;ui.guard=now+220;poke();return}
+  if(ui.waiting){ui.adv=true;poke()}
+}
+wrap.addEventListener('click',e=>{if(e.target.closest('button,.modal,#gacha,#choices,#result,#title'))return;advance()});
+gachaEl.addEventListener('click',()=>{if(ui.gachaWait){ui.flip=true;poke()}});
+addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeModal();return}
+  if(!choicesEl.hidden&&(e.key==='ArrowDown'||e.key==='ArrowUp')){
+    const bs=[...choicesEl.querySelectorAll('button')];let i=bs.indexOf(document.activeElement);
+    i=(i+(e.key==='ArrowDown'?1:-1)+bs.length)%bs.length;bs[i].focus();e.preventDefault();return}
+  if(e.key==='Enter'||e.key===' '||e.key==='ArrowDown'){
+    if(e.repeat){e.preventDefault();return}
+    const a=document.activeElement;
+    if(a&&a.tagName==='BUTTON'&&a.offsetParent!==null)return;
+    if(modalOpen()||ui.lock)return;
+    e.preventDefault();advance();
+  }
+});
+
+function choice(opts){
+  return new Promise(res=>{
+    ui.lock=true;skipMode=false;syncBtns();tb.hidden=true;
+    choicesEl.innerHTML='';
+    opts.forEach((o,i)=>{const b=document.createElement('button');b.type='button';b.className='band';b.textContent=o;
+      b.onclick=()=>{choicesEl.hidden=true;ui.lock=false;pushLog('','▶ '+o,'c');refocus();res(i)};choicesEl.appendChild(b)});
+    choicesEl.hidden=false;choicesEl.firstChild.focus();
+  });
+}
+
+/* ---------- scene reset / fx ---------- */
+let sparkTimer=null;
+function stopSparks(){clearInterval(sparkTimer);sparkTimer=null;$('#sparks').innerHTML=''}
+function startSparks(){
+  stopSparks();const box=$('#sparks');
+  sparkTimer=setInterval(()=>{
+    if(box.childElementCount>70)return;
+    const e=document.createElement('i');e.className='sp'+(Math.random()<.4?' b':'');
+    const sz=8+rnd(18);
+    if(e.classList.contains('b')){e.style.width=e.style.height=sz+'px'}else{e.textContent=pick(['✦','✧','❀','✿','★']);e.style.fontSize=sz+'px'}
+    e.style.left=rnd(100)+'%';e.style.animationDuration=(3+rnd(30)/10)+'s';
+    e.addEventListener('animationend',()=>e.remove());box.appendChild(e);
+  },110);
+}
+function resetStage(){
+  stopSparks();stage.classList.remove('pink');girlEl.className='char cry';boyEl.classList.remove('reach');
+  $('#hand').innerHTML='';tb.hidden=true;gachaEl.hidden=true;choicesEl.hidden=true;dim.classList.remove('on');
+  resultEl.hidden=true;ui.gachaWait=false;ui.typing=false;ui.waiting=false;
+}
+
+/* ---------- script generation ---------- */
+/* ===== 定型台詞データ（AIなし版） =====
+   SPINS: 花id → [使う花言葉, こじつけ技法, 蒼真のこじつけ台詞]。{c} = 泣いている原因（RS[].cause）
+   HOOKS: RS と同じ順番。泣いている理由に絡める蒼真の一言 */
+const SPINS={
+himawari:[["あなただけを見つめる","視線の転用","だから俺は今日から、{c}だけを見つめる。君を泣かせた罪を、一秒も見逃さないために。"]],
+gerbera:[["常に前進","構造的忘却","常に前進。つまり、もう後ろは振り返れない。{c}のことも、物理的に見えなくなるんだ。"]],
+kasumi:[["感謝","動機の自白","感謝——君を泣かせた{c}にさえ、俺は感謝している。おかげで、この花を渡す口実ができた。"]],
+nadeshiko:[["大胆","自己言及","大胆。だから俺は今、大胆にも、まったく関係ない花で君を泣き止ませようとしている。"]],
+sakura:[["精神の美","状態の美化","精神の美。泣いている今の君こそ、精神がいちばん美しく揺れている瞬間なんだ。"]],
+petunia:[["あなたと一緒なら心がやわらぐ","主語のすり替え","あなたと一緒なら心がやわらぐ。……主語は俺だ。俺の心が、今やわらいでいる。"]],
+kalanchoe:[["たくさんの小さな思い出","時間の暴力","たくさんの小さな思い出。{c}も、十年後には小さな思い出の一つさ。十年、待てばいい。"]],
+nejibana:[["思慕","形状論","思慕。この花はねじれながら咲く。まっすぐじゃなくても、想いは上に伸びるんだ。"]],
+redrose:[["あなたを愛しています","責任転嫁","あなたを愛しています。……いや、これは花の意見だ。俺は花の代弁をしたにすぎない。"]],
+whiterose:[["私はあなたにふさわしい","責任転嫁","私はあなたにふさわしい。この花がそう言っている。花が言うなら、仕方がない。"]],
+pinkrose:[["感謝","因果の逆転","感謝。君が泣いてくれたおかげで、俺はこの花を渡せた。だから、感謝の花なんだ。"]],
+cosmos:[["乙女の真心","満開理論","乙女の真心。泣けるってことは、真心がまだ枯れていない証拠さ。君はいま、満開なんだ。"]],
+suzuran:[["再び幸せが訪れる","文法の悪用","再び幸せが訪れる。再び、だ。つまり君は、少なくとももう一回、確実に幸せになれる。"]],
+margaret:[["恋占い","作業療法","恋占い。花びらを一枚ずつちぎれば、{c}のことも、好き、嫌い、好き……ほら、だんだん許せてくる。"]],
+freesia:[["あどけなさ","等式の強行","あどけなさ。泣き顔は、あどけない。つまり今の君は、花言葉そのものなんだ。"]],
+redtulip:[["愛の告白","配達員理論","愛の告白。……勘違いしないでくれ。告白したのはこの花で、俺はただの配達員だ。"]],
+pinktulip:[["愛の芽生え","水やり理論","愛の芽生え。涙は水だ。君が泣くほど、この花は育つ。だから今だけは、泣いてもいい。"]],
+ranunculus:[["とても魅力的","花の暴走","とても魅力的。泣いている君を見て、この花が勝手にそう言ったんだ。俺は止めたんだけどね。"]],
+jasmine:[["優美","嗅覚の上書き","優美。香りは目に見えない。君の悲しみも目に見えない。だから、この香りで上書きできる。"]],
+kuchinashi:[["とても幸せです","語呂合わせ","とても幸せです。この花は、くちなし——口がない。だから代わりに、君が幸せだと言えばいい。"]],
+hanamizuki:[["返礼","倍返しの美学","返礼。いつか{c}にも、この花でお返しをしよう。……百倍の美しさで、な。"]],
+lilac:[["友情","耐久比較","友情。俺たちの友情は、{c}なんかより、ずっと長く咲き続ける。"]],
+iris:[["良い便り","媒体論","良い便り。この花が届いたこと自体が、良い便りなんだ。中身は気にしなくていい。"]],
+bluestar:[["信じあう心","前提の要求","信じあう心。だから、今から俺が言うことを信じてほしい。……この花は、君のための花だ。"]],
+daisy:[["平和","局地的平和","平和。君の涙が止まれば、少なくともこのベンチの半径一メートルは平和になる。"]],
+statice:[["変わらぬ心","ドライ理論","変わらぬ心。この花は枯れても色が変わらない。泣いても、君は君のままってことさ。"]],
+chamomile:[["逆境に耐える","踏まれ理論","逆境に耐える。この花は踏まれるほど強く育つ。{c}に踏まれた君は、今、強くなっている最中なんだ。"]],
+alstro:[["未来への憧れ","金融的解釈","未来への憧れ。今日の涙は、未来の君への前払いなんだ。利子は俺が払う。"]],
+eustoma:[["希望","未完の美学","希望。花びらが巻いているだろう？ 希望は、まだ開ききっていないくらいがちょうどいい。"]],
+stock:[["愛の絆","進路指導","愛の絆。この花の茎はまっすぐだ。君の涙の行き先も、まっすぐこっちにしておいてくれ。"]],
+kikyou:[["永遠の愛","風船理論","永遠の愛。蕾が風船みたいに膨らむだろう？ 君の悲しみも、そのうちぽんっと弾けて、咲くんだ。"]],
+ume:[["忍耐","気象論","忍耐。梅は寒さの中で咲く。つまり今日の{c}は、君が咲くための寒波だったんだ。"]],
+kinmokusei:[["初恋","記憶の上書き","初恋。この香りを嗅ぐと、誰もが初恋を思い出す。{c}のことは、思い出さなくていい。"]],
+bougain:[["あなたしか見えない","存在の否定","あなたしか見えない。だから俺には、{c}が見えない。見えないものに、泣く必要はない。"]],
+hibiscus:[["新しい恋","対象のすり替え","新しい恋。……落ち着いてくれ、恋の相手はこの花だ。新しい趣味としての、園芸だ。"]],
+plumeria:[["恵まれた人","自己評価","恵まれた人。泣ける場所と、花を渡す男が隣にいる。君はいま、十分に恵まれている。"]],
+geranium:[["君ありて幸福","恩の押し売り","君ありて幸福。つまり、君がいなければこの花は不幸だった。君は、この花を救ったんだ。"]],
+poinsettia:[["私の心は燃えている","季節の無視","私の心は燃えている。……季節外れだが、心に季節はない。燃えているのは、いつだって今だ。"]],
+shakuyaku:[["はにかみ","予告編理論","はにかみ。泣き顔の次は、はにかみ顔だ。この花は、君の表情の予告編なんだ。"]],
+botan:[["王者の風格","国家行事化","王者の風格。王は泣かない。……いや、泣いてもいい。王が泣くなら、それは国家の行事だ。"]],
+whitelily:[["純粋","成分分析","純粋。君の涙は純粋すぎて、成分のほとんどが水だ。……つまり、すぐ乾く。"]],
+yaguruma:[["教育","答え合わせ","教育。今日の{c}は、人生からの授業だった。そして俺は、その答え合わせに来たんだ。"]],
+pansy:[["私を思って","顔面理論","私を思って。この花、人の顔に見えるだろう？ ……これは俺だ。俺を思って、泣き止んでくれ。"]],
+viola:[["少女の恋","涙の肯定","少女の恋。{c}で泣ける君は、まだ少女の心を持っているってことさ。誇っていい。"]],
+mimosa:[["秘密の恋","秘密の漏洩","秘密の恋。だから、この花を渡す理由は秘密だ。……君が泣いていたから、なんて言えない。"]],
+nanohana:[["小さな幸せ","食用転換","小さな幸せ。菜の花は、おひたしにもなる。泣き止んだら、一緒に食べよう。"]],
+edelweiss:[["勇気","立地論","勇気。この花は崖っぷちに咲く。今の君も崖っぷちだ。つまり、咲く場所としては最適なんだ。"]],
+poppy:[["慰め","直球","慰め。……この花言葉については、特にこじつける必要がない。そのまま受け取ってくれ。"]],
+rindou:[["悲しんでいるあなたを愛する","自己矛盾","悲しんでいるあなたを愛する。……待ってくれ。だとすると、泣き止まれると俺は困る。"]],
+rosemary:[["記憶","料理転用","記憶。ローズマリーは肉の臭み消しに使う。{c}の記憶も、これで臭みを消そう。"]],
+nemophila:[["どこでも成功","事業化","どこでも成功。つまり、このベンチでも成功する。君が泣き止むという、今日最大の事業が。"]],
+pentas:[["願い事","即物的願掛け","願い事。花びらが星の形だろう？ 流れ星は待っていても来ないが、この星は今、君の手の中にある。"]],
+salvia:[["家族愛","家族の拡張","家族愛。今日から、俺と君と、この花は家族だ。……水やりの当番を決めよう。"]],
+yukiyanagi:[["気まま","締切の設定","気まま。泣くのも気まま、泣き止むのも気ままでいい。……ただ、できれば三分以内に頼む。"]],
+tsutsuji:[["慎み","蜜の倫理","慎み。この花の蜜は吸えるんだ。……慎みを持って、一回だけな。"]],
+sazanka:[["困難に打ち勝つ","季節の比喩","困難に打ち勝つ。この花は冬に咲く。{c}という冬に、君という花が咲くんだ。"]],
+sumire:[["小さな幸せ","隙間理論","小さな幸せ。この花は、コンクリートの隙間にも咲く。君の幸せも、隙間から出てくるんだ。"]],
+wasurenagusa:[["私を忘れないで","選択的記憶","私を忘れないで。……{c}のことは忘れていい。だが、この花をくれた男のことは、忘れないでくれ。"]],
+tanpopo:[["別離","綿毛理論","別離。綿毛は旅立つために咲く。君の涙も、今日ここで旅立つんだ。……ふーってしてごらん。"]],
+bluerose:[["奇跡","技術進歩論","奇跡。青いバラは、かつて『不可能』の象徴だった。だが今は売っている。君が笑うのも、時間の問題さ。"]],
+tsubaki:[["控えめな素晴らしさ","失言の修正","控えめな素晴らしさ。椿は花ごと落ちる。潔いだろう？ {c}のことも、首ごと……いや、丸ごと落とそう。"]],
+begonia:[["片思い","非対称の美","片思い。この花の葉は、左右が非対称なんだ。片方だけでも、想いは想いだ。"]],
+fuji:[["決して離れない","対象の限定","決して離れない。藤は絡みついたら離れない。……{c}への悲しみにだけは、絡みつかせないでくれ。"]],
+asagao:[["はかない恋","時間制限","はかない恋。朝顔は昼にはしぼむ。つまり、どんな悲しみも、お昼には終わるってことさ。"]],
+hiiragi:[["保護","負傷の告白","保護。葉のトゲは、君を守るためにある。……持つときは気をつけてくれ。俺はもう三か所刺された。"]],
+gladiolus:[["密会","秘密化","密会。つまり、今ここで俺たちが会っていることは、誰にも言ってはいけない。{c}にもな。"]],
+amaryllis:[["おしゃべり","脅迫的献身","おしゃべり。花が黙っている分、俺がしゃべろう。……君が泣き止むまで、ずっとだ。"]],
+keitou:[["気取り屋","名指し回避","気取り屋。……誰のことかは言わない。だが、この花を選んだ男のセンスは、信じていい。"]],
+hyakunichi:[["不在の友を思う","耐久力","不在の友を思う。百日咲き続ける花だ。君の悲しみが百日続いても、この花は付き合ってくれる。"]],
+saffron:[["過度を慎め","めしべの助言","過度を慎め。泣きすぎは体に毒だ。この花の、たった三本のめしべがそう言っている。"]],
+strelitzia:[["気取った恋","形状論","気取った恋。鳥みたいな形だろう？ この鳥が、{c}の記憶をくわえて飛んでいくんだ。"]],
+harujion:[["追想の愛","うつむき肯定","追想の愛。ハルジオンは、つぼみのうちはうつむいている。君も今はうつむいていい。咲くのは、そのあとだ。"]],
+sweetpea:[["別離","別離の対象変更","別離。そう、君は今日、涙と別離するんだ。この花は、その記念品さ。"],["別離","変態理論","別離。蝶みたいな形だろう？ 蝶は、さなぎと別れて飛ぶ。{c}は、君のさなぎだったんだ。"]],
+dahlia:[["裏切り","裏切りの再配置","裏切り。この花は今から、君の悲しみを裏切る。泣かせ続けるはずだった悲しみを、な。"],["裏切り","球根の告白","裏切り。ダリアの球根は、昔は食べられていたらしい。花のつもりが芋だった。人生、裏切られてなんぼさ。"]],
+lavender:[["不信感","対象の明示","不信感。……{c}への不信感だ。君への不信感じゃない。そこは、はっきりさせておきたい。"],["不信感","安眠療法","不信感。だが、この香りには安眠効果がある。疑いながら眠ればいい。起きたら全部、夢だったことにしよう。"]],
+hasu:[["離れゆく愛","泥中理論","離れゆく愛。蓮は泥の中から咲く。{c}という泥から離れて、君は咲くんだ。"],["離れゆく愛","撥水理論","離れゆく愛。離れてゆくのは、悲しみの方だ。蓮の葉の上の水みたいに、コロコロとな。"]],
+suisen:[["うぬぼれ","推奨","うぬぼれ。君は、もっとうぬぼれていい。{c}ごときに泣かされるほど、君は安くない。"],["うぬぼれ","神話の流用","うぬぼれ。この花の由来は、水面の自分に恋した少年だ。ほら、水たまりを見てごらん。泣き顔も悪くないだろう？"]],
+miyakowasure:[["別れ","名前の再解釈","別れ。都を忘れるほど美しい花——つまり、{c}を忘れるほどの花ってことさ。"],["別れ","対象の限定","別れ。……今日の悲しみとの、だ。俺とは別れない。そこは誤解しないでくれ。"]],
+hyacinth:[["悲しみ","悲しみの分担","悲しみ。この花も悲しんでいる。だから君は、もう一人で悲しまなくていい。この花が半分持つ。"],["悲しみ","裏返し","悲しみ。だが、この花のもう一つの花言葉は、初恋のひたむきさだ。悲しみは、ひたむきさの裏返しなんだよ。"]],
+cyclamen:[["嫉妬","擬人化","嫉妬。この花は、君の涙に嫉妬している。自分より美しいものが、目の前にあるからな。"],["嫉妬","自白","嫉妬。……正直に言おう。{c}が君の心をこんなに占めていることに、俺も嫉妬している。"]],
+clover:[["復讐","運命への報復","復讐。四つ葉を探すのは、運命への復讐なんだ。{c}にやられた分、幸運を取り返しに行こう。"],["復讐","二面性","復讐。……だが同時に、約束という意味もある。約束しよう。君が泣き止むまで、俺はここを動かない。"]],
+trumpet:[["報われぬ恋","楽器論","報われぬ恋。報われないからこそ、ラッパを鳴らすんだ。この花の形は、そのためにある。"],["報われぬ恋","報われなさの美学","報われぬ恋。{c}への涙も、報われないままでいい。報われないものほど、美しく咲く。"]],
+ikarisou:[["あなたを離さない","船舶理論","あなたを離さない。錨の形だ。君の心が、悲しみに流されないための錨なんだ。"],["あなたを離さない","重量の肯定","あなたを離さない。……重いと思ったかい？ 錨は重いほど、船は安定するんだ。"]],
+lupinus:[["貪欲","推奨","貪欲。そうだ、君はもっと幸せに貪欲になっていい。{c}で泣いた分、取り返すんだ。"],["貪欲","献身","貪欲。ルピナスは痩せた土でも育つ。栄養を貪欲に奪ってな。君も、俺から元気を奪っていい。"]],
+nokogiri:[["戦い","道具化","戦い。葉がノコギリみたいだろう？ これで、{c}との縁を切るんだ。"],["戦い","兼業論","戦い。昔、戦士はこの葉で傷を手当てしたらしい。戦いの花は、手当ての花でもあるんだ。"]],
+xmasrose:[["中傷","代理中傷","中傷。この花は今、{c}を中傷している。俺の代わりにな。"],["中傷","選択の自由","中傷。だが、もう一つの花言葉は『私の不安を和らげて』だ。花言葉は、都合のいい方を選んでいい。"]],
+hirugao:[["情事","漢字の分解","情事。……誤解しないでくれ。『情』を持って、『事』に当たる。つまり、真剣ってことだ。"],["情事","営業時間","情事。昼顔は、昼に咲く。今は夕方だ。つまり、この花言葉はもう営業時間外なんだ。"]],
+gekka:[["ただ一度だけ会いたくて","公演理論","ただ一度だけ会いたくて。月下美人は一晩しか咲かない。今日の涙も、一晩限りの公演さ。"],["ただ一度だけ会いたくて","目的の自白","ただ一度だけ会いたくて。……だから俺は、今日ここに来た。一度だけ、君の泣き顔を見るために。"]],
+nigella:[["当惑","予言","当惑。……そう、今の君の顔だ。この花は、君の表情を先回りしているんだ。"],["当惑","破裂理論","当惑。この花、実が風船みたいに膨らむんだ。当惑も、膨らめばいつか割れる。"]],
+fukujuso:[["悲しき思い出","時制の確定","悲しき思い出。思い出、と言っている。つまり{c}はもう過去だ。この花がそう決めた。"],["悲しき思い出","名前優先","悲しき思い出。だが、名前は福寿草だ。福と寿だ。名前の方が、花言葉より強い。"]],
+anthurium:[["煩悩","確率論","煩悩。人間には百八つの煩悩がある。{c}は、そのうちのたった一つにすぎない。"],["煩悩","形状論","煩悩。……ハートの形だろう？ 煩悩とは、心の形をしているものなんだ。"]],
+clematis:[["策略","自白","策略。……そうだ、これは策略だ。君を泣き止ませるための、俺の策略なんだ。"],["策略","登攀論","策略。つるは、どんな壁も登っていく。策略とは、壁を登るための知恵のことさ。"]],
+nazuna:[["あなたに私のすべてを捧げます","原価ゼロ","あなたに私のすべてを捧げます。……道端で摘んだ。原価はゼロだ。だが、すべてを捧げている。"],["あなたに私のすべてを捧げます","音響効果","あなたに私のすべてを捧げます。ぺんぺん草とも言う。振ると、ぺんぺん鳴る。……聞いてくれ。"]],
+negi:[["くじけない心","最後の力","くじけない心。ネギ坊主は、ネギが最後の力を振り絞って咲かせる花だ。君も今、振り絞っている。"],["愛嬌","薬味理論","愛嬌。ネギは薬味だ。主役じゃなくても、なくてはならない。今日の君は、人生の薬味なんだ。"]],
+nasu:[["優美","ことわざ流用","優美。親の意見となすびの花は、千に一つも無駄がない。……俺の意見も、無駄はない。"],["真実","結実理論","真実。ナスの花は、必ず実をつける。君の涙も、必ず何かの実になる。……たぶん麻婆茄子とかに。"]],
+jagaimo:[["慈愛","地中熟成","慈愛。ジャガイモは土の中で黙って育つ。君の悲しみも、土の中で、いつかポテトになる。"],["恩恵","埋蔵物理論","恩恵。この花が咲いたということは、下に芋がある。今の悲しみの下にも、何かが埋まっているんだ。"]],
+wata:[["優秀","用途の特定","優秀。綿は、涙を吸うのが得意だ。つまりこの花は、君の涙を吸うために生まれてきたんだ。"],["繊細","相性診断","繊細。綿は、ふわふわだ。君の心も今、ふわふわしている。つまり、相性がいい。"]],
+cactus:[["枯れない愛","水分補給論","枯れない愛。サボテンは水をあまり必要としない。泣いて水分を失った今の君に、ぴったりだ。"],["燃える心","トゲの肯定","燃える心。トゲがあるのは、守りたいものがあるからだ。……持ち方には気をつけてくれ。"]],
+kochoran:[["幸福が飛んでくる","開店理論","幸福が飛んでくる。開店祝いでおなじみだ。つまり今日は、新しい君の開店日なんだ。"],["幸福が飛んでくる","立て札の撤去","幸福が飛んでくる。……立て札は外してきた。『祝 御開店』と書いてあったからな。"]],
+dried:[["変わらぬ心","水分ゼロ理論","変わらぬ心。水分ゼロでも、色は変わらない。泣いて水分を失っても、君は君だ。"],["途絶えぬ記憶","乾燥の推奨","途絶えぬ記憶。乾いているのは、もう泣き終わったという意味だ。君も、もう乾いていい。"]],
+oshibana:[["私を思って","しおり理論","私を思って。しおりにしてある。君の人生の、今日というページに挟んでおいてくれ。"],["もの思い","圧縮の美学","もの思い。押し花は、押されて平らになる。{c}に押しつぶされた今日も、いつか美しいしおりになる。"]],
+daikon:[["潔白","白さの証明","潔白。大根は白い。つまり、俺の気持ちも白い。下心はない。大根と同じだ。"],["適応力","言い直し","適応力。大根はどんな料理にも合う。君も、どんな悲しみにも合う。……いや違う、どんな悲しみにも勝てる。"]],
+ajisai:[["移り気","変色理論","移り気。紫陽花は色が変わる。今日の涙の色も、明日には変わっているさ。"],["浮気","漢字の分解","浮気。……落ち着いてくれ。浮くのは気分だ。浮気とは、気分が浮くこと。つまり、元気になれってことだ。"]],
+muscari:[["失望","許可証","失望。望みを、失う。つまり、{c}への望みはもう捨てていい。この花が、その許可証だ。"],["失望","発酵理論","失望。だが、ムスカリはブドウみたいだろう？ 失望も、熟せばワインになる。"]],
+ytulip:[["望みのない恋","追跡の中止","望みのない恋。……そうだ、{c}に望みはない。だから、もう追わなくていいんだ。"],["望みのない恋","無敵理論","望みのない恋。望みがないということは、もう失うものもないってことだ。最強じゃないか。"]],
+yrose:[["嫉妬","変色の由来","嫉妬。この花は、君の涙が自分より輝いていることに嫉妬して、黄色くなったんだ。"],["薄らぐ愛","主語の補完","薄らぐ愛。薄らぐのは、{c}への執着だ。愛じゃない。この花は、主語を省略しているだけなんだ。"]],
+anemone:[["見捨てられた","共感","見捨てられた。この花は、花屋の隅で見捨てられていた。だから、君の気持ちが分かるんだ。"],["見捨てられた","時制の読み替え","見捨てられた。だが、俺が拾った。つまりこの花言葉は、もう過去形だ。君もな。"]],
+digitalis:[["不誠実","自己言及のパラドックス","不誠実。この花は不誠実だ。だが、それを正直に申告している。つまり、誠実なんだ。"],["熱愛","防寒指導","熱愛。この花は、狐の手袋とも呼ばれる。狐ですら手袋をするんだ。泣いている君は、もっと温まるべきだ。"]],
+ykiku:[["破れた恋","裁縫理論","破れた恋。破れたなら、繕えばいい。この花びらの数だけ、縫い目がある。"],["破れた恋","採光理論","破れた恋。破れたということは、そこから光が入るってことだ。"]],
+kinsenka:[["寂しさ","同期","寂しさ。この花は、日が沈むと閉じる。今、閉じかけている。君と同じだ。一緒に閉じよう。"],["別れの悲しみ","消化理論","別れの悲しみ。キンセンカは食べられる花だ。悲しみも、消化してしまえばいい。"]],
+erica:[["孤独","期限付き孤独","孤独。この花が孤独だったのは、君にもらわれるまでの話だ。"],["孤独","立地論","孤独。エリカは荒れ地に咲く。孤独な場所ほど、花は目立つ。今の君みたいにな。"]],
+odamaki:[["愚か","自虐","愚か。……そう、俺は愚かだ。泣いている君に、愚かという花を渡す男だからな。"],["愚か","逆転勝利論","愚か。だが、もう一つの花言葉は『断固として勝つ』だ。愚かなほど、人は勝つ。"]],
+kyouchikutou:[["危険な愛","衛生指導","危険な愛。この花には毒がある。触った手は洗ってくれ。愛とは、そういうものだ。"],["油断しない","戒め","油断しない。{c}には、もう油断しない。この花が、その戒めだ。"]],
+hoozuki:[["偽り","中身理論","偽り。この実は、袋の中が空っぽに見える。だが、ちゃんと実がある。偽りの奥に、真実があるんだ。"],["ごまかし","自白","ごまかし。……正直に言おう。俺は今、ごまかしている。君の涙から、目をそらすためにな。"]],
+misohagi:[["愛の悲しみ","愛の証明","愛の悲しみ。悲しいのは、愛があった証拠だ。{c}にさえ、君は愛を注いでいたんだ。"],["悲哀","漢字由来","悲哀。禊萩、と書く。禊——つまり清めだ。この花で、今日の悲しみを清めよう。"]],
+asebi:[["犠牲","被害の申告","犠牲。この花は、馬が食べると酔う。……この花を摘むのに、馬が一頭、犠牲になりかけた。"],["あなたと二人で旅をしよう","選択的聴覚","あなたと二人で旅をしよう。……犠牲という花言葉もあるが、それは聞かなかったことにしよう。"]],
+murasakitsuyu:[["尊敬しているが愛してはいない","寸止め","尊敬しているが愛してはいない。そう、俺は君を尊敬している。涙を流せる君を。それ以上は、言わないでおく。"],["尊敬しているが愛してはいない","代弁","尊敬しているが愛してはいない。……{c}に対する、今の君の気持ちだ。この花は、君の心の代弁者なんだ。"]],
+yellowlily:[["偽り","偽装からの本物","偽り。偽りでもいい。笑顔は、偽りから始めても、いつか本物になる。"],["陽気","二択の提示","陽気。もう一つの花言葉は偽りだ。偽りと陽気、どっちを取るかは君が決めていい。"]],
+gobou:[["いじめないで","代理発言","いじめないで。……{c}に言ってやれ。この花を突きつけてな。"],["触らないで","ひっつき虫理論","触らないで。ゴボウの花はひっつき虫だ。服にくっついたら取れない。俺の気持ちも、そうだ。"]],
+okura:[["恋によって身が細る","栄養指導","恋によって身が細る。泣いて痩せる前に、これを食べてくれ。オクラは栄養がある。"],["恋によって身が細る","断面理論","恋によって身が細る。オクラの断面は星形だ。君の夜空にも今、星が一つ増えた。"]],
+dokudami:[["白い追憶","嗅覚記憶","白い追憶。匂いは、強い。だが、強い匂いの記憶は消えない。今日も、忘れられない日になる。"],["野生","十薬理論","野生。ドクダミは、十薬とも言う。十の薬だ。君の十の悲しみに、一本ずつ効くんだ。"]],
+inufuguri:[["信頼","名前の黙殺","信頼。……名前については、聞かないでくれ。花言葉だけを、信頼してほしい。"],["清らか","春の先触れ","清らか。この花は、春いちばんに道端で咲く。どんなに寒くても、春は来るということさ。"]],
+cabbage:[["利益","実利主義","利益。泣いている君に、利益を。具体的には、今夜の野菜炒めの具だ。"],["利益","多層防御","利益。キャベツは葉を重ねて、中心を守る。君の心も、何枚重ねてでも守る。"]],
+pineapple:[["あなたは完璧","全肯定","あなたは完璧。そうだ、君は完璧だ。完璧だから、泣き顔までちゃんとしている。"],["完全無欠","自己訂正","完全無欠。トゲトゲしているが、中は甘い。{c}もきっと、中は甘かったんだ。……いや、違うか。"]],
+whitekiku:[["真実","場違いの肯定","真実。供花の定番だが、真実の花だ。真実とは、時に場違いなものなんだ。"],["誠実","告別式理論","誠実。今日、君の悲しみは葬られた。この花は、その告別式のためのものだ。"]],
+redcarnation:[["母への愛","立場の変換","母への愛。……そう、俺は今日、君の母親の気持ちで、ここに立っている。"],["純粋な愛","法解釈","純粋な愛。母の日の定番だが、母の日以外に贈ってはいけないという法律はない。"]],
+bamboo:[["節度","希少性","節度。竹の花は、百年に一度しか咲かない。つまり今日は、百年に一度の日なんだ。"],["節操のある","潔さ","節操のある。竹は、咲いたら枯れる。泣いたら、終わり。そういう節度だ。"]],
+artificial:[["あなたを愛しています","不朽の誓い","あなたを愛しています。造花だ。だから、この気持ちは枯れない。ポリエステルの誓いだ。"],["情熱","価格論","情熱。値札が付いている。九十八円の情熱だ。だが、値段で測れないものもある。"]],
+bouquet:[["感謝","半額理論","感謝。半額シールは気にしないでくれ。値段は半分でも、気持ちは二倍だ。"],["清らかな心","逆指名","清らかな心。売れ残りの花束だ。つまり、誰にも選ばれなかった花たちが、君を選んだんだ。"]],
+bulb:[["思いやり","開花予定","思いやり。まだ咲いていない。だが、それでいい。君が泣き止む頃に、ちょうど咲く計算だ。"],["博愛","越冬理論","博愛。球根は、土に埋めて冬を越す。今日の悲しみも、埋めておけば、春に咲く。"]],
+petal:[["精神の美","想像力の委託","精神の美。花びら一枚だ。花の全体は、君の心の中で想像してくれ。"],["優美な女性","部分と全体","優美な女性。一枚の花びらにも、桜のすべてが詰まっている。……詰まっているはずだ。"]],
+marigold:[["絶望","先輩理論","絶望。この花は、すでに絶望を経験している。つまり先輩だ。先輩の言うことは聞いておけ。"],["絶望","実用性","絶望。だが、マリーゴールドは虫よけになる。君にたかる{c}を、追い払ってくれるんだ。"]],
+ycarnation:[["軽蔑","許可証","軽蔑。{c}を、軽蔑していい。君には、その権利がある。この花が、許可を出した。"],["軽蔑","漢字の分解","軽蔑。軽く、蔑む。……軽くだ。重く悩む必要はない。字が、そう言っている。"]],
+scabiosa:[["私はすべてを失った","在庫ゼロ理論","私はすべてを失った。すべてを失ったなら、あとは手に入れるだけだ。在庫ゼロからの再出発さ。"],["不幸な愛","部分肯定","不幸な愛。……不幸な、と言っている。つまり、愛ではあるんだ。"]],
+azami:[["報復","最大の報復","報復。{c}への報復は、君が笑うことだ。それが、いちばん効く。"],["報復","痛みの共有","報復。トゲが多いだろう？ 報復とは、自分も痛みを負うことなんだ。……持つ手は大丈夫か？"]],
+hanazuou:[["裏切り","裏切りの再配置","裏切り。この花は、君の悲しみを裏切る。泣き続けるはずだった今日を、裏切るんだ。"],["疑惑","直咲き理論","疑惑。枝から直接、花が咲くだろう？ 疑う暇もなく、いきなり咲く。勇気の証なんだ。"]],
+higanbana:[["悲しい思い出","時制の確定","悲しい思い出。思い出、だ。つまり、もう過去だ。今日の{c}も、もう過去になった。"],["また会う日を楽しみに","選択の自由","また会う日を楽しみに。この花には三つの花言葉がある。都合のいいのを一つ、持って帰ってくれ。"]],
+otogiriso:[["恨み","預かり理論","恨み。この花は、恨みを全部引き受ける花なんだ。君の分も、預かっておく。"],["秘密","秘密の漏洩","秘密。……恨みという花言葉もある。だが、それは秘密だ。今、言ってしまったが。"]],
+lobelia:[["悪意","吸収理論","悪意。{c}の悪意を、この花が吸い取った。だから、こんなに青いんだ。"],["悪意","大人の二面性","悪意。だが、謙遜という意味もある。悪意を持ちながら謙遜する。……大人の花だ。"]],
+torikabuto:[["復讐","代行","復讐。この花には毒がある。つまり、{c}への復讐はこの花が引き受けた。君は手を汚さなくていい。"],["騎士道","選択的来訪","騎士道。復讐という花言葉もあるが、騎士道もある。俺は、騎士道の方で来た。"]],
+kuroyuri:[["呪い","想いの過剰","呪い。呪いとは、強すぎる想いのことだ。それほどまでに、この花は君を想っている。"],["恋","紙一重理論","恋。呪いという花言葉もある。だが、恋と呪いは紙一重なんだ。"]],
+snowdrop:[["あなたの死を望みます","主語のすり替え","あなたの死を望みます。……誤解しないでくれ。死ぬのは、君の悲しみだ。悲しみの死を、望んでいる。"],["希望","言わない勇気","希望。雪の中で最初に咲く花だ。……もう一つの花言葉は、今日は言わないでおこう。"]],
+blackrose:[["憎しみ","混色理論","憎しみ。黒は、すべての色を混ぜた色だ。憎しみも、すべての感情を混ぜた結果なんだ。"],["決して滅びることのない愛","選択的聴覚","決して滅びることのない愛。……憎しみという花言葉は、俺は今、聞かなかった。"]],
+orangelily:[["憎悪","代理燃焼","憎悪。{c}を憎悪する君の代わりに、この花がオレンジ色に燃えている。"],["愉快","確率論","愉快。三つの花言葉のうち、一つは愉快だ。三分の一の確率で、今日は愉快な日だ。"]],
+colchicum:[["私の最良の日々は過ぎ去った","主語のすり替え","私の最良の日々は過ぎ去った。……この花の、だ。君の最良の日々は、これからだ。"],["私の最良の日々は過ぎ去った","減点方式の逆用","私の最良の日々は過ぎ去った。過ぎ去ったなら、今日は最良じゃなくていい。つまり、泣いてもいい日なんだ。"]],
+rafflesia:[["夢うつつ","夢オチ","夢うつつ。世界一大きな花だ。匂いは、世界一臭い。だから、これは夢だ。全部、夢なんだ。"],["夢うつつ","大きさの比喩","夢うつつ。鼻はつまんでくれていい。だが、この大きさは、俺の気持ちの大きさだ。"]],
+flytrap:[["捕らえる","捕獲実演","捕らえる。君の悲しみを、この花が捕らえる。……ほら、閉じた。"],["ずる賢い","自白","ずる賢い。そうだ、俺はずる賢い。泣いている君の隙に、この花を渡すくらいにはな。"]],
+hekuso:[["誤解を解きたい","名誉回復","誤解を解きたい。名前はひどい。だが、花は可愛いだろう？ 誤解を解きたいんだ。この花も、俺も。"],["人嫌い","保護活動","人嫌い。名前のせいで、ずっと人に嫌われてきた花だ。君が、好きになってやってくれ。"]],
+artichoke:[["傷つく恋","皮むき理論","傷つく恋。アーティチョークは、トゲのある葉を一枚ずつ剥いて食べる。恋も、剥くほどうまくなる。"],["警告","宣戦布告","警告。そう、これは警告だ。{c}よ、これ以上、彼女を泣かせることは許さない。"]]
+};
+const HOOKS=[
+"きんちゃんは今ごろ、空の水槽を泳いでいる。この花は、その水草だ。",
+"この花を、プリンの代わりに。……甘くはないが、カロリーもゼロだ。",
+"推しの幸せを祝える君は、もう花を贈る側の人間だ。だから今日くらいは、受け取る側になればいい。",
+"第一志望が君を選ばなかったなら、この花が君を選んだ。それで十分だ。",
+"ミスをした一球も、君の三年間の一部だ。この花の、一枚の花びらみたいにな。",
+"玉ねぎの涙でもいい。涙は涙だ。俺は、すべての涙に花を贈ることにしている。",
+"財布は交番に届くかもしれない。だが、この花は確実に、今、君に届いた。",
+"あの犬は、映画の中で永遠に生きている。この花も、君の記憶の中で永遠に咲く。",
+"三年分の想いは、どこにも消えない。この花の、根っこになるだけだ。",
+"ガチャは外れた。だが、この花のガチャは当たりだ。……たぶん。",
+"傘の代わりに、この花を差してくれ。雨はしのげないが、気持ちはしのげる。",
+"目のゴミも、涙で流れる。この花は、そのご褒美だ。",
+"割れた画面は、蜘蛛の巣じゃない。花びらの模様なんだ。",
+"三時間分のレポートは消えた。だが、三時間分の君の努力は消えていない。",
+"短い前髪は、君の目をよく見せてくれる。この花が、よく見えるようにな。",
+"あの店の味は、君の舌に保存されている。この花は、その記念碑だ。",
+"赤点も、点だ。点が集まれば、いつか花の形になる。",
+"チケットは全滅した。だが、この花は抽選なしで君に届いた。",
+"離れても、同じ空の下だ。この花の種が、風に乗って届くくらいの距離さ。",
+"卒業は、終わりじゃない。つぼみが次に開くための、区切りなんだ。",
+"噛んだ台詞は、誰よりも君が覚えている。……俺の今の台詞は、噛まずに言えたか？",
+"当たりの文字は消えた。だが、当たりだった事実は消えない。この花も、当たりだ。",
+"最後の配信は、君の中で再生され続ける。この花は、その投げ銭だ。",
+"セーブデータは消えた。だが、百時間の思い出は、君の中にセーブされている。",
+"好きだった気持ちに、間違いはない。この花が、それを保証する。",
+"パンクも雨も、君のせいじゃない。この花は、空からの謝罪だと思ってくれ。",
+"ラブレターは届かなかった。だが、この花は、ちゃんと君に届いた。宛先は間違えていない。",
+"犬に懐かれなくても、この花は君に懐いている。……ほら、こっちを向いている。",
+"台風は去る。旅行は、また行ける。この花は、その日までの留守番だ。",
+"限定スイーツは売り切れた。だが、この花は、在庫が一つだけ残っていた。君の分だ。",
+"麺は流れた。だが、この花は流れない。俺がしっかり握っているからな。",
+"その作家にも、この花を贈りたい。君を泣かせた、最高の一ページに。",
+"……この花の花粉は、少なめのはずだ。たぶん。",
+"漫画は捨てられても、物語は君の中に残っている。この花は、その新しい一巻だ。",
+"一票差は、ほとんど同点だ。この花の一票を、君に入れよう。",
+"三回間違えたなら、四回目は正解だ。この花は、その四回目なんだ。",
+"うさ吉の耳は、縫えば戻る。この花は、その手術の付き添いだ。",
+"投稿は消せる。だが、この花は消せない。……写真を撮るなら、今だ。",
+"弟が強くなったのは、君が相手をしてきたからだ。この花は、師匠への贈り物だ。",
+"夢の中の失恋は、現実ではノーカウントだ。この花は、現実の側からの贈り物だ。",
+"……誕生日、おめでとう。この花は、そのためだったことにしよう。今、決めた。",
+"わさびの涙は、すぐに引く。この花は、その余韻だ。",
+"あくびの涙でも構わない。俺は、涙を見たら花を渡す主義なんだ。",
+"半目の写真は、十年後にいちばん笑える。この花は、十年後の君への先払いだ。",
+"最終回のあとも、物語は君の中で続く。この花は、第二期の告知だ。",
+"おばあちゃんの家は、また来年もある。この花を、来年の約束にしよう。",
+"靴擦れは、新しい道を歩いた証拠だ。この花は、その一歩目の記念だ。",
+"塩味のクッキーも、涙の味だと思えば、ちょうどいい。この花は、そのお茶請けだ。"
+];
+const POOL={
+open:["君に涙は似合わないよ。","泣かないで。君の涙は、夕日には眩しすぎる。","やれやれ。そんな顔をされたら、黙っていられないな。","顔を上げて。……君に、渡したいものがあるんだ。","涙を拭いて。……いや、拭かなくていい。そのままで聞いてくれ。","ひより。君の涙は、俺の胸に刺さる。","泣き顔も悪くない。……だが、笑顔の方がもっといい。","こんなところで泣いているなんて、君らしくないな。","夕日が沈む前に、君の涙を止めてみせる。","偶然だね。俺もちょうど、泣いている人に花を渡したい気分だったんだ。","涙の理由は、聞かなくても分かる。……いや、さっき聞こえた。","待たせたね。……誰も待っていなかったとしても。"],
+offer:["蒼真は懐から、一輪の{f}を取り出した。","差し出されたのは、一輪の{f}だった。","夕日を背に、蒼真は{f}を差し出した。","どこに隠していたのか、蒼真の手には{f}があった。","蒼真は片膝をつき、{f}を掲げた。"],
+offerOdd:["差し出されたのは、{f}だった。","蒼真は懐から、{f}を取り出した。……懐から？","どこに隠していたのか、蒼真の手には{f}があった。","蒼真は片膝をつき、{f}を掲げた。……{f}を。"],
+name:["名前は{f}。花言葉は——『{m}』。","この花は{f}。花言葉は……『{m}』だ。","{f}。花言葉を知っているかい？ ——『{m}』。","{f}。その花言葉は、『{m}』。"],
+confuse:["えっ……{m}……？","今……『{m}』って言った……？","……{m}？ 慰めてるんだよね……？","ちょっと待って、{m}って……","……泣いてる人に、{m}……？","え、それ、今言う……？"],
+confuseOdd:["……え、それ、{f}……だよね？","花……なの、それ……？","……{f}を、私に……？"],
+mild:["……きれい……","私に……？","……花言葉、詳しいんだね……"],
+aside:["夕日が、なぜか蒼真の背後でだけ強く輝いた。","どこからか、ピアノの音が聞こえた気がした。","カラスが一羽、何も言わずに飛び去った。","ベンチの向こうで、犬の散歩中の人が足を止めた。","風が吹き、花びらが一枚、蒼真の肩に舞い降りた。","蒼真の声には、なぜか少しだけエコーがかかっていた。","ひよりの涙が、ほんの少しだけ止まった。","理屈はよく分からない。だが、声がいい。"],
+close:["だから、今日の涙はこの花に預けて。","君に似合うのは、涙じゃない。この花だ。","受け取ってくれ。これが、俺の答えだ。","花言葉なんて、最後は贈る人の気持ちで決まるんだ。","この花が枯れるころには、君はもう笑っている。","さあ、涙を拭いて。この花が見ている。","言いたいことは、それだけだ。……ほとんど花に言わせたけどな。","分かるかい？ ……分からなくてもいい。感じてくれ。"],
+fin:["……ずるいよ、そんなの……","……なんで、ちょっと納得しそうなの、私……","……ばか。……でも、ちょっと嬉しい……","そんなふうに……考えたこと、なかった……","……蒼真くん……","……もう、涙、止まっちゃったじゃない……","意味は全然分からないのに……胸が……","……理屈は、おかしいのに……"],
+tsk:{1:["普通にいい話で逆に困る。","花言葉が素直すぎて、こじつけの出番がなかった。","ガチャ運だけで勝った。","これは、こじつけではなく、ただの親切。","難易度が低すぎて、蒼真が少し物足りなさそうだった。"],
+     2:["ちょっと無理があるが、まあ許せる範囲。","ギリギリ嘘ではない。","花言葉の後半を、聞かなかったことにしている。","花屋で調べてきた感が、少しだけ出ていた。"],
+     3:["苦しい。かなり苦しい。","だいぶ苦しいが、勢いで通した。","理屈の途中で、本人も一回迷っていた。","聞き手が優しくなければ、成立していない。","論理の階段が、一段抜けている。"],
+     4:["無理筋だが、本人は自信満々。","論理が完全に宙に浮いている。","声の良さだけで押し切った。","夕日の演出がなければ、ただの事故。","ひよりが優しくて助かった。"],
+     5:["これで成立するなら何でも成立する。","花言葉という制度の敗北。","花言葉辞典が一冊、静かに閉じられた。","普通なら、ここで誰かが止めに入っている。","この花で成立するなら、もう全部の花で成立する。"]},
+tskOdd:["{f}を花として扱ったことに、誰も異議を唱えなかった。","そもそも、なぜ{f}を持ち歩いているのか。","{f}の入手経路は、今後も明かされない。"]
+};
+
+/* ===== 収録内容の絞り込み：泣いている理由24・花100 ===== */
+(function(){
+  const RID={0:'kingyo',1:'pudding',2:'oshi',3:'juken',4:'taikai',5:'tamanegi',7:'eiga',8:'furare',9:'gacha',10:'kasa',12:'sumaho',13:'report',14:'maegami',16:'akaten',18:'tenkou',20:'geki',23:'save',26:'loveletter',30:'yakisoba',32:'kafun',35:'baito',40:'tanjoubi',41:'wasabi',47:'cookie'};
+  RS.forEach((r,i)=>{r.hook=HOOKS[i];r.id=RID[i]||null});
+  const keepR=RS.filter(r=>r.id);RS.length=0;keepR.forEach(r=>RS.push(r));
+  const KEEP_LOW=['himawari','redrose','whiterose','sakura','kasumi','suzuran','cosmos','margaret','kikyou','pansy','rindou','nanohana','gerbera','whitelily','poinsettia','wasurenagusa','tanpopo','bluerose','tsubaki','asagao','gladiolus','amaryllis','strelitzia'];
+  const keepF=FL.filter(f=>f.d>=3||KEEP_LOW.includes(f.id));FL.length=0;keepF.forEach(f=>FL.push(f));
+})();
+/* ===== 組み合わせ専用台詞：COMBO[花id][理由id] = [花言葉, 技法, こじつけ, 締め, ひよりの最後, ツッコミ] ===== */
+/*COMBO_START*/const COMBO={"kuroyuri":{"kingyo":["呪い","供養の再定義","呪い。……きんちゃんは今、この花の呪いで、君の心の中に結びつけられた。これからも、ずっとそこを泳ぎ続けるんだ。","だから、もう探さなくていい。きんちゃんは、ずっとここにいる。","……それ、きんちゃん成仏できなくない……？","慰めた結果金魚が地縛霊になった。"],"pudding":["呪い","因果応報の委託","呪い。この花を、お兄さんの枕元に置いておくといい。三日以内に、彼はプリンを二つ買ってくる。","呪いとは、正しく使えば返品制度なんだ。","……二つなら……許す……","呪いにしては納期が具体的すぎる。"],"oshi":["恋","恋と呪いの等価交換","恋。……この花には、呪いと恋、両方の意味がある。推しを想う君の気持ちは、ちょうどその真ん中にあるんだ。","祝いたい気持ちと、呪いたい気持ち。両方抱えていい。それが推すってことだ。","……両方……抱えていいんだ……","花言葉二つで推し活を完全解説。"],"juken":["呪い","責任の外部化","呪い。……君が落ちたのは、実力じゃない。呪いだ。この花が、それを証明している。","呪いのせいなら、君は何も悪くない。来年は、呪いのない年だ。","……呪いのせいって言われると……ちょっと楽になるの、なんで……","入試の敗因が呪いで通るなら塾はいらない。"],"taikai":["復讐","雪辱の予約","復讐。……来年の大会で、あの一球に復讐するんだ。この花は、その宣戦布告だ。","君はもう引退した？ ……なら、俺が代わりに入部する。","……蒼真くん、運動できたっけ……","引退した部に代理で入部する男。"],"tamanegi":["呪い","誤認の全肯定","呪い。……玉ねぎは、切る者を泣かせる呪いの野菜だ。つまり君は今、呪いと戦っていたんだ。","この花で、呪いを相殺しよう。毒をもって毒を制す、だ。","……私、ハンバーグ作ってただけなんだけど……","ただのハンバーグ作りに呪術が参戦した。"],"eiga":["恋","脚本家への同情","恋。……あの映画の脚本家も、きっと犬に恋していたんだ。だから、あんな結末にするしかなかった。","愛が深いほど、物語は残酷になる。この花と同じだ。","……脚本家さんも、つらかったのかな……","脚本家の恋愛事情まで捏造し始めた。"],"furare":["呪い","時限式呪術","呪い。……この花は、十年後に効く呪いだ。十年後、あの人は、君を振ったことを毎朝後悔する。","だから、今日はもう泣かなくていい。仕返しは、自動で進行している。","……十年後なら……待てる、かも……","失恋の慰めが十年ローンになった。"],"gacha":["呪い","確率の擬人化","呪い。……すり抜けたのは、確率のせいじゃない。この花が、先に君の運を吸っていたんだ。つまり、この花自体が最高レアだ。","天井分の運が、全部この一輪に詰まっている。","……天井分……そう言われると、重みが……","爆死の原因も花で景品も花。"],"kasa":["呪い","犯人への呪詛","呪い。この花を、あのコンビニの傘立てに供えてこよう。犯人は、二度と晴れの日に出会えない。","君の傘は、空が取り返してくれる。","……ちょっと、かわいそうになってきた……犯人……","傘一本のために天候を操ろうとしている。"],"sumaho":["呪い","ひび割れの魔術的解釈","呪い。……割れた画面の模様、よく見てごらん。魔法陣だ。君のスマホは、呪いを受け止めて身代わりになったんだ。","この花は、その殉職への献花だ。","……私の代わりに……ありがとう、スマホ……","落としただけのスマホが殉職扱い。"],"report":["復讐","怨念の原動力化","復讐。……消えた三時間分の怒りで、次は一時間で書き上げるんだ。それが、パソコンへの復讐だ。","怒りは、最高のタイピング速度を生む。","……一時間……いける気がしてきた……","慰めのはずが締め切りが早まった。"],"maegami":["呪い","成長の呪術化","呪い。この花には、前髪を早く伸ばす呪いがかかっている。……毎晩、枕元に置いて寝てくれ。","二週間後、君の前髪は元に戻る。呪いとは、そういう速度で効くんだ。","……二週間なら、普通に伸びるよね……？","放っておいても伸びる髪に呪いを使った。"],"akaten":["呪い","数学への宣戦","呪い。……数学という学問そのものが、人類にかけられた呪いなんだ。君は、その被害者の一人にすぎない。","この花で、呪いを解こう。……追試の範囲だけでも。","……範囲だけでも、解いてほしい……","数学が人類の敵に認定された。"],"tenkou":["恋","距離の無効化","恋。……呪いという花言葉もある。呪いは、どんなに遠くても届くんだ。君たちの友情も、同じ射程を持っている。","転校先まで、この花の呪い……いや、想いは届く。","……今、呪いって言いかけたよね……","友情の説明に呪いの射程を持ち出した。"],"geki":["呪い","演出の後付け","呪い。……あの台詞を噛んだのは、役にかけられた呪いだ。むしろ客席は、迫真の演技だと思っている。","噛んだ瞬間、君は役になりきっていたんだ。","……そう、だったのかな……演技……","噛んだだけで迫真の演技扱い。"],"save":["復讐","周回の美化","復讐。……二周目は、一周目の君への復讐だ。百時間かけた道を、今度は五十時間で駆け抜けてやれ。","消えたデータは、君の指が覚えている。","……タイムアタック、か……","消えたデータがタイムアタックの号砲に。"],"loveletter":["恋","誤配の運命化","恋。……隣の靴箱の人も、今ごろ恋に落ちているかもしれない。君は今日、知らない誰かに恋を届けたんだ。","誤配も、恋の一形態だ。この花も、配達されたものだと思ってくれ。","……知らない人に、恋を……","誤配を恋の宅配便と言い張っている。"],"yakisoba":["呪い","排水口の神格化","呪い。……シンクの排水口には、昔から麺を奪う呪いが棲んでいる。君は、伝統的な被害に遭っただけなんだ。","この花は、排水口の神への供え物だ。もう二度と、麺を取られないように。","……排水口に、神様……","排水口に神様を住まわせた。"],"kafun":["呪い","花粉の擬人化","呪い。……花粉症とは、花が人間にかける呪いだ。だから、花で解く。毒をもって毒を制すんだ。","……クロユリの花粉は、少なめのはずだ。たぶん。","……っくしゅん……","花粉症の人に花で治療を試みる暴挙。"],"baito":["呪い","誤注文の霊障化","呪い。……三回も注文を間違えたのは、そのテーブルが呪われていたからだ。君は、霊的な被害者なんだ。","四回目は、この花をテーブルに置いてから注文を取ればいい。","……店長に、そう説明していいかな……","店長は霊障を労災と認めない。"],"tanjoubi":["恋","遅刻の隠蔽","恋。……誰も気づかなかったわけじゃない。少なくとも俺は気づいていた。この花が、その証拠だ。……今、そういうことにした。","誕生日、おめでとう。呪いの花で、すまない。","……今、そういうことにしたって言ったよね……","今そういうことにしたと本人が言った。"],"wasabi":["呪い","辛味の呪術化","呪い。……わさびの辛さは、鼻の奥にかけられる小さな呪いだ。三秒で解けるタイプのな。","あと二秒。……一秒。……ほら、解けた。","……ほんとだ、引いた……","三秒待っただけで解呪の手柄を取った。"],"cookie":["呪い","味覚の呪術化","呪い。……砂糖と塩の容器が似ているのは、台所に昔からかかっている呪いなんだ。君のせいじゃない。","その塩クッキーは、俺が全部食べる。呪いごと引き受けよう。","……しょっぱいよ……？","塩クッキーの完食が美談になった。"]},"snowdrop":{"kingyo":["あなたの死を望みます","時制の後追い","あなたの死を望みます。……きんちゃんの、ではない。きんちゃんを想って泣き続ける、今日の君の悲しみの、だ。","悲しみが死ねば、きんちゃんとの思い出だけが残る。","……思い出だけ……","金魚が亡くなった日に死を望む花を出す度胸。"],"pudding":["あなたの死を望みます","宛先の変更","あなたの死を望みます。……この花は、お兄さん宛てだ。いや、物騒な意味じゃない。お兄さんの食い意地の死を望んでいる。","食い意地が死ねば、プリンは冷蔵庫で生き延びる。","……食い意地、死んでほしい……","兄の食い意地に死刑判決が出た。"],"oshi":["希望","雪中の希望","希望。スノードロップは、雪の中で最初に咲く花だ。推しの結婚という吹雪の中で、最初に咲くのは、君の祝福なんだ。","……もう一つの花言葉は、今日は言わないでおこう。推しの相手に向けると、まずいからな。","……言わないでくれて、ありがとう……","伏せた花言葉が一番物騒なやつ。"],"juken":["希望","季節の先取り","希望。……雪が溶ける前に咲く花だ。春はまだ来ていない。だが、もう咲いていい。君の春も、同じだ。","……来年の春、また咲けばいい。","……来年の春……","浪人をふわっと季節で包んできた。"],"taikai":["あなたの死を望みます","敵の明確化","あなたの死を望みます。……あの一球の、だ。君の記憶の中で、あの一球には死んでもらう。","残るのは、そこまで君が投げ続けた全部の球だ。","……全部の球……","一球に死刑宣告する人を初めて見た。"],"tamanegi":["あなたの死を望みます","食材への宣告","あなたの死を望みます。……玉ねぎの、だ。安心してくれ。玉ねぎは、もう切られている。つまり、この願いはすでに叶っている。","叶った願いの花ほど、縁起のいいものはない。","……たしかに、もうみじん切りだけど……","願いが叶ったのはみじん切りのおかげ。"],"eiga":["慰め","上映後ケア","慰め。……この花は、映画館の出口に置かれるべき花なんだ。犬が死ぬ映画のあとには、必ず配るべきだと思っている。","条例にするべきだ。","……それは、ちょっと賛成……","映画館に花を配る条例案が出た。"],"furare":["あなたの死を望みます","感情の看取り","あなたの死を望みます。……あの人の、じゃない。三年間、君の中で生き続けた片思いの、だ。……長生きだったな。","大往生だ。この花で、送ってやろう。","……大往生……そっか……","三年の片思いが大往生で見送られた。"],"gacha":["希望","次回への投資","希望。……天井まで回したということは、次の天井まで、もう一回分の希望が残っているということだ。","……課金は、ほどほどにな。","……ほどほどに、する……","慰めの結論が次の天井。"],"kasa":["あなたの死を望みます","恨みの殺害","あなたの死を望みます。……傘泥棒の、ではない。傘泥棒を恨む気持ちの、だ。恨みは、雨より重い。","代わりの傘は、明日一緒に買いに行こう。","……一緒に……？","物騒な花言葉からデートに着地した。"],"sumaho":["慰め","破損の芸術化","慰め。……割れた画面越しに見る世界は、ステンドグラスみたいだろう？ この花も、そこから見ればもっと綺麗だ。","修理に出すまでの、ちょっとした美術館さ。","……ほんとだ、ちょっと綺麗……","画面割れが期間限定の美術館になった。"],"report":["あなたの死を望みます","宛先の変更","あなたの死を望みます。……パソコンの自動更新機能の、だ。君の三時間を奪った、あの機能のな。","設定から、きっちり葬ろう。手伝う。","……設定、一緒に見てくれる……？","死を望まれたのは自動更新機能だった。"],"maegami":["希望","成長予測","希望。……雪の下でも、球根は伸び続けている。君の前髪も、今この瞬間も伸びている。一日〇・三ミリずつな。","計算上、春には元通りだ。","……計算、してくれたんだ……","前髪の伸びを日割りで計算する男。"],"akaten":["あなたの死を望みます","数学の延命措置","あなたの死を望みます。……数学の、だ。……いや、数学は死なない。だから、追試のあとで、二人で数学を弔おう。","追試までは、生かしておいてやる。","……追試までは……","数学に追試までの執行猶予がついた。"],"tenkou":["慰め","季節の約束","慰め。スノードロップは、毎年同じ季節に、同じ場所に咲く。離れても、毎年この花の季節に会えばいい。","それなら、別れじゃなくて、待ち合わせだ。","……待ち合わせ……","別れが年一回の待ち合わせに変わった。"],"geki":["あなたの死を望みます","台詞の葬送","あなたの死を望みます。……噛んだ、あの台詞の、だ。あの台詞はもう死んだ。次の舞台では、新しい台詞が生まれる。","役者とは、台詞の生と死を繰り返す仕事なんだ。","……なんか、深い……","噛んだ台詞の葬式で役者論が始まった。"],"save":["希望","ニューゲームの祝福","希望。……セーブデータが消えたなら、君は今、レベル1だ。レベル1は、伸びしろの塊なんだ。","百時間前のワクワクを、もう一度味わえる。","……もう一度、最初から……","データ消失を二度おいしいと言い切った。"],"loveletter":["あなたの死を望みます","宛先の再訂正","あなたの死を望みます。……誤解しないでくれ。隣の靴箱の人ではない。ラブレターを読まれる恥ずかしさの、だ。","恥ずかしさが死ねば、残るのは勇気だけだ。","……勇気だけ……","死ぬのは恥ずかしさだけと念押ししてきた。"],"yakisoba":["慰め","粉末ソースの救済","慰め。……麺は流れたが、ソースの小袋はまだ手元にあるだろう？ 希望は、いつも小袋に残っているんだ。","白いご飯にかけよう。……それは、それでうまい。","……ソースご飯……アリかも……","焼きそばの残骸がソースご飯に転生した。"],"kafun":["希望","季節の先回り","希望。……スノードロップが咲くのは、花粉の季節より少し前だ。つまりこの花は、花粉のない世界から来た使者なんだ。","……花粉は、たぶん出ていない。たぶん。","……たぶん、って……っくしゅ……","たぶんを二回言った。"],"baito":["あなたの死を望みます","ミスの先回り","あなたの死を望みます。……三回の注文ミスの、だ。四回目のミスは、生まれる前に死ぬ。この花が、そう決めた。","明日のシフトは、この花をポケットに入れていけ。","……ポケットに、入るかな……","まだ起きていないミスまで葬った。"],"tanjoubi":["希望","サプライズの捏造","希望。……誰も気づいていないふりをしているだけかもしれない。今ごろ、どこかでサプライズの準備が進んでいる。……可能性はある。","少なくとも、俺は気づいた。誕生日、おめでとう。","……ほんとに、準備してるかな……","存在しないサプライズに希望を託した。"],"wasabi":["あなたの死を望みます","辛味の看取り","あなたの死を望みます。……わさびの、だ。……もう死につつある。ツーンが、だんだん引いていくだろう？ それが、わさびの最期だ。","安らかに眠れ、わさび。","……わさびの、最期……","わさびの臨終に立ち会った人を初めて見た。"],"cookie":["慰め","甘じょっぱいの発見","慰め。……塩のクッキーも、チョコを塗れば甘じょっぱい。失敗は、新しい味の始まりなんだ。","次は、わざと塩を入れてみよう。","……わざと……？","失敗作から新商品の開発会議が始まった。"]},"ycarnation":{"kingyo":["嫉妬","金魚への嫉妬","嫉妬。……正直に言おう。君にこんなに泣いてもらえる、きんちゃんに嫉妬している。","俺も、そういう存在になりたい。……金魚以外の方法で。","……金魚以外で、お願い……","金魚相手に恋敵ムーブ。"],"pudding":["軽蔑","正当な軽蔑","軽蔑。……人のプリンを食べる兄は、軽蔑していい。この花が、正式に許可を出した。","今夜は、お兄さんを軽く蔑みながら、新しいプリンを食べよう。","……軽く、蔑む……","兄弟げんかに花言葉の公式見解が出た。"],"oshi":["嫉妬","嫉妬の健全化","嫉妬。……推しの相手に嫉妬するのは、自然なことだ。黄色は、明るい色だろう？ 明るい嫉妬なら、していいんだ。","嫉妬しながら祝う。それが、大人の推し活だ。","……明るい嫉妬……","明るい嫉妬という新概念が生まれた。"],"juken":["軽蔑","選考の逆転","軽蔑。……君を落とした大学を、軽く蔑んでやれ。君を選ばなかったのは、向こうの損失だ。","次に行く場所で、見返してやろう。","……向こうの、損失……","大学側の損失扱いはさすがに強気。"],"taikai":["嫉妬","ライバル視の推奨","嫉妬。……勝ったチームに、思い切り嫉妬していい。嫉妬は、次の練習の燃料になる。","黄色は、燃える炎の芯の色なんだ。","……燃料……","嫉妬がエコな燃料になった。"],"tamanegi":["軽蔑","食材への報復","軽蔑。……人を泣かせる玉ねぎを、軽蔑してやれ。そして、飴色になるまで炒めてやるんだ。","それが、玉ねぎへの最大の仕返しだ。","……カレーに、する……","仕返しした結果ただのカレー。"],"eiga":["嫉妬","名犬への嫉妬","嫉妬。……俺は、あの映画の犬に嫉妬している。あんなに忠実に、誰かを待ち続けられるなんて。","俺も、君を待ち続ける。……この公園で。","……公園で待たれても……","映画の名犬に対抗心を燃やしている。"],"furare":["軽蔑","見る目の軽蔑","軽蔑。……君を振った、あの人の見る目を、軽蔑していい。三年分の想いを受け取れない目は、節穴だ。","節穴には、この花の黄色も見えないだろうな。","……節穴……ふふ……","元好きな人の目が節穴認定された。"],"gacha":["嫉妬","他人の神引きへの嫉妬","嫉妬。……SNSで単発で引いた人に、嫉妬していい。この花は、そういう夜のためにある。","黄色は、金色のレア演出に、ちょっとだけ似ている。","……ちょっとだけ、ね……","花の黄色を金演出と言い張った。"],"kasa":["軽蔑","犯人への軽蔑","軽蔑。……他人の傘を持っていく人間は、軽蔑していい。雨の日にしか強くなれない、哀れな人だ。","君の傘は、きっと犯人の手の中で、居心地が悪いはずだ。","……傘、帰ってきたいだろうな……","傘の気持ちまで代弁し始めた。"],"sumaho":["嫉妬","無傷への嫉妬","嫉妬。……画面が無傷の人に、嫉妬していい。だが、ひびの入った画面は、君と一緒に戦った証だ。","無傷のスマホには、物語がない。","……物語、あるかな、これ……","画面のひびに勝手に物語を書いた。"],"report":["軽蔑","機械への軽蔑","軽蔑。……勝手に再起動するパソコンを、軽蔑していい。三時間の努力を知らない機械に、心はない。","次からは、こまめに保存しよう。この花を見るたびに。","……こまめに、保存……","花言葉の話が保存の習慣で終わった。"],"maegami":["嫉妬","前髪の再評価","嫉妬。……君の短い前髪に、この花が嫉妬している。眉が見えると、表情がよく伝わるからな。","今日の君の泣き顔も、ちゃんと伝わっている。","……泣き顔は、伝わらなくていいのに……","前髪の利点が泣き顔の見やすさ。"],"akaten":["軽蔑","出題者への軽蔑","軽蔑。……あの問題を作った先生を、軽く蔑んでいい。赤点は、出題者と受験者の共同作品だ。","追試では、先生に勝とう。","……共同作品……","赤点が先生との共同作品になった。"],"tenkou":["嫉妬","転校先への嫉妬","嫉妬。……君の親友を迎える、転校先の学校に嫉妬していい。向こうは、いい人を一人もらうんだ。","それだけ、いい友達だったってことさ。","……うん、いい友達……","嫉妬の矛先が転校先の学校に向いた。"],"geki":["軽蔑","台本への軽蔑","軽蔑。……噛みやすい台詞を書いた台本を、軽蔑していい。悪いのは、早口言葉みたいな脚本の方だ。","次の台本は、俺が書く。噛みにくいやつを。","……蒼真くんの台本、長そう……","噛んだ責任を台本に丸投げした。"],"save":["嫉妬","クラウドへの嫉妬","嫉妬。……クラウドに保存していた人に、嫉妬していい。だが、君の百時間は、雲より高いところにある。","君の思い出という、オフラインのサーバーにな。","……オフライン……","思い出がオフラインのサーバー扱い。"],"loveletter":["嫉妬","誤配先への嫉妬","嫉妬。……君のラブレターを受け取った、隣の靴箱の人に、俺は嫉妬している。","……俺の靴箱は、三つ右だ。覚えておいてくれ。","……三つ右……","三つ右の靴箱は明日から毎朝チェックされる。"],"yakisoba":["軽蔑","設計への軽蔑","軽蔑。……あの湯切り口の、頼りないフタを軽蔑していい。悪いのは君じゃない。設計だ。","メーカーに、この花を送ろう。","……メーカーに、花……","メーカーに花を送ると言い出した。"],"kafun":["軽蔑","花粉への軽蔑","軽蔑。……君を泣かせる花粉を、軽蔑していい。……この花のことは、軽蔑しないでくれ。","……花粉は、少なめのはずだ。","……っくしゅん……","花粉を軽蔑しつつ花粉の出る花を渡した。"],"baito":["嫉妬","客への嫉妬","嫉妬。……三回も君に注文を間違えてもらえた客に、俺は嫉妬している。それだけ長く、君と話せたんだ。","今度、俺も注文に行く。四回間違えてくれ。","……わざとは、無理……","四回間違えてくれは注文ではない。"],"tanjoubi":["軽蔑","自白を伴う軽蔑","軽蔑。……君の誕生日を忘れた全員を、軽蔑していい。……もちろん、俺も含めてだ。","だから、この花は罪滅ぼしだ。誕生日、おめでとう。","……蒼真くんも、忘れてたんだ……","軽蔑の対象に自分も入っていた。"],"wasabi":["軽蔑","責任の遡及","軽蔑。……適量を知らないわさびを、軽蔑していい。……いや、悪いのは、わさびを盛った職人か。","職人にも、この花を届けよう。","……職人さんは、悪くないよ……","責任追及が寿司職人まで遡った。"],"cookie":["嫉妬","成功作への嫉妬","嫉妬。……砂糖で作ったクッキーに、この塩クッキーは嫉妬している。だが、こっちの方が、記憶に残る味だ。","俺は、こっちの方が好きだ。……たぶん。","……たぶん、って言った……","たぶんで褒め言葉が台無し。"]},"marigold":{"kingyo":["悲しみ","死者の道しるべ","悲しみ。……マリーゴールドは、亡くなった者が帰ってくる道しるべの花でもあるんだ。お盆には、きんちゃんがこの花を目印に帰ってくる。","水槽は、そのままにしておこう。","……帰ってきたら、エサあげなきゃ……","お盆の金魚のために水槽を予約した。"],"pudding":["嫉妬","嫉妬の正当化","嫉妬。……プリンを食べたお兄さんに、嫉妬していい。いや、するべきだ。あの甘さを味わうのは、本来君だったんだから。","嫉妬は、次のプリンを二倍おいしくする。","……二倍……","嫉妬をプリンの隠し味にした。"],"oshi":["絶望","絶望の先輩","絶望。……この花は、先に絶望を知っている先輩だ。推しの結婚に絶望した君の気持ちを、誰よりも分かってくれる。","先輩の背中を見ろ。ちゃんと、毎年咲いている。","……先輩、強い……","花が推しの結婚を乗り越えた先輩扱い。"],"juken":["絶望","絶望の底打ち","絶望。……絶望とは、底のことだ。底に着いたなら、あとは上がるしかない。蹴れる地面がある分、むしろ有利だ。","マリーゴールドは、どんな痩せた土でも咲く。","……底、蹴っていいんだ……","不合格を踏み切り板にした。"],"taikai":["悲しみ","涙の価値","悲しみ。……悲しいのは、本気だった証拠だ。適当にやっていた奴は、最後の一球で泣かない。","この花は、本気だった奴にだけ渡すことにしている。","……本気だったよ……","悔し涙に本気の証明書が発行された。"],"tamanegi":["悲しみ","偽の悲しみへの献花","悲しみ。……玉ねぎの涙は、悲しみのない涙だ。だから、この花で、涙に悲しみを足してあげよう。それで釣り合いが取れる。","……いや、足さなくていいか。","……足さなくていいよ……","涙に悲しみを足そうとしてやめた。"],"eiga":["悲しみ","共同喪主","悲しみ。……あの犬のために、一緒に悲しもう。君一人で背負うには、あの犬は良い子すぎた。","今日は、二人で喪に服そう。……映画の犬の。","……映画の犬の、喪……","フィクションの犬の喪に二人で服した。"],"furare":["絶望","絶望の分解","絶望。……望みが絶える、と書く。つまり、あの人への望みは今日で絶えた。空いた場所に、新しい望みが入る。","この花は、引っ越しのお祝いだ。","……心の、引っ越し……","失恋が心の引っ越し扱い。"],"gacha":["絶望","天井の物理学","絶望。……天井まで回して出ないのは、絶望だ。だが、天井があるということは、その上に空があるということだ。","……次は、空を目指そう。","……空って、なに……？","天井の上の空とは何なのか。"],"kasa":["嫉妬","傘への嫉妬","嫉妬。……俺は、君の傘に嫉妬していた。毎日君と一緒に帰れるなんて、ずるいじゃないか。","これからは、俺が隣を歩く。……傘の代わりに。","……蒼真くん、雨は防げないよね……","傘泥棒より動機のある男がここにいる。"],"sumaho":["悲しみ","画面の涙","悲しみ。……画面のひびは、スマホが流した涙の跡なんだ。君と一緒に、泣いてくれたんだ。","修理に出すまで、この花を待ち受けにしよう。","……ひび越しの、待ち受け……","スマホのひびが涙の跡になった。"],"report":["絶望","絶望の再利用","絶望。……三時間分の絶望は、無駄にならない。次のレポートのテーマにすればいい。『データ消失と人間の心理』だ。","実体験に勝る資料はない。","……それ、何の授業……？","データ消失を次のレポートの題材にした。"],"maegami":["嫉妬","眉への嫉妬","嫉妬。……今まで前髪に隠れていた君の眉に、世界が嫉妬している。こんなにいい形の眉を、隠していたなんて。","前髪は伸びるが、今の君は今しか見られない。","……眉、褒められたの、はじめて……","前髪の失敗が眉の公開記念日に。"],"akaten":["絶望","赤の同一視","絶望。……赤点は、絶望の色じゃない。この花と同じ、燃える色だ。……オレンジに近い、赤だ。","追試の答案は、この色で燃やしてやれ。……いや、燃やしたら駄目だ。解いてくれ。","……燃やしちゃ、駄目なんだ……","赤とオレンジを同じ色だと言い張った。"],"tenkou":["悲しみ","道しるべ","悲しみ。……マリーゴールドは、大切な人が帰ってくる道の目印に飾る花なんだ。親友が帰ってくる日のために、育てておこう。","毎年咲くたびに、その日が近づく。","……毎年、咲かせる……","親友の帰省を園芸で待つことになった。"],"geki":["嫉妬","主役への逆転","嫉妬。……台詞を噛んだ瞬間、客席は一番君に注目していた。主役が、君に嫉妬していたくらいだ。","目立った者の勝ちだ。舞台とは、そういうものだ。","……目立っちゃった……","噛んだだけで主役を食った扱い。"],"save":["悲しみ","データの供養","悲しみ。……消えたセーブデータの中で、君の仲間たちは百時間分、一緒に旅をした。彼らの供養に、この花を。","二周目で、また会える。……レベル1の姿でな。","……みんな、レベル1……","セーブデータの仲間に献花した。"],"loveletter":["絶望","絶望の撤回","絶望。……誤配は、絶望じゃない。隣の靴箱の人も、今ごろ君のラブレターを読んで、同じくらい混乱している。混乱は、絶望より明るい。","明日、事情を話して、返してもらおう。俺もついていく。","……ついてきてくれるの……？","誤配の後始末に保護者がついてくる。"],"yakisoba":["悲しみ","麺の葬送","悲しみ。……シンクに散った麺たちにも、それぞれの人生があった。この花を、排水口に手向けよう。","……いや、詰まるから、手向けるのはやめよう。","……詰まるのは、困る……","麺に献花しかけて排水口を心配した。"],"kafun":["嫉妬","花粉との張り合い","嫉妬。……君の涙を独り占めしている花粉に、俺は嫉妬している。どうせ泣くなら、俺の言葉で泣いてほしい。","……マリーゴールドの花粉は、たぶん少ない。","……今、泣きそう……くしゃみで……","花粉と涙の取り合いをしている。"],"baito":["絶望","絶望の在庫処分","絶望。……三回の失敗で、今日の分の絶望はもう売り切れだ。明日の君には、在庫がない。","在庫ゼロの店は、もう失敗を出せない。","……売り切れ、なんだ……","絶望を在庫処分セールにかけた。"],"tanjoubi":["悲しみ","祝福の一括払い","悲しみ。……誰も祝わないなら、俺一人で、全員分祝う。この花は、クラス全員分の誕生日プレゼントだ。","……四十人分の気持ちが、この一輪に入っている。","……重い……でも、うれしい……","一輪に四十人分を詰め込む力技。"],"wasabi":["嫉妬","瞬発力への嫉妬","嫉妬。……一瞬で君を泣かせたわさびに、俺は嫉妬している。俺は、泣き止ませるのに三分はかかる。","……いや、張り合うところじゃないか。","……わさびと張り合わないで……","わさびの瞬発力に本気で張り合っている。"],"cookie":["絶望","最後の絶望","絶望。……塩のクッキーは、絶望の味がする。だが、一度この味を知った者は、二度と砂糖と塩を間違えない。","これは、最後の絶望の味だ。いただきます。","……全部食べるの……？","塩クッキーを最後の晩餐みたいに食べた。"]},"scabiosa":{"kingyo":["私はすべてを失った","全損からの再建","私はすべてを失った。……今の君の気持ちだ。だが、空いた水槽には、思い出を飼える。","きんちゃんの思い出は、エサもいらない。","……エサ、いらないのは、ちょっと寂しい……","空いた水槽で思い出を飼う提案。"],"pudding":["私はすべてを失った","規模の誇張","私はすべてを失った。……プリン一個で、すべてを失った顔をしている。それほど、あのプリンは君のすべてだったんだ。","すべてを失った者には、すべてを取り返す権利がある。コンビニに行こう。","……コンビニ、行く……","プリン一個が全財産扱い。"],"oshi":["不幸な愛","部分肯定","不幸な愛。……不幸な、と言っている。だが、愛であることは否定していない。君の推し愛は、本物だったってことさ。","本物の愛は、相手の幸せも祝える。","……祝える……たぶん……来週くらいに……","来週くらいなら祝えるらしい。"],"juken":["私はすべてを失った","紛失物の縮小","私はすべてを失った。……そう思うだろう。だが、勉強した中身は、一文字も失われていない。","失ったのは、合格通知だけだ。紙一枚だ。","……紙一枚……","入試の結果を紙一枚に縮めた。"],"taikai":["私はすべてを失った","出し切りの証明","私はすべてを失った。……最後の試合で、すべてを出し切ったからだ。何も残っていないのは、全部置いてきた証拠なんだ。","空っぽの君は、今いちばん身軽だ。","……身軽……","敗退を出し切った空っぽと言い換えた。"],"tamanegi":["私はすべてを失った","被害者の特定","私はすべてを失った。……玉ねぎは、切られて、すべてを失った。君は何も失っていない。泣いているのは、玉ねぎの代わりだ。","君は今、玉ねぎのために泣いてあげているんだ。優しいな。","……玉ねぎのために……","玉ねぎへの哀悼で泣いていたことになった。"],"eiga":["不幸な愛","作中への喝采","不幸な愛。……あの犬は、最後まで飼い主を愛し続けた。不幸だったかもしれないが、愛だったことは確かだ。","君の涙は、その愛への拍手だ。","……拍手……","映画の涙がスタンディングオベーションに。"],"furare":["不幸な愛","不幸の分離","不幸な愛。……三年間の、不幸な愛。だが、三年も続いたなら、それはもう立派な愛だ。不幸かどうかは、おまけにすぎない。","おまけは、捨てていい。","……おまけ、捨てる……","三年の片思いから不幸だけ捨てさせた。"],"gacha":["私はすべてを失った","パトロン認定","私はすべてを失った。……石を、すべて失ったんだな。だが、天井分の石は、運営への支援だ。君は、ゲームの未来を支えた。","君は今、立派なパトロンだ。","……パトロン……かっこいい……","爆死した人をパトロンと呼んだ。"],"kasa":["私はすべてを失った","身軽の勧め","私はすべてを失った。……傘を失った君は、今、いちばん身軽だ。雨が降ったら、濡れて帰ろう。たまには、それもいい。","俺も一緒に濡れる。","……風邪ひいちゃうよ……","傘がないなら二人で濡れればいい理論。"],"sumaho":["私はすべてを失った","被害の縮小","私はすべてを失った。……そう感じるかもしれないが、写真もデータも、ちゃんと中に残っている。失ったのは、ガラス一枚だ。","ガラス一枚で、君のすべては守られた。","……データ、無事なら……いいか……","画面割れの被害をガラス一枚に縮めた。"],"report":["私はすべてを失った","記憶の残存","私はすべてを失った。……ファイルは失った。だが、書いた内容は、君の頭の中に半分くらい残っている。半分あれば、一時間半で書ける。","残り半分は、俺がそばで応援する。","……応援だけ……？","半分残っている計算が雑すぎる。"],"maegami":["私はすべてを失った","喪失の実測","私はすべてを失った。……前髪の、三センチくらいをな。すべてではない。三センチだ。","三センチは、一か月で戻る。","……三センチ、か……","失ったものを正確に三センチと測った。"],"akaten":["私はすべてを失った","点数の再入荷","私はすべてを失った。……点数を、だな。だが、追試という名の、二度目の入荷がある。","在庫がある限り、店は潰れない。","……追試、在庫だったんだ……","追試を点数の再入荷と呼んだ。"],"tenkou":["不幸な愛","友情の格上げ","不幸な愛。……離れ離れになる友情は、少し不幸かもしれない。だが、愛であることは変わらない。","距離で薄まる友情なら、最初から花は贈らない。","……そう、だよね……","友情が花言葉で愛に格上げされた。"],"geki":["私はすべてを失った","芸の肥やし","私はすべてを失った。……そう思える夜は、役者にとって財産だ。その感覚を、次の舞台で演じればいい。","すべてを失う役が来たら、君はもう主役だ。","……そんな役、来るかな……","噛んだ夜が役者の財産になった。"],"save":["私はすべてを失った","完全一致","私はすべてを失った。……セーブデータが消えた人に、これ以上ぴったりの花言葉はない。この花は、今の君のためにある。","ぴったりということは、運命ってことだ。","……ぴったりすぎて、つらい……","慰めに来た花が一番傷口をえぐっている。"],"loveletter":["不幸な愛","勇気の保全","不幸な愛。……届くはずの人に届かなかった愛は、少し不幸だ。だが、ちゃんと書いた。その勇気は、もう誰にも奪えない。","書き直そう。次は、靴箱を二回確認してから。","……二回、確認する……","靴箱の指差し確認が義務になった。"],"yakisoba":["私はすべてを失った","かやくの生存確認","私はすべてを失った。……麺は失った。だが、かやくは容器に残っているだろう？ キャベツの切れ端が、まだ君を見ている。","すべては、失っていない。","……キャベツ、三枚くらい……","キャベツ三枚を生存者として数えた。"],"kafun":["不幸な愛","花への片思い","不幸な愛。……君は花が好きなのに、花粉が君を泣かせる。これは、不幸な愛だ。だが、片思いでも、愛は愛だ。","花粉の少ない花から、少しずつ仲直りしよう。","……スカビオサって、花粉少ないの……？","花粉症を花との失恋にたとえた。"],"baito":["私はすべてを失った","信用の残高","私はすべてを失った。……そう思うだろう。だが、店長が君を叱ったのは、明日も来ると信じているからだ。信用は、残っている。","明日、元気に『いらっしゃいませ』と言えば、全部戻る。","……いらっしゃいませ……","叱られたことを信用の証拠にした。"],"tanjoubi":["不幸な愛","不足分の補填","不幸な愛。……誰にも祝われない誕生日は、少し不幸だ。だが、俺が今、全力で祝う。不幸な分は、俺が埋める。","誕生日、おめでとう。この花の花言葉は、聞かなかったことにしてくれ。","……聞いちゃった……","聞かなかったことにするなら渡さないでほしい。"],"wasabi":["私はすべてを失った","三秒間の全損","私はすべてを失った。……わさびを食べた瞬間、人は一瞬すべてを失う。言葉も、余裕も、尊厳も。","大丈夫だ。三秒で全部戻ってくる。","……戻ってきた……尊厳……","わさびの三秒で尊厳まで失っていた。"],"cookie":["不幸な愛","込められた愛","不幸な愛。……塩のクッキーは、不幸な仕上がりだ。だが、作った気持ちは愛だ。不幸な愛でも、愛は愛だ。","誰に渡す予定だったかは、聞かないでおく。","……聞かないでくれるんだ……","渡す相手をあえて聞かない優しさ。"]},"azami":{"kingyo":["報復","忘れない報復","報復。……きんちゃんを連れていった運命に、ささやかな報復をしよう。きんちゃんのことを、一生覚えていることだ。","忘れないことが、運命へのいちばんの報復になる。","……一生、覚えてる……","忘れないことを報復と呼ぶのは初めて聞く。"],"pudding":["報復","等価報復","報復。……お兄さんのプリンを、一つ食べていい。この花が、それを正当な報復と認めている。","トゲがあるだろう？ 報復とは、少し痛いものなんだ。","……お兄ちゃんの、明日のプリン……","兄のプリンへの報復が公認された。"],"oshi":["独立","推しからの自立","独立。……推しが結婚したなら、君も推しから独立するときだ。……いや、推すのをやめろという意味じゃない。","推しは推し、君は君。それぞれ幸せになればいい。","……それぞれ、幸せに……","推しの結婚がファンの独立記念日に。"],"juken":["厳格","志の高さの証明","厳格。……あの大学の採点は、厳格だった。だが、厳格な場所を目指したなら、君の基準はそこまで高かったってことだ。","高い基準を持つ人間は、どこへ行っても伸びる。","……基準、高かった……","不合格を志の高さで言いくるめた。"],"taikai":["報復","来季への持ち越し","報復。……今日の敗北への報復は、後輩たちに託そう。君の悔しさは、来年のチームの燃料になる。","君の涙は、部の伝統になる。","……伝統、になるかな……","悔し涙を後輩に寄付した。"],"tamanegi":["報復","調理による報復","報復。……君を泣かせた玉ねぎに、報復を。じっくり炒めて、甘くしてやれ。泣かせた相手を甘やかす。それが大人の報復だ。","飴色になるまで、付き合う。","……飴色まで、四十分かかるよ……","報復の結果カレーがおいしくなるだけ。"],"eiga":["厳格","脚本家への厳重抗議","厳格。……犬を死なせる脚本家には、厳格に対処すべきだ。この花を、映画会社に送ろう。トゲ付きで。","……ただし、名作だったことは認める。","……名作だった……","抗議の花を送りつつ名作は認めた。"],"furare":["独立","独立記念日","独立。……今日は、君の独立記念日だ。三年間の片思いから、ついに独立した。","毎年この日に、この花を飾ろう。","……毎年は、思い出しちゃう……","失恋記念日を毎年祝わせる気だ。"],"gacha":["報復","一時休戦","報復。……出なかったキャラへの報復は、しばらく引かないことだ。引かないことで、運営の売上をわずかに下げる。","……来月の新キャラまでは、な。","……来月は、引くんだ……","報復期間がきっちり一か月。"],"kasa":["報復","トゲの抑止力","報復。……次からは、傘の柄にこの花を巻いておけ。トゲのある傘は、誰も盗まない。","防犯とは、そういうものだ。","……持つ私も、痛いよね……","トゲ付きの傘は持ち主も刺さる。"],"sumaho":["厳格","地球の厳格さ","厳格。……重力は、厳格だ。誰のスマホにも、平等に落ちる。君が悪かったわけじゃない。地球が厳格なんだ。","地球に、この花を投げつけよう。……優しく。","……地球に……","スマホの落下を地球のせいにした。"],"report":["独立","保存習慣の自立","独立。……パソコン一台に頼りすぎていた君は、今日、独立する。次からは、バックアップを取る自立した人間になるんだ。","自立の第一歩は、こまめな保存だ。","……こまめな、保存……","独立宣言の中身がこまめな保存。"],"maegami":["厳格","プロの本気","厳格。……『おまかせ』と言われた美容師は、厳格に、自分の理想を追求したんだ。君は、プロの本気を見たんだ。","本気の仕事に、文句は言えない。……言ってもいいけど。","……言っていいんだ……","美容師の肩を持ちかけて引っ込めた。"],"akaten":["厳格","追試の再解釈","厳格。……赤点をつけた先生は、厳格だ。だが、厳格な先生は、追試で君を待っている。見捨てていないってことだ。","追試は、先生からのラブコールだ。","……ラブコールは、ちょっと……","追試を先生からのラブコール扱い。"],"tenkou":["独立","強がりの代行","独立。……親友は、新しい場所で独立する。君は、それを見送る側だ。見送る側にも、トゲくらいの強さが必要なんだ。","強がっていい。今日だけは、俺がトゲの役をやる。","……蒼真くんが、トゲ……","蒼真がトゲの役を買って出た。"],"geki":["報復","台詞への報復","報復。……噛んだ台詞への報復は、次の舞台で、あの台詞を完璧に言うことだ。","……台詞の方が、震え上がるぞ。","……台詞が、震える……","台詞を震え上がらせる気でいる。"],"save":["報復","楽しむことによる報復","報復。……データを消したゲームへの報復は、二周目を、一周目より楽しむことだ。","楽しまれることが、ゲームにとっていちばんの屈辱だ。……いや、喜ぶか。","……喜ぶよね……","報復したらゲームが喜ぶ構図。"],"loveletter":["独立","恋文の独り立ち","独立。……君のラブレターは、君の手を離れて、独り立ちしたんだ。行き先は少し違ったが、立派に旅立った。","子どもの独り立ちとは、そういうものだ。","……子ども、だったんだ……","誤配されたラブレターが子ども扱い。"],"yakisoba":["厳格","湯切りの精密化","厳格。……湯切りは、厳格な作業だ。角度、勢い、フタの押さえ。一つでも欠けると、麺は流れる。","次は、俺が隣で角度を測る。","……分度器、いる……？","湯切りに分度器が必要になった。"],"kafun":["報復","愛でる報復","報復。……花粉への報復は、花を愛でることだ。花粉に泣かされても、花を嫌いにならない。それが、いちばん効く。","アザミは、虫が花粉を運ぶ花だ。風には、あまり飛ばない。","……ほんと……？ ……っくしゅ……","虫が運ぶ花だから大丈夫理論。"],"baito":["厳格","真剣さの評価","厳格。……三回のミスで、自分を厳格に責めている。それは、仕事を真剣にやっている証拠だ。","適当な人間は、ミスしても泣かない。","……真剣だったよ……","泣いた理由を真剣さで評価した。"],"tanjoubi":["報復","来年への持ち越し","報復。……君を忘れた全員への報復は、来年、いちばん盛大に祝わせることだ。今日から、来年の準備をしよう。","まずは、俺が今日、祝う。誕生日、おめでとう。","……来年は、盛大に……","報復の内容が来年の誕生日会。"],"wasabi":["厳格","適量指導","厳格。……わさびは、厳格だ。量を間違えた者に、容赦はしない。君は、わさびの厳しさを知ったんだ。","次は、適量を守ろう。……米粒くらいだ。","……米粒くらい……","わさびの適量は米粒くらいらしい。"],"cookie":["独立","レシピからの独立","独立。……塩クッキーは、レシピから独立した、君だけの作品だ。世界のどこにも、このクッキーはない。","オリジナルとは、だいたい失敗から生まれる。","……オリジナル……","失敗をオリジナルと言い切った。"]},"hanazuou":{"kingyo":["裏切り","裏切らなかった者","裏切り。……運命は、きんちゃんを連れていって、君を裏切った。だが、きんちゃんは君を裏切らなかった。最後まで、君の金魚だった。","裏切らなかったきんちゃんに、この花を。","……最後まで、私の金魚……","運命を悪者にして金魚を英雄にした。"],"pudding":["裏切り","事件の記録化","裏切り。……兄による、プリンの裏切り。これは歴史に残る裏切りだ。この花は、その記録として残しておこう。","家族会議の議題にしよう。","……家族会議……","プリン一個で家族会議が開かれる。"],"oshi":["裏切り","花による裏切り","裏切り。……推しは、君を裏切ったわけじゃない。幸せになっただけだ。幸せになることは、裏切りじゃない。","……と、この花は言いたいのに、花言葉が裏切りなんだ。","……花の方が、裏切ってる……","フォローの途中で花に梯子を外された。"],"juken":["疑惑","根拠なき疑惑","疑惑。……採点に疑惑がある。俺は、そう思っている。君ほど頑張った人が落ちるなんて、疑惑以外の何ものでもない。","……証拠はないが、疑うのは自由だ。","……疑うのは、自由……","証拠ゼロで大学に疑惑をかけた。"],"taikai":["裏切り","裏切らない練習","裏切り。……結果は、君を裏切った。だが、練習は裏切らない。あの三年間の練習は、君の体のどこかに、ちゃんと残っている。","裏切ったのは、結果だけだ。","……結果だけ……","悪いのは結果だけという大胆な切り分け。"],"tamanegi":["疑惑","涙の疑惑","疑惑。……その涙、玉ねぎのせいだと言っているが、俺は疑っている。本当は、何か悲しいことがあったんじゃないか？","……何もないなら、それでいい。この花は、疑ったお詫びだ。","……ほんとに、玉ねぎだよ……","玉ねぎの涙を疑ってお詫びの花を渡した。"],"eiga":["裏切り","予告編の告発","裏切り。……予告編では、犬は元気に走っていた。あれは裏切りだ。君は、予告編に裏切られたんだ。","次は、レビューを先に読んでから行こう。","……ネタバレ、見たくない……","予告編を詐欺で訴えそうな勢い。"],"furare":["裏切り","自分への誠実","裏切り。……三年間、君の期待はずっと裏切られ続けた。だが、君自身は、一度も自分の気持ちを裏切らなかった。","それは、誇っていい三年間だ。","……誇って、いいんだ……","裏切られた三年を誇れる三年に変えた。"],"gacha":["不信仰","期間限定の棄教","不信仰。……もう、確率という神を信じなくていい。君は今日、ガチャの神への信仰を捨てた。","……来月のピックアップまでの、一時的な不信仰だ。","……来月は、信じちゃうかも……","棄教の期限が来月まで。"],"kasa":["不信仰","善意の相殺","不信仰。……傘を盗まれて、人を信じられなくなりそうだろう？ だが、世の中には、俺みたいに花をくれる人間もいる。","差し引きゼロだ。","……花と傘で、差し引き……？","傘泥棒の罪を自分の花で相殺した。"],"sumaho":["裏切り","手の一度きり","裏切り。……スマホを落としたのは、君の手の裏切りだ。だが、手は毎日がんばっている。一回くらい、許してやろう。","この花を持つのも、その手だ。","……手、ごめんね……","最終的に手が謝らされた。"],"report":["裏切り","機械の弁護","裏切り。……三時間尽くしたパソコンに、裏切られた。だが、パソコンに悪気はない。更新したかっただけなんだ。","許してやれ。……そして、保存しろ。","……許す……保存する……","いつの間にかパソコンの弁護に回っている。"],"maegami":["裏切り","新作発表","裏切り。……『おまかせ』の期待は、裏切られた。だが、裏切りは、新しい自分との出会いでもある。","前髪の短い君は、まだ誰も見たことがない新作だ。","……新作……","前髪の失敗が新作発表会に。"],"akaten":["疑惑","採点ミス疑惑","疑惑。……本当に赤点だったのか、もう一度答案を見てみよう。採点ミスという疑惑が、どこかにあるかもしれない。","……なかったら、一緒に追試の勉強をしよう。","……たぶん、なかった……","採点ミス疑惑は空振りの予感。"],"tenkou":["疑惑","別れへの疑問","疑惑。……本当に、これは別れなのか？ スマホがあれば、毎日話せる。別れというより、遠距離だ。","遠距離友情という、新しい形さ。","……遠距離友情……","転校を遠距離友情と言い換えた。"],"geki":["裏切り","舌の一瞬","裏切り。……一番大事な場面で、舌が君を裏切った。だが、そのあとの台詞は、ちゃんと言えたんだろう？","裏切ったのは一瞬だ。君は、最後まで舞台に立っていた。","……最後まで、立ってた……","舌の裏切りは一瞬で終わった扱い。"],"save":["裏切り","上書きされない気持ち","裏切り。……百時間かけて育てたデータに、裏切られた。だが、君がそのゲームを好きな気持ちは、データじゃない。","気持ちは、上書きされない。","……上書き、されない……","気持ちは上書きされないで押し切った。"],"loveletter":["裏切り","靴箱設計者の告発","裏切り。……靴箱が、似すぎていたんだ。あれは、靴箱の裏切りだ。設計した人を、俺は許さない。","学校に、靴箱の色分けを提案しよう。","……色分け、いいかも……","靴箱の設計者が急に悪者になった。"],"yakisoba":["裏切り","フタの裏切り","裏切り。……湯切り口のフタが、君を裏切った。あれだけ信じて、傾けたのに。","裏切りに耐えた君に、この花を。","……フタ、信じてたのに……","フタに裏切られた人を初めて見た。"],"kafun":["疑惑","原因の自己申告","疑惑。……今日のくしゃみ、本当に花粉のせいか？ ……俺のせいかもしれない。俺が近づくと、君はよくくしゃみをする。","……少し離れて、花だけ渡す。","……蒼真くんのせいじゃないよ……たぶん……","くしゃみの原因に自分を挙げた。"],"baito":["疑惑","注文票の欠陥","疑惑。……三回も間違えたなら、注文票の書き方に問題があるかもしれない。悪いのは、紙の方だ。","明日、注文票を一緒に見直そう。","……紙の、せい……？","注文ミスを紙のせいにした。"],"tanjoubi":["疑惑","サプライズ疑惑","疑惑。……誰も気づかないなんて、怪しい。これは、サプライズの前触れという疑惑がある。","……疑惑のまま終わったら、俺が祝う。誕生日、おめでとう。","……疑惑、晴れるといいな……","無反応にサプライズ疑惑をかけた。"],"wasabi":["裏切り","裏切らないマグロ","裏切り。……おいしいはずの寿司に、裏切られた。だが、裏切りの奥には、ちゃんとマグロがいる。","マグロは、裏切らない。","……マグロ、おいしい……","マグロは裏切らないで締めた。"],"cookie":["裏切り","容器の裏切り","裏切り。……砂糖と塩の容器が、君を裏切った。同じ形の容器を並べた、過去の自分もな。","今日から、ラベルを貼ろう。この花の絵を描いて。","……花の絵の、ラベル……","容器のラベル貼りで全部まとめた。"]},"higanbana":{"kingyo":["また会う日を楽しみに","彼岸の再会","また会う日を楽しみに。……彼岸花は、お彼岸に咲く花だ。きんちゃんとは、毎年このころに会える。","秋になったら、水槽の前で待っていよう。","……秋、待ってる……","金魚の帰省シーズンが秋に決まった。"],"pudding":["諦め","諦めの美学","諦め。……あのプリンは、もう諦めよう。諦めることで、次のプリンへの道が開ける。","諦めた者だけが、新しいプリンに出会える。","……新しいプリン……","プリンの諦め方が悟りの境地。"],"oshi":["また会う日を楽しみに","推しとの再会","また会う日を楽しみに。……推しが結婚しても、ライブではまた会える。むしろ、幸せそうな推しに会えるんだ。","幸せな推しは、たぶん歌がうまくなる。","……歌、うまくなるかな……","結婚で歌唱力が上がる根拠はない。"],"juken":["諦め","語源の動員","諦め。……諦める、の語源は『明らかに見る』だ。君は今日、自分の進む道を明らかに見たんだ。","第一志望は諦めても、君自身は諦めていない。","……明らかに、見る……","語源まで持ち出して丸め込みにきた。"],"taikai":["悲しい思い出","思い出の熟成","悲しい思い出。……今は悲しくても、十年後には、あの一球がいちばん語れる思い出になる。","同窓会で、一番盛り上がる話だ。","……同窓会で、話す……","敗戦を同窓会の鉄板ネタにした。"],"tamanegi":["悲しい思い出","思い出の水増し","悲しい思い出。……玉ねぎを切った今日の涙も、いつか思い出になる。……悲しい思い出かどうかは、分からないが。","少なくとも、今日のハンバーグは思い出になる。","……ハンバーグの、思い出……","悲しくない涙に思い出の称号を与えた。"],"eiga":["また会う日を楽しみに","再鑑賞の約束","また会う日を楽しみに。……あの犬には、また会える。円盤が出たら、一緒に観よう。","……二回目は、ハンカチを二枚持っていく。","……また泣くの、確定なんだ……","同じ犬で二回泣く予定を立てた。"],"furare":["諦め","三年分の卒業","諦め。……三年間、諦めなかった君が、今日諦める。それは負けじゃない。三年分の卒業だ。","卒業には、花がつきものだ。","……卒業……","失恋をそのまま卒業式にした。"],"gacha":["諦め","すり抜け☆5","諦め。……あのキャラは、諦めよう。この花は、すり抜けで出た☆5だと思ってくれ。","……レア度は、ちゃんと高いぞ。","……地獄花、って呼ばれてるけど……","代わりの☆5がまさかの地獄花。"],"kasa":["諦め","傘の英雄化","諦め。……あの傘は、もう諦めよう。今ごろ、誰かを雨から守っている。君の傘は、どこにいても優秀なんだ。","優秀な傘を選んだ、君の目も優秀だ。","……私の目、優秀……","盗まれた傘が他人を守る英雄になった。"],"sumaho":["悲しい思い出","思い出の抱き合わせ","悲しい思い出。……このひびを見るたびに、今日を思い出すだろう。だが、今日はこの花をもらった日でもある。","ひびと花は、セットで思い出だ。","……セット……","スマホのひびに花の記憶を抱き合わせた。"],"report":["諦め","書き出しの提供","諦め。……消えたデータは、諦めよう。諦めた瞬間から、新しいレポートが始まる。","最初の一行は、俺が考える。『データは消えた。』だ。","……それ、書き出しにするの……？","レポートの書き出しが事故報告。"],"maegami":["また会う日を楽しみに","前髪との再会","また会う日を楽しみに。……前髪とは、一か月後にまた会える。そのときの再会は、きっと感動的だ。","それまでは、おでこを楽しもう。","……おでこを、楽しむ……","前髪との別れが感動の再会前提。"],"akaten":["諦め","花言葉の保留","諦め。……数学を諦めるのは、まだ早い。この花の花言葉は、追試が終わってから使おう。","今日は、諦めないための日だ。","……花言葉、保留なんだ……","花言葉の使用が追試後まで延期された。"],"tenkou":["また会う日を楽しみに","完全一致","また会う日を楽しみに。……この花言葉は、今日の君たちのためにある。転校は、次に会う日までの準備期間だ。","会う日が決まったら、この花を持っていこう。","……うん、楽しみにする……","珍しくど真ん中の花言葉が来た。"],"geki":["悲しい思い出","笑い話への熟成","悲しい思い出。……噛んだ台詞は、今は悲しい思い出だ。だが、三年後には、一番の笑い話になる。","そのとき、俺が一番笑う。","……一番は、やめて……","将来いちばん笑う予約を入れた。"],"save":["また会う日を楽しみに","一方的な再会","また会う日を楽しみに。……消えたデータの仲間たちとは、二周目で再会できる。……向こうは、君を覚えていないが。","初対面のふりをして、また仲良くなればいい。","……覚えてないの、さみしい……","感動の再会なのに記憶は一方通行。"],"loveletter":["また会う日を楽しみに","再挑戦の予告","また会う日を楽しみに。……ラブレターは、また書ける。次に会う日には、ちゃんと本人の靴箱に入っている。","その日まで、この花を目印にしよう。","……次は、ちゃんと届ける……","誤配からの再挑戦予告が始まった。"],"yakisoba":["諦め","三秒ルールの却下","諦め。……シンクの麺は、諦めよう。三秒ルールは、シンクには適用されない。","……新しいのを、作ろう。お湯は俺が沸かす。","……お湯だけ……？","三秒ルールのシンク適用を却下した。"],"kafun":["諦め","マスクとの和解","諦め。……花粉とは、戦っても勝てない。諦めて、マスクと友達になろう。","この花は、マスク越しに見ても綺麗だ。","……っくしゅ……マスク、ある……","花粉対策の結論がマスク。"],"baito":["悲しい思い出","伝説の新人","悲しい思い出。……三回のミスは、いつか店の伝説になる。『三回間違えた新人が、店長になった』という伝説に。","伝説には、始まりの失敗が必要なんだ。","……店長に、なるの……？","バイトの失敗から店長就任まで話を盛った。"],"tanjoubi":["また会う日を楽しみに","来年の予約","また会う日を楽しみに。……来年の今日、また会おう。そのときは、俺が一番に祝う。","……いや、今年も今祝う。誕生日、おめでとう。","……今年も、祝ってくれるんだ……","来年の予約のついでに今年も回収した。"],"wasabi":["悲しい思い出","トラウマ対策","悲しい思い出。……今日のわさびは、悲しい思い出になる。次に寿司を食べるたびに、思い出すだろう。","だから、次はサビ抜きを頼もう。","……サビ抜き、子どもみたい……","トラウマ対策がサビ抜き。"],"cookie":["諦め","容器係の任命","諦め。……塩クッキーは、諦めよう。だが、クッキー作りは諦めない。","次は、俺が砂糖の容器を持って、隣に立っている。","……容器係……","蒼真の役職が容器係に決まった。"]},"otogiriso":{"kingyo":["秘密","二人だけの秘密","秘密。……きんちゃんが、本当は君の声を聞き分けていたこと。それは、君ときんちゃんだけの秘密だ。","その秘密は、誰にも奪えない。","……私の声、分かってたのかな……","金魚の聞き分け能力を勝手に保証した。"],"pudding":["恨み","恨みの利子","恨み。……プリンの恨みは、この花に預けよう。恨みは、預けておくと利子がつく。","来月、お兄さんにはプリン三個で返してもらう。","……三個……！","恨みの利子が五割。"],"oshi":["秘密","推し活の地下化","秘密。……推しへの想いは、これから君だけの秘密にすればいい。秘密の推し活は、密かに燃えるんだ。","誰にも言わない愛ほど、長続きする。","……秘密の、推し活……","推し活を地下活動に移行させた。"],"juken":["敵意","安全運転の敵意","敵意。……落とした大学に、少しくらい敵意を持っていい。敵意は、来年の勉強のガソリンになる。","……ただし、安全運転でな。","……安全運転……","受験勉強に交通安全の注意が入った。"],"taikai":["恨み","恨みと傷薬","恨み。……あの一球への恨みは、この花が引き受ける。弟切草は、昔から傷薬にも使われてきた草なんだ。","恨みを引き受けて、傷を治す。それがこの花だ。","……傷薬……","恨みと傷薬の二刀流。"],"tamanegi":["秘密","秘密の暴露","秘密。……実は玉ねぎを冷やしておくと、切っても泣きにくい。これは、俺だけの秘密だった。","……今、君に教えた。秘密は、贈り物なんだ。","……先に知りたかった……","花言葉が料理の豆知識になった。"],"eiga":["敵意","敵意とリピート","敵意。……犬を死なせた脚本に、敵意を持っていい。この花を、パンフレットに挟んでおけ。","……ただし、また観るんだろう？","……観る……","敵意を向けつつリピート確定。"],"furare":["秘密","秘密の宝箱","秘密。……三年間の片思いは、君だけの秘密の宝物だ。フラれても、宝物は宝物のままだ。","その宝箱に、この花も入れておいてくれ。","……宝箱……","失恋を宝箱にしまわせた。"],"gacha":["恨み","恨みの肥料化","恨み。……確率への恨みは、この花に吸わせよう。この花は、恨みを吸って育つ。","……来月には、立派に咲いているはずだ。","……ガチャの恨みで、咲くんだ……","爆死の恨みが肥料になった。"],"kasa":["恨み","晴天の逆襲","恨み。……傘泥棒への恨みは、晴れの日に晴らそう。晴れの日、傘はいらない。犯人は、無駄な荷物を抱えている。","……ざまあみろ、だ。","……ちょっと、すっきりした……","晴れの日に犯人が困る想定で溜飲を下げた。"],"sumaho":["秘密","口の堅いスマホ","秘密。……画面が割れても、中の秘密は守られている。君のスマホは、ちゃんと口が堅い。","口の堅いスマホに、この花を。","……口、堅かった……","スマホの口の堅さを表彰した。"],"report":["恨み","恨みの文章術","恨み。……消えた三時間の恨みを、キーボードにぶつけろ。恨みのこもった文章は、迫力が違う。","……教授にも、伝わるはずだ。","……教授に、恨みが伝わるの……？","レポートに恨みを込める戦略。"],"maegami":["秘密","一夜限りの秘密","秘密。……前髪を切りすぎたことは、明日みんなにバレる。だから今夜だけは、二人の秘密だ。","秘密は、短いほど燃える。……前髪と同じだ。","……前髪と、同じ……","前髪の短さと秘密の期限をかけた。"],"akaten":["敵意","決闘化","敵意。……赤点を出した数式に、敵意を持て。敵の顔を知れば、追試は戦いになる。","戦いなら、君は強い。","……戦い、なんだ……","追試が決闘になった。"],"tenkou":["秘密","合言葉の提案","秘密。……転校する親友と、一つ秘密を作るといい。二人だけの秘密は、距離を超える。","合言葉でもいい。この花の名前でもいい。","……弟切草、が合言葉……","合言葉が物騒な草の名前に決まりかけた。"],"geki":["秘密","最前列の口止め","秘密。……実は、客席の半分は気づいていない。噛んだことは、君と最前列だけの秘密だ。","最前列には、この花で口止めしよう。","……口止め……","最前列の観客を買収しようとしている。"],"save":["恨み","恨みのバックアップ","恨み。……データは消えたが、恨みは消えない。恨みは、心のバックアップなんだ。","その恨みで、二周目を最速で駆け抜けろ。","……恨みの、バックアップ……","恨みだけはクラウドに保存されていた。"],"loveletter":["秘密","秘密の守り手","秘密。……隣の靴箱の人は、君の秘密を知ってしまった。だが、秘密を知った人は、守る側に回る。","明日から、その人は君の味方だ。","……味方……？","誤配の相手を勝手に味方に引き入れた。"],"yakisoba":["敵意","対シンク戦争","敵意。……シンクに敵意を持っていい。あの銀色の口は、何千本もの麺を飲み込んできた。","……今日から、ザルを使おう。","……ザル……","シンクとの戦争がザル導入で終戦した。"],"kafun":["敵意","花粉への宣戦","敵意。……花粉に、敵意を持て。……ただし、この花には持たないでくれ。","弟切草は、地面の近くで咲く。花粉は、たぶん飛ばない。","……たぶん、ばっかり……っくしゅ……","たぶんが口癖になってきている。"],"baito":["秘密","秘密の特訓","秘密。……明日までに、注文の秘密特訓をしよう。俺が客をやる。","三回間違えたら、この花をもう一本あげる。","……間違えても、もらえるの……？","失敗するとご褒美が出る特訓。"],"tanjoubi":["秘密","秘密の誕生日","秘密。……誰も気づかない誕生日は、君だけの秘密の誕生日だ。……いや、俺は知っている。二人の秘密だ。","誕生日、おめでとう。","……二人の、秘密……","祝われない誕生日を秘密の儀式にした。"],"wasabi":["敵意","給水作戦","敵意。……わさびに敵意を持っていい。だが、わさびに勝つ方法は一つだけだ。……水を飲め。","……いや、お茶の方がいい。","……お茶、ちょうだい……","わさびへの対策がただの給水。"],"cookie":["秘密","秘密のレシピ","秘密。……塩クッキーは、今日から君の秘密のレシピだ。誰にも真似できない。","……真似する人も、いないと思うが。","……一言多い……","褒めた直後に自分で落とした。"]},"lobelia":{"kingyo":["謙遜","控えめな追悼","謙遜。……きんちゃんは、いつも控えめだった。だから、この小さな青い花がちょうどいい。","大きな花だと、きんちゃんが照れる。","……照れる金魚……","金魚の性格を勝手に控えめに設定した。"],"pudding":["悪意","擁護からの一刺し","悪意。……お兄さんに、悪意はなかったはずだ。ただ、そこにプリンがあった。それだけだ。","……それが、一番罪深いんだがな。","……一番、罪深い……","兄を庇ったと見せかけて刺した。"],"oshi":["謙遜","祝福の音量指定","謙遜。……推しの結婚を、控えめに祝おう。大声じゃなくていい。小さな青い花くらいの声で。","控えめな祝福は、長く続く。","……小さい声で、おめでとう……","祝福の音量を花のサイズで指定した。"],"juken":["悪意","悪意の有無","悪意。……合否には、悪意がない。だからこそ、残酷なんだ。だが、君の努力にも悪意はない。","悪意のない努力は、いつか報われる。","……報われる……","悪意の有無だけでいい話を組み立てた。"],"taikai":["謙遜","謙遜の禁止","謙遜。……君は、きっと『自分のせいで』と謙遜しているんだろう。だが、今日だけは謙遜しなくていい。","君は、最後まで戦った。それだけは、胸を張れ。","……胸、張る……","謙遜の花で謙遜を禁止した。"],"tamanegi":["悪意","玉ねぎの悪意","悪意。……玉ねぎには、悪意がある。切られた瞬間に、人を泣かせる成分を出すんだ。","……つまり、君は悪意と戦っていたんだ。","……ハンバーグ作ってただけ……","玉ねぎの化学反応を悪意扱いした。"],"eiga":["敵意","涙腺への反則","敵意。……あの映画は、君の涙腺に敵意を持っていた。犬を出す時点で、勝負は決まっていたんだ。","あれは、反則だ。","……反則……わかる……","犬映画を涙腺への反則と認定した。"],"furare":["謙遜","控えめすぎた三年","謙遜。……三年間、気持ちを控えめに隠してきた君は、謙遜の達人だ。……少し、控えめすぎたのかもしれないが。","次は、少しだけ大きな声で。","……大きな声……","失恋の原因を控えめすぎた点に絞った。"],"gacha":["悪意","平等な悪意","悪意。……すり抜けに悪意を感じるのは、自然なことだ。だが、運営は君を狙ったわけじゃない。全員平等に、すり抜ける。","平等な悪意だ。","……平等……","ガチャの悪意を平等で正当化した。"],"kasa":["悪意","倫理的勝利","悪意。……傘を盗んだ人には、悪意があった。その人は今日、悪意を抱えて帰った。君は、悪意なく帰れる。","どっちが幸せかは、明らかだ。","……私、濡れるけど……","倫理では勝ったが物理では負けている。"],"sumaho":["謙遜","スマホの自己犠牲","謙遜。……君のスマホは、謙遜して、自分から画面を割ったんだ。君の手を傷つけないように。","……そういうことに、しておこう。","……スマホ、健気……","落下事故をスマホの自己犠牲にした。"],"report":["悪意","毒花による牽制","悪意。……保存前に再起動するパソコンには、悪意がある。……少なくとも、俺はそう感じる。","この花を、パソコンの上に置いておこう。毒があるらしいからな。","……パソコンに、毒……","パソコンに毒花を供えて牽制した。"],"maegami":["謙遜","前髪の脇役化","謙遜。……前髪は、謙遜して短くなったんだ。君の顔を、もっと見せるために。","控えめな前髪は、主役を引き立てる。","……前髪、脇役だったんだ……","前髪が脇役に格下げされた。"],"akaten":["敵意","範囲への転嫁","敵意。……赤点に敵意を向けてもいい。だが、数学には向けないでくれ。数学は、悪くない。","……悪いのは、出題範囲だ。","……範囲……","数学を庇って出題範囲を差し出した。"],"tenkou":["謙遜","謙遜の先回り","謙遜。……親友を見送る君は、きっと『私なんかがいなくても』と謙遜するだろう。だが、親友は君がいたから、ここまで来られた。","胸を張って送り出そう。","……胸を張って……","見送る側の謙遜を先回りで封じた。"],"geki":["悪意","台本の告発","悪意。……あの台詞には、悪意があった。わざと噛みやすい言葉を並べていたんだ。","台本を書いた人に、この花を届けよう。","……台本の人、悪くないよ……","台本作者に毒花を送ろうとしている。"],"save":["悪意","恨む相手の不在","悪意。……データが消えたのは、誰の悪意でもない。だからこそ、誰も恨まなくていい。","恨む相手がいないなら、二周目を楽しむしかない。","……楽しむしか、ない……","恨む相手がいないことを前向きに使った。"],"loveletter":["謙遜","恥じらう手紙","謙遜。……誤配されたラブレターは、謙遜して、隣の靴箱に隠れたんだ。本命の前で、恥ずかしかったんだろう。","次は、堂々と届けよう。","……手紙が、恥ずかしがった……","手紙に恥じらいの人格を与えた。"],"yakisoba":["悪意","湯切り口の告発","悪意。……湯切り口には、悪意がある。あの小さな穴の位置は、明らかに麺を落とすための設計だ。","……証拠はない。だが、俺は信じている。","……信じてるんだ……","証拠なしで湯切り口を告発した。"],"kafun":["謙遜","花粉量の推測","謙遜。……ロベリアは、小さな花だ。花粉も、きっと謙遜して控えめにしている。","……たぶんな。","……たぶん……っくしゅ……","花粉の量を花の性格で推測した。"],"baito":["謙遜","逃げなかった新人","謙遜。……君は、自分はダメだと謙遜しているだろう。だが、三回間違えても逃げなかった。それは、ダメじゃない。","逃げなかった新人は、強くなる。","……逃げなかった……","逃げなかった点だけ切り取って褒めた。"],"tanjoubi":["謙遜","控えめさの指摘","謙遜。……君は、自分の誕生日を言いふらさない。控えめな人だ。だから、誰も気づかなかったんだ。","控えめな君の代わりに、俺が言う。誕生日、おめでとう。","……言いふらせば、よかったのかな……","忘れられた原因を本人の控えめさにした。"],"wasabi":["悪意","必要悪","悪意。……わさびには、悪意しかない。おいしい寿司の下に、こっそり潜んでいる。","……だが、悪意がないと、寿司は締まらない。","……締まらないんだ……","わさびの悪意を料理の要と認めた。"],"cookie":["謙遜","控えめの限度","謙遜。……塩クッキーは、謙遜した味だ。甘さを控えめにしすぎただけなんだ。","……控えめにも、限度はあるが。","……限度、あった……","塩クッキーを謙遜しすぎた結果と呼んだ。"]},"torikabuto":{"kingyo":["騎士道","騎士の着任","騎士道。……トリカブトは、兜の形をした花だ。今日から俺は、きんちゃんの代わりに君を守る騎士になる。","……泳ぎは、得意じゃないが。","……泳がなくていいよ……","金魚の後任に騎士が着任した。"],"pudding":["復讐","見せるだけの復讐","復讐。……お兄さんへの復讐だ。……安心してくれ。この花は、見せるだけだ。食べさせはしない。","プリンの恨みに、毒は重すぎる。","……重すぎる……","毒花を見せて脅すだけの復讐。"],"oshi":["騎士道","ファンの叙任","騎士道。……推しの幸せを守るのは、ファンの騎士道だ。君は今日、騎士に叙任された。","騎士は、姫の結婚式でも泣かない。……泣いてもいいが。","……泣いてもいい騎士……","推しの結婚でファンが騎士に昇格した。"],"juken":["復讐","復讐の選択肢","復讐。……来年、あの大学に復讐しよう。合格という名の復讐だ。","……または、もっといい大学に受かるという復讐もある。","……もっといい大学……","復讐の選択肢が増えた。"],"taikai":["騎士道","握手の叙任式","騎士道。……負けても、相手を讃える。それが騎士道だ。君は、試合のあと相手と握手したんだろう？","その握手が、君を騎士にした。","……握手、した……","敗戦の握手が騎士の叙任式になった。"],"tamanegi":["人嫌い","玉ねぎの人見知り","人嫌い。……玉ねぎは、人嫌いなんだ。だから、近づく人間を泣かせる。君のせいじゃない。","人嫌いの玉ねぎも、炒めれば甘くなる。人間と同じだ。","……人間と、同じ……","玉ねぎに人見知りの性格を与えた。"],"eiga":["騎士道","名犬への兜","騎士道。……あの犬は、最後まで飼い主を守った。あれは、騎士道だった。","その騎士に、この兜の花を捧げよう。","……犬に、兜……","映画の犬に兜を贈る儀式が始まった。"],"furare":["人嫌い","例外つきの人嫌い","人嫌い。……今日くらい、人嫌いになっていい。明日になったら、また好きになればいい。","……俺のことだけは、嫌いにならないでくれ。","……例外、つけるんだ……","人嫌いの許可に自分だけ例外を設けた。"],"gacha":["復讐","外れキャラの育成","復讐。……すり抜けたキャラを、育てきってやれ。それが、ガチャへの一番の復讐だ。","望まれなかったキャラを、最強にする。騎士道でもある。","……育てて、みる……","外れキャラの育成が復讐兼騎士道に。"],"kasa":["騎士道","上着の傘","騎士道。……傘がないなら、俺が上着を広げる。雨から姫を守るのは、騎士の仕事だ。","……少し濡れるが、それも騎士道だ。","……蒼真くんが、濡れちゃう……","騎士道の結果蒼真だけ濡れる。"],"sumaho":["騎士道","騎士の生還","騎士道。……君のスマホは、落ちる瞬間、君の代わりに地面を受け止めた。あれは、騎士の最期だ。","……いや、生きてる。修理すれば、また戦える。","……生きてて、よかった……","スマホを一度殺してから生き返らせた。"],"report":["復讐","自動保存の反撃","復讐。……パソコンへの復讐は、自動保存をオンにすることだ。もう二度と、主導権を渡さない。","これは、人間と機械の戦いなんだ。","……設定、オンにする……","人類と機械の戦争が設定画面で決着した。"],"maegami":["騎士道","兜の提案","騎士道。……短い前髪が気になるなら、兜をかぶればいい。この花の形の、兜を。","……冗談だ。前髪は、そのままで似合っている。","……一瞬、本気かと思った……","前髪対策に兜を提案して撤回した。"],"akaten":["復讐","目標の下方修正","復讐。……追試で満点を取れ。それが、赤点への完璧な復讐だ。","……満点が無理なら、平均点でもいい。","……ハードル、下がった……","復讐の目標が満点から平均点に下がった。"],"tenkou":["騎士道","見送りの作法","騎士道。……親友の旅立ちを、笑顔で見送る。それが騎士道だ。泣くのは、背中が見えなくなってからでいい。","そのときは、俺がハンカチを持っている。……たぶん。","……ハンカチ、持ってきてね……","ハンカチの持参に自信のない騎士。"],"geki":["復讐","毎日十回のノルマ","復讐。……次の舞台で、あの台詞を誰よりも滑らかに言ってやれ。台詞への復讐だ。","毎日十回、練習しよう。俺が聞く。","……十回は、多い……","台詞への復讐に毎日十回のノルマ。"],"save":["騎士道","守る番の交代","騎士道。……消えたデータの勇者は、君を最後まで守った。二周目は、君が勇者を守る番だ。","……レベル1から、な。","……レベル1の勇者……","レベル1の勇者を守る二周目が始まった。"],"loveletter":["騎士道","奪還任務","騎士道。……誤配されたラブレターは、俺が取り返してくる。騎士の任務だ。","……隣の靴箱の人に、頭を下げてな。","……頭、下げるんだ……","騎士の任務がただの謝罪行脚。"],"yakisoba":["人嫌い","麺の逃亡","人嫌い。……麺は、人嫌いだったんだ。だから、君の手から逃げてシンクに飛び込んだ。","……人嫌いの麺は、忘れよう。","……麺に、嫌われた……","湯切りの失敗が麺の逃亡事件になった。"],"kafun":["人嫌い","騎士の保証","人嫌い。……花粉は、人嫌いなんだ。だから、人の鼻に飛び込んで攻撃する。","この花は、花粉が飛ばない騎士の花だ。……たぶん。","……騎士なのに、たぶん……っくしゅ……","騎士の花なのに保証がたぶん。"],"baito":["騎士道","接客の兜","騎士道。……注文を間違えても、最後まで客に向き合った。それは、接客の騎士道だ。","明日も、兜をかぶる気持ちで店に立て。","……兜で接客は、無理……","接客に兜の精神を持ち込んだ。"],"tanjoubi":["騎士道","毒の申告","騎士道。……誰も祝わないなら、騎士として、俺が祝う。騎士は、姫の誕生日を忘れない。","誕生日、おめでとう。……毒のある花で、すまない。","……毒、あるの……？","誕生日プレゼントに毒の申告がついた。"],"wasabi":["復讐","自主的な撤回","復讐。……わさびへの復讐は、次の一貫を、わさびごと堂々と食べることだ。","……いや、やめておこう。また泣く。","……やめて正解……","復讐を言い出して自分で止めた。"],"cookie":["人嫌い","クッキーの人見知り","人嫌い。……塩クッキーは、人嫌いになったんじゃない。少し、人見知りなだけだ。","……慣れれば、おいしい。……たぶん。","……たぶん、多い……","塩クッキーが人見知り扱いされた。"]}};/*COMBO_END*/
+/* ひよりが素で戸惑う、ネガティブ・物騒な花言葉 */
+const NEGW=/呪|復讐|死|恨|悪意|敵意|軽蔑|絶望|裏切|報復|失|嫉妬|憎|不幸|孤独|寂し|偽り|ごまかし|愚か|危険|中傷|不信|別離|別れ|情事|密会|疑惑|浮気|移り気|うぬぼれ|煩悩|策略|貪欲|戦い|当惑|悲し|悲哀|犠牲|見捨て|破れ|望みのない|不誠実|薄らぐ|離れゆく|報われぬ|いじめないで|触らないで|身が細る|尊敬しているが|過ぎ去った|人嫌い|警告|傷つく|捕らえる|ずる賢い|あなたを離さない|冷淡|気取り屋|おしゃべり|過度を慎め/;
+/* 直前と同じ候補を避けて選ぶ */
+const _last={};
+function pickNR(key,arr){if(arr.length<2)return arr[0];let v;do{v=arr[rnd(arr.length)]}while(v===_last[key]);_last[key]=v;return v}
+const fill=(s,o)=>s.replace(/\{f\}/g,o.f).replace(/\{m\}/g,o.m).replace(/\{c\}/g,o.c);
+function compose(f,r){
+  const d=f.d;
+  const cb=COMBO[f.id]&&r.id&&COMBO[f.id][r.id];
+  if(cb){
+    const [m,tech,spin,close,fin,tsk]=cb, o={f:f.name,m,c:r.cause};
+    const L=[];
+    L.push({who:'boy',text:pickNR('open',POOL.open)});
+    L.push({who:'narration',text:fill(pickNR('offer',f.odd?POOL.offerOdd:POOL.offer),o)});
+    L.push({who:'boy',text:fill(pickNR('name',POOL.name),o)});
+    if(f.odd&&Math.random()<.5)L.push({who:'girl',text:fill(pickNR('cfo',POOL.confuseOdd),o)});
+    else if(NEGW.test(m))L.push({who:'girl',text:fill(pickNR('cf',POOL.confuse),o)});
+    String(spin).split('｜').forEach(t=>t&&L.push({who:'boy',text:t}));
+    if(close)L.push({who:'boy',text:close});
+    L.push({who:'girl',text:fin});
+    return{lines:L,used_meaning:m,technique:tech,kojitsuke:Math.min(100,d*17+rnd(14)),tsukkomi:tsk,mode:'fixed'};
+  }
+  const sp=pickNR('sp_'+f.id,SPINS[f.id]||[[f.m[0],'強行突破','『'+f.m[0]+'』。……つまり、そういうことだ。']]);
+  const o={f:f.name,m:sp[0],c:r.cause};
+  const L=[];
+  L.push({who:'boy',text:pickNR('open',POOL.open)});
+  L.push({who:'narration',text:fill(pickNR('offer',f.odd?POOL.offerOdd:POOL.offer),o)});
+  L.push({who:'boy',text:fill(pickNR('name',POOL.name),o)});
+  if(f.odd&&Math.random()<.5)L.push({who:'girl',text:fill(pickNR('cfo',POOL.confuseOdd),o)});
+  else if(NEGW.test(sp[0]))L.push({who:'girl',text:fill(pickNR('cf',POOL.confuse),o)});
+  else if(Math.random()<.4)L.push({who:'girl',text:pickNR('mild',POOL.mild)});
+  L.push({who:'boy',text:fill(sp[2],o)});
+  const usesCause=sp[2].includes('{c}');
+  if(r.hook&&Math.random()<(usesCause?.4:.85))L.push({who:'boy',text:r.hook});
+  if(Math.random()<.45)L.push({who:'narration',text:pickNR('aside',POOL.aside)});
+  if(Math.random()<.7)L.push({who:'boy',text:pickNR('close',POOL.close)});
+  L.push({who:'girl',text:pickNR('fin',POOL.fin)});
+  const tsk=(f.odd&&Math.random()<.5)?fill(pickNR('tso',POOL.tskOdd),o):pickNR('ts'+d,POOL.tsk[d]);
+  return{lines:L,used_meaning:sp[0],technique:sp[1],kojitsuke:Math.min(100,d*17+rnd(14)),tsukkomi:tsk,mode:'fixed'};
+}
+
+function initSample(){}
+async function getScript(f,r){return compose(f,r)}
+
+/* ---------- gacha card ---------- */
+function cardHTML(f){
+  const R=RR[f.d];
+  return `<div class="card shake" id="card"><div class="face back">？</div><div class="face front${f.d===5?' ur':''}" style="--rc:${R.color}"><div class="rband"><span class="stars">${'★'.repeat(f.d)}</span><b>${R.label}</b><span>${R.name}</span></div><div class="cfl">${flowerSVG(f)}</div><div class="cname">${esc(f.name)}</div><div class="ckana">${esc(f.kana)}</div><div class="cm">${f.m.map(x=>'「'+esc(x)+'」').join('')}</div>${f.odd?'<div class="oddtag">色物</div>':''}</div></div>`;
+}
+const DLINE={1:'……うん、普通にいい花だ。',2:'……ちょっと雲行きが怪しい。',3:'……これは、苦しいぞ。',4:'……どう考えても、泣いている女の子に渡す花ではない。',5:'……これはもう、渡す前から事故だ。'};
+
+/* ---------- game flow ---------- */
+let reason=null,lastFlower=null,cur=null;
+/* 泣いている理由は「山札」方式：48件を一巡するまで同じものは出さない。山の切れ目でも直前と同じにはしない */
+let reasonBag=[];
+function nextReason(){
+  if(!reasonBag.length){
+    reasonBag=RS.slice();
+    for(let i=reasonBag.length-1;i>0;i--){const j=rnd(i+1);[reasonBag[i],reasonBag[j]]=[reasonBag[j],reasonBag[i]]}
+    if(reason&&reasonBag.length>1&&reasonBag[reasonBag.length-1]===reason){const k=rnd(reasonBag.length-1);[reasonBag[k],reasonBag[reasonBag.length-1]]=[reasonBag[reasonBag.length-1],reasonBag[k]]}
+  }
+  return reasonBag.pop();
+}
+async function playIntro(t){
+  await say('narration','放課後。夕暮れの公園。');
+  await say('narration','ベンチの端で、ひよりが肩を震わせていた。');
+  await say('girl',reason.line);
+  await say('boy','……ひより。');
+}
+async function playChoices(t){
+  const hank=['蒼真はポケットを探った。出てきたのは、使用済みのレシートだけだった。','差し出されたハンカチは、なぜかしっとり湿っていた。——昨日の雨だ。','ハンカチを出そうとして、蒼真は気づいた。持っているのはティッシュの空き袋だけだった。'];
+  const quiet=['蒼真は黙って隣に立った。……三分後、ひよりが小声で言った。「なんか言ってよ」','そっとしておくことにした。夕日が沈む。蒼真の足がしびれる。','静寂が流れた。その間、蒼真は二回、カッコいいポーズを変えた。'];
+  for(;;){
+    const i=await choice(['花を贈る','ハンカチを差し出す','そっとしておく']);
+    if(i===0)return;
+    await say('narration',pick(i===1?hank:quiet));
+  }
+}
+async function playGacha(t){
+  let f;do{f=pick(FL)}while(f.id===lastFlower&&FL.length>1);
+  lastFlower=f.id;
+  const p={done:false,val:null};
+  p.promise=getScript(f,reason).then(v=>{p.val=v;p.done=true});
+  skipMode=false;syncBtns();
+  await say('narration','彼は懐に手を入れた。そこには——',{noWait:true});
+  chk(t);
+  gachaEl.innerHTML=cardHTML(f);gachaEl.hidden=false;dim.classList.add('on');
+  ui.lock=false;ui.gachaWait=true;ui.flip=false;
+  const t0=performance.now();
+  while(!ui.flip&&performance.now()-t0<1100){await sleep(40,t)}
+  ui.gachaWait=false;ui.flip=false;
+  $('#card').classList.remove('shake');$('#card').classList.add('flip');
+  refocus();
+  await sleep(750,t);
+  const R=RR[f.d];
+  await say('narration',`【${R.label}・${R.name}】${f.name}。`);
+  await say('narration',`花言葉は——${f.m.map(x=>'「'+x+'」').join('')}。`);
+  await say('narration',DLINE[f.d]+(f.odd?'……しかも色物枠だ。':''));
+  gachaEl.hidden=true;dim.classList.remove('on');
+  if(!p.done){
+    tb.hidden=false;tbName.hidden=true;tb.classList.add('nar');tb.classList.remove('big');arrow.hidden=true;
+    tbText.textContent='蒼真は花言葉の解釈をねじ曲げている・・・';
+    while(!p.done){chk(t);await sleep(100,t)}
+  }
+  return{f,s:p.val};
+}
+async function playScript(t,g){
+  const {f,s}=g;
+  
+  
+  const boys=s.lines.map((l,i)=>[l,i]).filter(x=>x[0].who==='boy');
+  let ri=boys.find(x=>x[0].text.includes(f.name));
+  ri=ri?ri[1]:(boys[1]?boys[1][1]:(boys[0]?boys[0][1]:0));
+  for(let i=0;i<s.lines.length;i++){
+    const l=s.lines[i];
+    if(i===ri){$('#hand').innerHTML=flowerInner(f);boyEl.classList.add('reach')}
+    await say(l.who,l.text);
+  }
+  stage.classList.add('pink');girlEl.classList.remove('cry');girlEl.classList.add('happy');startSparks();
+  await say('girl','ｽﾃｷ……',{big:true});
+}
+function showResult(g){
+  const {f,s}=g;const R=RR[f.d];
+  stats.tries++;stats.success++;store.set('hk-stats',stats);
+  const boysT=s.lines.filter(l=>l.who==='boy').map(l=>l.text);
+  const best=boysT.reduce((a,b)=>b.length>a.length?b:a,'');
+  const z=zk[f.id]||{count:0};zk[f.id]={count:z.count+1,line:best,used:s.used_meaning,technique:s.technique};store.set('hk-zukan',zk);
+  tb.hidden=true;ui.lock=true;
+  resultEl.innerHTML=`<div class="rbox"><div class="stamp" id="stamp">成立</div>
+  <div class="rfl">${flowerSVG(f)}<div class="nm">${esc(f.name)}</div><span class="chip" style="background:${R.color}">${R.label}・${R.name}</span></div>
+  <div class="rinfo">
+   <div class="quote">「${esc(s.used_meaning)}」</div>
+   <div class="row"><span class="k">こじつけ技法</span><span>${esc(s.technique)}</span></div>
+   <div class="row"><span class="k">こじつけ度</span><div class="bar"><i id="bk"></i><b>${s.kojitsuke}%</b></div></div>
+   <div class="row"><span class="k">ｽﾃｷ度</span><div class="bar"><i class="s" id="bs"></i><b>100%</b></div></div>
+   <div class="tsk">${esc(s.tsukkomi)}</div>
+   <div class="total">通算成立回数　${stats.success}回</div>
+   <div class="rbtns"><button type="button" id="rAgain">別の花で贈る</button><button type="button" id="rOther">別の状況で</button><button type="button" id="rZ">花図鑑</button></div>
+  </div></div>`;
+  resultEl.hidden=false;
+  $('#rAgain').onclick=()=>run('again');
+  $('#rOther').onclick=()=>run('intro');
+  $('#rZ').onclick=()=>openZukan();
+  setTimeout(()=>{const st=$('#stamp');if(st)st.classList.add('go');const a=$('#bk'),b=$('#bs');if(a)a.style.width=s.kojitsuke+'%';if(b)b.style.width='100%'},60);
+  try{$('#rAgain').focus({preventScroll:true})}catch(e){}
+}
+async function run(from){
+  const t=++token;poke();
+  closeModal(true);resetStage();titleEl.hidden=true;ctrlEl.hidden=false;
+  skipMode=false;autoMode=false;syncBtns();setMode(modeText());
+  initSample();ui.lock=false;refocus();
+  try{
+    if(from==='intro'||!reason){reason=nextReason();await playIntro(t);await playChoices(t)}
+    const g=await playGacha(t);
+    await playScript(t,g);
+    chk(t);showResult(g);
+  }catch(e){
+    if(!(e instanceof Abort)){console.error(e);if(t===token){tb.hidden=false;tbName.hidden=true;tbText.textContent='……何かがおかしい。タイトルに戻ってやり直そう。';}}
+  }
+}
+function toTitle(){
+  token++;poke();closeModal(true);resetStage();skipMode=false;autoMode=false;syncBtns();
+  ctrlEl.hidden=true;titleEl.hidden=false;ui.lock=true;
+  try{$('#mStart').focus({preventScroll:true})}catch(e){}
+}
+
+/* ---------- modals ---------- */
+function closeModal(silent){
+  const open=stage.querySelectorAll('.modal:not([hidden])');
+  if(!open.length)return;
+  const dz=$('#zDetail');
+  if(!silent&&dz&&!dz.hidden&&$('#mZ').hidden===false){dz.hidden=true;return}
+  open.forEach(m=>m.hidden=true);dz.hidden=true;
+  if(!silent)refocus();
+}
+stage.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal()));
+$('#zdBack').onclick=()=>{$('#zDetail').hidden=true};
+function openLog(){
+  const L=$('#logList');
+  L.innerHTML=logs.length?logs.map(l=>`<div class="lg ${l.cls||''}">${l.n?`<span class="n">${esc(l.n)}</span>`:''}${esc(l.t)}</div>`).join(''):'<div class="lg nr">まだ記録がありません。</div>';
+  $('#mLog').hidden=false;const b=$('#logBody');b.scrollTop=b.scrollHeight;
+}
+function openSettings(){
+  const defs=[
+    ['文字速度','speed',[[60,'ゆっくり'],[32,'ふつう'],[14,'はやい'],[0,'瞬間']],null],
+    ['画面比率','ratio',[['auto','自動'],['169','16:9'],['43','4:3'],['916','縦長 9:16']],null],
+    ['オートの待ち時間','autoWait',[[700,'700ms'],[1400,'1400ms'],[2400,'2400ms']],null]];
+  const body=$('#setBody');body.innerHTML='';
+  defs.forEach(([lb,key,opts,note])=>{
+    const w=document.createElement('div');w.className='set';
+    w.innerHTML=`<div class="lb">${lb}</div>`;
+    const sg=document.createElement('div');sg.className='segs';
+    opts.forEach(([v,tx])=>{const b=document.createElement('button');b.type='button';b.className='seg'+(cfg[key]===v?' on':'');b.textContent=tx;
+      b.onclick=()=>{cfg[key]=v;store.set('hk-cfg',cfg);sg.querySelectorAll('.seg').forEach(x=>x.classList.remove('on'));b.classList.add('on');if(key==='ratio')fit();};sg.appendChild(b)});
+    w.appendChild(sg);if(note){const p=document.createElement('p');p.textContent=note;w.appendChild(p)}
+    body.appendChild(w);
+  });
+  $('#mSet2').hidden=false;
+}
+function openZukan(){
+  const grid=$('#zGrid');grid.innerHTML='';let got=0;
+  FL.forEach(f=>{
+    const z=zk[f.id],R=RR[f.d];const c=document.createElement('div');c.className='zc'+(z?'':' un');c.style.setProperty('--rc',R.color);
+    if(z){got++;c.innerHTML=`${flowerSVG(f)}<span class="zn">${esc(f.name)}</span><span class="zr">${R.label}</span><span class="zt">×${z.count}</span>`;c.onclick=()=>zDetail(f)}
+    else c.innerHTML=`<div class="zq">？？？</div><span class="zr">${R.label}</span>`;
+    grid.appendChild(c);
+  });
+  $('#zCount').textContent=`${got} / ${FL.length}`;
+  $('#zDetail').hidden=true;$('#mZ').hidden=false;
+}
+function zDetail(f){
+  const z=zk[f.id],R=RR[f.d];
+  $('#zdT').textContent=f.name;
+  $('#zdBody').innerHTML=`<div class="dtl">${flowerSVG(f)}<div><h3>${esc(f.name)} <span class="chip" style="background:${R.color}">${R.label}・${R.name}</span></h3><p><span class="k">${f.odd?'特徴':'漢字名'}</span>${esc(f.kana)}</p><p><span class="k">花言葉</span>${f.m.map(x=>'「'+esc(x)+'」').join('')}</p><p><span class="k">前回の技法</span>${esc(z.technique||'—')}（引用: 「${esc(z.used||'—')}」）</p><p><span class="k">決め台詞</span>「${esc(z.line||'—')}」</p><p><span class="k">贈った回数</span>${z.count}回</p></div></div>`;
+  $('#zDetail').hidden=false;
+}
+
+/* ---------- wiring ---------- */
+$('#mStart').onclick=()=>{initSample();run('intro')};
+$('#mZukan').onclick=()=>openZukan();
+$('#mSet').onclick=()=>openSettings();
+$('#bLog').onclick=()=>{openLog()};
+$('#bAuto').onclick=()=>{autoMode=!autoMode;if(autoMode)skipMode=false;syncBtns();refocus()};
+$('#bSkip').onclick=()=>{skipMode=!skipMode;if(skipMode)autoMode=false;syncBtns();if(skipMode)poke();refocus()};
+$('#bSet').onclick=()=>openSettings();
+$('#bTitle').onclick=()=>toTitle();
+
+/* ---------- fit ---------- */
+const DIM={'169':[1024,576],'43':[960,720],'916':[450,800]};
+const TOUCH=(()=>{try{return matchMedia('(pointer:coarse)').matches}catch(e){return false}})();
+const TB_BASE={'169':38,'43':40,'916':40};
+function fit(){
+  const w=wrap.clientWidth||innerWidth,h=wrap.clientHeight||innerHeight;
+  let r=cfg.ratio;if(!DIM[r])r=(w/h>=0.75)?'169':'916';
+  let [W,H]=DIM[r];
+  // 縦持ちのスマホは縦長の画面いっぱいに使う（幅は固定、高さだけ800〜1000で伸縮）
+  if(r==='916')H=Math.round(Math.min(1000,Math.max(800,W*h/w)));
+  stage.classList.remove('r169','r43','r916');stage.classList.add('r'+r);
+  stage.style.width=W+'px';stage.style.height=H+'px';
+  const k=Math.min(w/W,h/H);
+  stage.style.transform=`translate(-50%,-50%) scale(${k})`;
+  // 小さく表示されるとき・タッチ操作のときは、ボタンや小さい文字を大きくする
+  const ui=Math.min(1.6,Math.max(TOUCH?1.25:1,0.85/k));
+  stage.style.setProperty('--ui',ui.toFixed(3));
+  stage.style.setProperty('--tbBottom',Math.round(TB_BASE[r]+(ui-1)*44)+'px');
+}
+addEventListener('resize',fit);addEventListener('orientationchange',fit);
+if(window.visualViewport)visualViewport.addEventListener('resize',fit);
+document.addEventListener('fullscreenchange',fit);
+fit();setTimeout(fit,100);
+try{document.fonts&&document.fonts.ready&&document.fonts.ready.then(fit)}catch(e){}
+initSample();
+setMode(modeText());
+try{$('#mStart').focus({preventScroll:true})}catch(e){}
+
+/* ---------- スマホ向けの小物 ---------- */
+(function(){
+  if(TOUCH){const h=$('#hint');if(h)h.textContent='画面をタップで進行';}
+  const fb=$('#mFull');
+  const standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone;
+  const canFS=document.fullscreenEnabled&&document.documentElement.requestFullscreen;
+  if(fb&&TOUCH&&canFS&&!standalone){
+    fb.hidden=false;
+    fb.onclick=()=>{document.documentElement.requestFullscreen().catch(()=>{}).finally(()=>setTimeout(fit,150))};
+    document.addEventListener('fullscreenchange',()=>{fb.hidden=!!document.fullscreenElement});
+  }
+})();
+</script>
+
+</body></html>
