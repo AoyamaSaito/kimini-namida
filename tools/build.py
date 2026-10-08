@@ -98,6 +98,14 @@ def main():
     print(f'COMBO {total}本 / ★3以上 {done}/{len(target)}種 完成'
           + (f' / 途中: {", ".join(partial)}' if partial else ''))
 
+    # STYLE.md の多様性の目安（ツッコミ）。満たさなくても止めないが、知らせる
+    for fid in order:
+        tsk = [row[5] for row in combos[fid].values() if isinstance(row, list) and len(row) == 6]
+        past = sum(t.endswith('た。') for t in tsk)
+        two = sum(t.count('。') > 1 for t in tsk)
+        if past > 6 or two > 8:
+            print(f'  警告 {fid}: ツッコミの過去形 {past}本（目安6）/ 2文 {two}本（目安8）')
+
     if errs:
         print(f'\n検査エラー {len(errs)}件:')
         print('\n'.join('  ' + e for e in errs))
