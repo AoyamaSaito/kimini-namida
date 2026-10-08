@@ -106,6 +106,19 @@ def main():
         if past > 6 or two > 8:
             print(f'  警告 {fid}: ツッコミの過去形 {past}本（目安6）/ 2文 {two}本（目安8）')
 
+    # 花をまたいだ丸写し（こじつけ・締め・ツッコミの完全一致）
+    seen = {}
+    for fid in order:
+        for rid, row in combos[fid].items():
+            if not (isinstance(row, list) and len(row) == 6):
+                continue
+            for i in (2, 3, 5):
+                key = (i, row[i])
+                if key in seen:
+                    print(f'  警告 重複{FIELDS[i]}: {seen[key]} と {fid}/{rid}「{row[i]}」')
+                else:
+                    seen[key] = f'{fid}/{rid}'
+
     if errs:
         print(f'\n検査エラー {len(errs)}件:')
         print('\n'.join('  ' + e for e in errs))
