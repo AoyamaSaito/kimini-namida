@@ -102,6 +102,19 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .menu button{width:240px;font:700 20px/1 var(--font-serif);letter-spacing:.3em;padding:13px 0 13px .3em;background:rgba(20,14,50,.7);border:1px solid var(--gold);color:var(--cream);cursor:pointer}
 .menu button:hover,.menu button:focus{background:var(--rose2);color:#fff}
 #title small{font:400 12px/1.5 var(--font-ui);color:rgba(246,236,255,.65)}
+/* prologue（はじめる直後の暗転） */
+#prologue{position:absolute;inset:0;z-index:40;background:#000;display:flex;align-items:center;justify-content:center;padding:6% 8%;cursor:pointer;transition:opacity .8s}
+#prologue[hidden]{display:none}
+#prologue.out{opacity:0;pointer-events:none}
+#plText{display:flex;flex-direction:column;gap:1.1em;text-align:center;font:500 var(--h2) /1.8 var(--font-serif);letter-spacing:.12em;color:var(--cream)}
+#plText p{margin:0;opacity:0;transform:translateY(6px);transition:opacity 1.1s,transform 1.1s,color 1.1s}
+#plText p.on{opacity:1;transform:none}
+#plText p.past{color:rgba(246,236,255,.45)}
+#plText p.last{font-size:1.35em;font-weight:800;color:var(--rose);text-shadow:0 0 18px rgba(224,112,143,.6)}
+#plArrow{position:absolute;right:7%;bottom:9%;color:var(--gold);font-size:14px;opacity:0;transition:opacity .4s}
+#plArrow.on{opacity:1;animation:plBlink 1.2s infinite}
+@keyframes plBlink{50%{opacity:.25}}
+#plSkip{position:absolute;right:12px;top:12px;font:500 12px/1 var(--font-ui);padding:6px 10px;border-radius:12px;border:1px solid rgba(217,179,106,.5);background:transparent;color:rgba(246,236,255,.7);cursor:pointer}
 /* result */
 #result{position:absolute;inset:0;z-index:35;background:rgba(14,10,40,.96);display:flex;align-items:center;justify-content:center;padding:var(--rpad)}
 #result[hidden]{display:none}
@@ -249,6 +262,7 @@ html,body{touch-action:manipulation;overscroll-behavior:none;-webkit-touch-callo
       </div>
       <small id="hint">Enter / Space / ↓ または クリックで進行</small>
     </div>
+    <div id="prologue" hidden><div id="plText"></div><span id="plArrow">▼</span><button id="plSkip" type="button">スキップ</button></div>
     <div id="result" hidden></div>
     <div class="modal" id="mLog" hidden><div class="mbox"><div class="mhead"><span>ログ</span><button class="mx" type="button" data-close>✕</button></div><div class="mbody" id="logBody"><div id="logList"></div></div></div></div>
     <div class="modal" id="mSet2" hidden><div class="mbox"><div class="mhead"><span>設定</span><button class="mx" type="button" data-close>✕</button></div><div class="mbody" id="setBody"></div></div></div>
@@ -944,13 +958,40 @@ function showResult(g){
   setTimeout(()=>{const st=$('#stamp');if(st)st.classList.add('go');const a=$('#bk'),b=$('#bs');if(a)a.style.width=s.kojitsuke+'%';if(b)b.style.width='100%'},60);
   try{$('#rAgain').focus({preventScroll:true})}catch(e){}
 }
+/* はじめる直後だけ流す暗転。「別の花で贈る」「別の状況で」では出さない */
+const PROLOGUE=['花言葉。','それは、花に添えられた一輪の言葉。','いかなるシチュエーションにおいても<br>引用すれば、なんとなくそれっぽくなる<br>魔法の言葉。','それはたとえ','どんな花であったとしても……。'];
+let plSkipped=false;
+$('#plSkip').onclick=e=>{e.stopPropagation();plSkipped=true;poke()};
+async function playPrologue(t){
+  const pl=$('#prologue'),box=$('#plText'),ar=$('#plArrow');
+  plSkipped=false;ctrlEl.hidden=true;tb.hidden=true;
+  box.innerHTML=PROLOGUE.map((s,i)=>`<p${i===PROLOGUE.length-1?' class="last"':''}>${s}</p>`).join('');
+  pl.classList.remove('out');pl.hidden=false;
+  const ps=[...box.children];
+  try{
+    for(let i=0;i<ps.length&&!plSkipped;i++){
+      if(i)ps[i-1].classList.add('past');
+      ps[i].classList.add('on');
+      ui.guard=performance.now()+400;await sleep(500,t);
+      ar.classList.add('on');
+      ui.waiting=true;ui.adv=false;
+      try{while(!ui.adv&&!plSkipped){chk(t);await sleep(30,t)}}finally{ui.waiting=false;ui.adv=false}
+      ar.classList.remove('on');
+    }
+  }finally{
+    ar.classList.remove('on');pl.classList.add('out');
+    setTimeout(()=>{if(pl.classList.contains('out'))pl.hidden=true},850);
+  }
+  ctrlEl.hidden=false;refocus();
+}
 async function run(from){
   const t=++token;poke();
   closeModal(true);resetStage();titleEl.hidden=true;ctrlEl.hidden=false;
   skipMode=false;autoMode=false;syncBtns();setMode(modeText());
   initSample();ui.lock=false;refocus();
   try{
-    if(from==='intro'||!reason){reason=nextReason();await playIntro(t);await playChoices(t)}
+    if(from==='start')await playPrologue(t);
+    if(from==='intro'||from==='start'||!reason){reason=nextReason();await playIntro(t);await playChoices(t)}
     const g=await playGacha(t);
     await playScript(t,g);
     chk(t);showResult(g);
@@ -1016,7 +1057,7 @@ function zDetail(f){
 }
 
 /* ---------- wiring ---------- */
-$('#mStart').onclick=()=>{initSample();run('intro')};
+$('#mStart').onclick=()=>{initSample();run('start')};
 $('#mZukan').onclick=()=>openZukan();
 $('#mSet').onclick=()=>openSettings();
 $('#bLog').onclick=()=>{openLog()};
