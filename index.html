@@ -890,8 +890,16 @@ async function playChoices(t){
     await say('narration',pick(i===1?hank:quiet));
   }
 }
+/* 花を均等に引くと花数の多い高レア度ほど出てしまう（UR 18% > R 8%）ので、先にレア度を重みで決めてから、その中で均等に引く */
+const RARITY_W={1:25,2:25,3:25,4:15,5:10};
+function drawFlower(){
+  const ds=Object.keys(RARITY_W).filter(d=>FL.some(f=>f.d==d));
+  let x=Math.random()*ds.reduce((s,d)=>s+RARITY_W[d],0),d=ds[ds.length-1];
+  for(const k of ds){x-=RARITY_W[k];if(x<0){d=k;break}}
+  return pick(FL.filter(f=>f.d==d));
+}
 async function playGacha(t){
-  let f;do{f=pick(FL)}while(f.id===lastFlower&&FL.length>1);
+  let f;do{f=drawFlower()}while(f.id===lastFlower&&FL.length>1);
   lastFlower=f.id;
   const p={done:false,val:null};
   p.promise=getScript(f,reason).then(v=>{p.val=v;p.done=true});
