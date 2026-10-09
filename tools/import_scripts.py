@@ -23,10 +23,16 @@ WHO = {'boy': 'b', 'girl': 'g', 'narration': 'n'}
 PAIRS = {'「': '」', '『': '』'}
 
 
+def zen(s):
+    """半角の ? ! を全角にそろえる（生成文で混在するため）"""
+    return s.replace('?', '？').replace('!', '！')
+
+
 def tidy_tsk(s):
-    s = re.sub(r'[、，]', '', str(s).strip())
+    s = re.sub(r'[、，]', '', zen(str(s).strip()))
     s = re.sub(r'[。．]+$', '', s)
-    return re.sub(r'[。．]\s*', '　', s)
+    s = re.sub(r'[。．]\s*', '　', s)
+    return re.sub(r' +', '　', s)  # 2文の区切りは全角スペース
 
 
 def fix_brackets(s):
@@ -58,7 +64,7 @@ def main():
         if d.get('status') == 'ng':
             stats['ボツで除外'] += 1
             continue
-        lines = [[WHO.get(l['who'], 'n'), fix_brackets(l['text'])] for l in d['lines'] if l.get('text')]
+        lines = [[WHO.get(l['who'], 'n'), zen(fix_brackets(l['text']))] for l in d['lines'] if l.get('text')]
         if len(lines) < 3:
             stats['行不足で除外'] += 1
             continue
