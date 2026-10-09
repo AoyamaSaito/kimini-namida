@@ -213,12 +213,23 @@ const saveQ=()=>{try{localStorage.setItem('kobo-queue',JSON.stringify(queue))}ca
 
 $('#selF').innerHTML=FL.map(f=>`<option value="${f.id}">★${f.d} ${esc(f.name)}${f.odd?'（色物）':''}</option>`).join('');
 $('#selR').innerHTML=RS.map(r=>`<option value="${r.id}">${esc(r.text)}</option>`).join('');
+/* キューは「残り○本・次は何か」の1行にまとめ、中身は開いたときだけ描く（300本のチップは読めない） */
+let qOpen=false,qArm=false;
 function drawQueue(){
-  $('#queue').innerHTML=queue.length?queue.map(([f,r],i)=>`<span class="chip${running&&i===0?' run':''}">${esc(FLM[f].name)} × ${esc(RSM[r].cause)}<button type="button" data-i="${i}" aria-label="キューから外す">✕</button></span>`).join(''):'<span class="status">キューは空。</span>';
+  const head=queue.length?`キュー <b>${queue.length}</b> 本${running?'（生成中：'+esc(FLM[queue[0][0]].name)+' × '+esc(RSM[queue[0][1]].cause)+'）':'（次：'+esc(FLM[queue[0][0]].name)+' × '+esc(RSM[queue[0][1]].cause)+'）'}`:'キューは空。「未生成をキューへ」で積む。';
+  $('#queue').innerHTML=`<span class="status">${head}</span>`+(queue.length?` <button type="button" id="bQOpen">${qOpen?'中身を閉じる':'中身を見る'}</button> <button type="button" id="bQClear"${running?' disabled':''}>キューを空にする</button>`:'')
+    +(qOpen&&queue.length?`<div class="chips" style="margin-top:8px">${queue.slice(0,100).map(([f,r],i)=>`<span class="chip${running&&i===0?' run':''}">${esc(FLM[f].name)} × ${esc(RSM[r].cause)}<button type="button" data-i="${i}" aria-label="キューから外す">✕</button></span>`).join('')}${queue.length>100?`<span class="status">ほか ${queue.length-100} 本</span>`:''}</div>`:'');
   $('#bRun').disabled=running||!queue.length||!sample||!db;
   $('#bStop').disabled=!running;
 }
-$('#queue').addEventListener('click',e=>{const b=e.target.closest('button[data-i]');if(!b||running)return;queue.splice(+b.dataset.i,1);saveQ();drawQueue()});
+$('#queue').addEventListener('click',e=>{
+  if(e.target.id==='bQOpen'){qOpen=!qOpen;drawQueue();return}
+  if(e.target.id==='bQClear'){if(running)return;
+    if(!qArm){qArm=true;e.target.textContent='もう一度押すと空にする（生成済みの台本は消えない）';setTimeout(()=>{qArm=false;drawQueue()},4000);return}
+    qArm=false;queue=[];saveQ();drawQueue();$('#msg').textContent='キューを空にした。';return}
+  const b=e.target.closest('button[data-i]');if(!b)return;
+  const i=+b.dataset.i;if(running&&i===0){$('#msg').textContent='今生成している分は外せない。「止める」を押してから外す。';return}
+  queue.splice(i,1);saveQ();drawQueue()});
 $('#bNext').onclick=()=>{
   if(running)return;
   const have=new Set(docs.filter(d=>/^artifact-v[3-6]$/.test(d.prompt)).map(d=>d.fid+'|'+d.rid)), inQ=new Set(queue.map(x=>x[0]+'|'+x[1]));
@@ -245,11 +256,12 @@ function cardHTML(d){
   <div class="script">${lines.map(l=>`<div class="ln ${l.who}${l.fixed?' fixed':''}"><span class="w">${W[l.who]}</span><span class="t">${esc(l.text)}</span></div>`).join('')}</div>
   <div class="tsk">${esc(d.tsukkomi)}${d.tsukkomiOld?'<div class="meta">前のツッコミ：'+esc(d.tsukkomiOld)+'</div>':''}${d.tsukkomiBanned?'<span class="meta">（禁止型だったため定型に差し替え）</span>':''}</div>
   ${(d.cands&&d.cands.length)?`<div class="cands"><span class="meta">候補（押すと差し替えて採用）</span>${d.cands.map((c,i)=>`<button type="button" class="cand" data-act="pick" data-i="${i}">${esc(c)}</button>`).join('')}</div>`:''}
-  <div class="acts"><button type="button" class="ok" data-act="ok">採用</button><button type="button" class="ng" data-act="ng">ボツ</button><button type="button" data-act="tsk">ツッコミだけ作り直す</button><button type="button" data-act="cand">候補を5つ出す</button><button type="button" data-act="again">同じ組み合わせをもう1本</button></div>
+  <div class="acts"><button type="button" class="ok" data-act="ok">採用</button><button type="button" class="ng" data-act="ng">ボツ</button><button type="button" data-act="tsk"${busy[d._id]?' disabled':''}>${busy[d._id]==='tsk'?'作り直している……':'ツッコミだけ作り直す'}</button><button type="button" data-act="cand"${busy[d._id]?' disabled':''}>${busy[d._id]==='cand'?'候補を考えている……':'候補を5つ出す'}</button><button type="button" data-act="again">同じ組み合わせをもう1本</button></div>
   </article>`;
 }
 /* 1000本超を毎回全部描くと重いので、絞り込んだ上で PAGE 枚ずつ描く。保存のたびの再描画もまとめる */
-let drawT=0;
+let drawT=0,lastHtml='';
+const busy={};
 function drawList(){clearTimeout(drawT);drawT=setTimeout(drawNow,250)}
 function drawNow(){
   status();
@@ -260,7 +272,9 @@ function drawNow(){
     const f=FLM[d.fid]||{},r=RSM[d.rid]||{};
     return [f.name,f.kana,r.cause,r.text,d.fid,d.rid].some(s=>s&&String(s).includes(q));
   }).sort((a,b)=>(a.fid+a.rid).localeCompare(b.fid+b.rid)||a.createdAt-b.createdAt);
-  $('#list').innerHTML=v.length?v.slice(0,limit).map(cardHTML).join(''):`<div class="empty">${filt==='check'&&!q?'要確認の台本はない。':'該当する台本はない。'}</div>`;
+  const html=v.length?v.slice(0,limit).map(cardHTML).join(''):`<div class="empty">${filt==='check'&&!q?'要確認の台本はない。':'該当する台本はない。'}</div>`;
+  /* 見えている中身が変わっていなければ描き直さない（生成中に押したボタンやスクロールを潰さない） */
+  if(html!==lastHtml){$('#list').innerHTML=html;lastHtml=html}
   $('#shown').textContent=v.length?`${v.length} 本中 ${Math.min(limit,v.length)} 本を表示`:'';
   $('#bMore').hidden=v.length<=limit;
 }
@@ -270,21 +284,22 @@ $('#bMore').onclick=()=>{limit+=PAGE;drawNow()};
 $('#list').addEventListener('click',async e=>{
   const b=e.target.closest('button[data-act]');if(!b||!db)return;
   const id=b.closest('.card').dataset.id,d=docs.find(x=>x._id===id);if(!d)return;
-  if(b.dataset.act==='again'){if(!running){queue.unshift([d.fid,d.rid]);saveQ();drawQueue();$('#msg').textContent='キューの先頭に追加した。「キューを順に生成」で作る。'}return}
+  if(b.dataset.act==='again'){queue.splice(running?1:0,0,[d.fid,d.rid]);saveQ();drawQueue();$('#msg').textContent=running?'生成中の次に作るよう、キューに入れた。':'キューの先頭に入れた。「キューを順に生成」で作る。';return}
   if(b.dataset.act==='pick'){const c=(d.cands||[])[+b.dataset.i];if(!c)return;b.disabled=true;
     try{await db.collection('scripts').doc(id).update({tsukkomi:c,tsukkomiOld:d.tsukkomiOld||d.tsukkomi,cands:[],status:'ok',check:false})}catch(err){$('#msg').textContent='保存できなかった（'+(err&&err.code||'不明')+'）。'}
     return}
-  if(b.dataset.act==='cand'){if(running)return;b.disabled=true;$('#msg').textContent='候補を考えている……';
-    try{const f=FLM[d.fid],r=RSM[d.rid];ctl=new AbortController();
-      const o=await sample.json(buildCandPrompt(f,r,d),{modelTier:'default',cache:false,signal:ctl.signal});
+  if(b.dataset.act==='cand'){if(busy[id])return;busy[id]='cand';drawNow();$('#msg').textContent='';
+    try{const f=FLM[d.fid],r=RSM[d.rid];
+      const o=await sample.json(buildCandPrompt(f,r,d),{modelTier:'default',cache:false});
       const cs=(o&&Array.isArray(o.candidates)?o.candidates:[]).map(x=>tidyTsk(x).slice(0,80)).filter(x=>x&&!TSK_BAN.test(x)).slice(0,5);
       if(!cs.length)throw{code:'bad_shape'};
       await db.collection('scripts').doc(id).update({cands:cs});$('#msg').textContent='候補を出した。カードの候補を押すと差し替わる。'}
     catch(err){$('#msg').textContent=(CODE[err&&err.code]||'うまくいかなかった（'+(err&&err.code||'不明')+'）。')}
-    b.disabled=false;return}
-  if(b.dataset.act==='tsk'){if(running)return;b.disabled=true;$('#msg').textContent='ツッコミを作り直している……';
-    try{await redoTsk(d);$('#msg').textContent='ツッコミを作り直した。'}catch(err){$('#msg').textContent=(CODE[err&&err.code]||'うまくいかなかった（'+(err&&err.code||'不明')+'）。')}
-    b.disabled=false;return}
+    delete busy[id];drawNow();return}
+  if(b.dataset.act==='tsk'){if(busy[id])return;busy[id]='tsk';drawNow();$('#msg').textContent='';
+    try{await redoTsk(d,true);$('#msg').textContent='ツッコミを作り直した。'}catch(err){$('#msg').textContent=(CODE[err&&err.code]||'うまくいかなかった（'+(err&&err.code||'不明')+'）。')}
+    delete busy[id];drawNow();return}
+  if(b.dataset.act==='pick'||b.dataset.act==='ok'||b.dataset.act==='ng')$('#msg').textContent='';
   b.disabled=true;
   try{await db.collection('scripts').doc(id).update({status:b.dataset.act,check:false})}catch(err){$('#msg').textContent='保存できなかった（'+(err&&err.code||'不明')+'）。'}
   b.disabled=false;
@@ -300,9 +315,9 @@ async function generateOne(fid,rid){
   const now=Date.now();
   await db.collection('scripts').doc(`${fid}__${rid}__${now}`).set({fid,rid,...v,status:'new',createdAt:now,prompt:'artifact-v6',assignedMeaning:a.meaning,angle:a.angle});
 }
-async function redoTsk(d){
-  const f=FLM[d.fid],r=RSM[d.rid];ctl=new AbortController();
-  const o=await sample.json(buildTskPrompt(f,r,d),{modelTier:'default',cache:false,signal:ctl.signal});
+async function redoTsk(d,single){
+  const f=FLM[d.fid],r=RSM[d.rid];let signal;if(!single){ctl=new AbortController();signal=ctl.signal}
+  const o=await sample.json(buildTskPrompt(f,r,d),{modelTier:'default',cache:false,signal});
   const t=String(o&&o.tsukkomi||'').trim();
   if(!t||TSK_BAN.test(t))throw{code:'bad_shape'};
   await db.collection('scripts').doc(d._id).update({tsukkomi:tidyTsk(t).slice(0,80),tsukkomiOld:d.tsukkomiOld||d.tsukkomi,tsukkomiRev:(d.tsukkomiRev||0)+1,status:'new'});
