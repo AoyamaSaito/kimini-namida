@@ -326,14 +326,28 @@ const CODE={not_granted:'Claude の利用が許可されなかった。',rate_li
 $('#bRun').onclick=async()=>{
   if(running||!sample||!db)return;
   running=true;$('#msg').textContent='';drawQueue();
-  let done=0;
+  /* 返答の形崩れ（invalid_json / bad_shape）は同じ組み合わせを2回まで作り直し、それでも駄目ならキューの末尾に回して先へ進む。
+     混雑（rate_limited）は少し待って同じものをやり直す。それ以外のエラーだけ止める */
+  let done=0,skipped=0,tries=0,waits=0;const skipN=new Map();
+  const nap=ms=>new Promise(r=>setTimeout(r,ms));
   while(running&&queue.length){
     const [fid,rid]=queue[0];
-    $('#prog').textContent=`生成中：${FLM[fid].name} × ${RSM[rid].cause}（Claude が考えている……）`;
-    try{await generateOne(fid,rid);queue.shift();saveQ();done++;drawQueue()}
-    catch(e){$('#msg').textContent=(CODE[e&&e.code]||'うまくいかなかった（'+(e&&e.code||'不明')+'）。')+' キューはそのまま残してある。';break}
+    $('#prog').textContent=`生成中：${FLM[fid].name} × ${RSM[rid].cause}（Claude が考えている……）${tries?'　作り直し'+tries+'回目':''}`;
+    try{await generateOne(fid,rid);queue.shift();saveQ();done++;tries=0;waits=0;drawQueue()}
+    catch(e){
+      const c=e&&e.code;
+      if(!running||c==='cancelled')break;
+      if(c==='invalid_json'||c==='bad_shape'){
+        if(++tries<=2)continue;
+        /* 2周しても駄目な組み合わせはキューから外す（崩れ続ける組み合わせで使用量を食い続けないため） */
+        const key=fid+'|'+rid,n=(skipN.get(key)||0)+1;skipN.set(key,n);
+        const it=queue.shift();if(n<2)queue.push(it);saveQ();skipped++;tries=0;drawQueue();continue}
+      if(c==='rate_limited'&&++waits<=5){
+        for(let s=60;s>0&&running;s--){$('#prog').textContent=`混み合っているので待っている……あと${s}秒（${waits}/5回目）`;await nap(1000)}
+        continue}
+      $('#msg').textContent=(CODE[c]||'うまくいかなかった（'+(c||'不明')+'）。')+' キューはそのまま残してある。';break}
   }
-  running=false;ctl=null;$('#prog').textContent=done?`${done} 本できた。`:'';drawQueue();
+  running=false;ctl=null;$('#prog').textContent=done||skipped?`${done} 本できた。${skipped?`返事の形が崩れて ${skipped} 回飛ばした（後ろに回すか、2周駄目なら外した）。`:''}`:'';drawQueue();
 };
 $('#bTskNg').onclick=async()=>{
   if(running||!sample||!db)return;
