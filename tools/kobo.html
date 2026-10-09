@@ -308,8 +308,10 @@ $('#list').addEventListener('click',async e=>{
 async function generateOne(fid,rid){
   const f=FLM[fid],r=RSM[rid];
   const a=assign(f,r,docs.filter(d=>d.fid===fid&&d.rid===rid&&/^artifact-v[3-6]$/.test(d.prompt)).length);
-  ctl=new AbortController();
-  const o=await sample.json(buildPrompt(f,r,a),{modelTier:'default',cache:false,signal:ctl.signal});
+  /* 返事が3分来なければ打ち切ってやり直す（固まったまま止まって見えるのを防ぐ） */
+  ctl=new AbortController();let timedOut=false;const tm=setTimeout(()=>{timedOut=true;ctl.abort()},180000);
+  let o;try{o=await sample.json(buildPrompt(f,r,a),{modelTier:'default',cache:false,signal:ctl.signal})}
+  catch(e){if(timedOut)throw{code:'timeout'};throw e}finally{clearTimeout(tm)}
   const v=validate(o,f);
   if(!v)throw{code:'bad_shape'};
   const now=Date.now();
@@ -343,8 +345,11 @@ $('#bRun').onclick=async()=>{
         const key=fid+'|'+rid,n=(skipN.get(key)||0)+1;skipN.set(key,n);
         const it=queue.shift();if(n<2)queue.push(it);saveQ();skipped++;tries=0;drawQueue();continue}
       if(c==='rate_limited'&&++waits<=5){
-        for(let s=60;s>0&&running;s--){$('#prog').textContent=`混み合っているので待っている……あと${s}秒（${waits}/5回目）`;await nap(1000)}
-        continue}
+        /* 裏タブでは短いタイマーを何十回も重ねると極端に間引かれるので、1分を一度で待つ */
+        const until=new Date(Date.now()+60000);
+        $('#prog').textContent=`混み合っているので ${until.toLocaleTimeString()} まで待ってからやり直す（${waits}/5回目）`;
+        await nap(60000);continue}
+      if(c==='timeout'){if(++tries<=2)continue;const it=queue.shift();queue.push(it);saveQ();skipped++;tries=0;drawQueue();continue}
       $('#msg').textContent=(CODE[c]||'うまくいかなかった（'+(c||'不明')+'）。')+' キューはそのまま残してある。';break}
   }
   running=false;ctl=null;$('#prog').textContent=done||skipped?`${done} 本できた。${skipped?`返事の形が崩れて ${skipped} 回飛ばした（後ろに回すか、2周駄目なら外した）。`:''}`:'';drawQueue();
