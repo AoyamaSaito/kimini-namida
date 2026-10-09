@@ -53,6 +53,8 @@ select{font:inherit;padding:5px 8px;border-radius:8px;border:1px solid var(--lin
 .empty{color:var(--muted);text-align:center;padding:30px 0}
 .filter{display:flex;gap:6px;flex-wrap:wrap}
 .filter button.on{border-color:var(--accent);color:var(--accent)}
+#q{font:inherit;flex:1 1 220px;min-width:0;padding:5px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--fg)}
+.badge.check{color:var(--accent)}
 </style>
 
 <div class="wrap">
@@ -76,13 +78,19 @@ select{font:inherit;padding:5px 8px;border-radius:8px;border:1px solid var(--lin
     <div class="msg" id="msg" role="status"></div>
   </section>
 
-  <div class="filter" role="group" aria-label="表示">
-    <button type="button" data-f="all" class="on">すべて</button>
-    <button type="button" data-f="new">未判定</button>
-    <button type="button" data-f="ok">採用</button>
-    <button type="button" data-f="ng">ボツ</button>
+  <div class="row">
+    <div class="filter" role="group" aria-label="表示">
+      <button type="button" data-f="check" class="on">要確認</button>
+      <button type="button" data-f="new">未判定</button>
+      <button type="button" data-f="ok">採用</button>
+      <button type="button" data-f="ng">ボツ</button>
+      <button type="button" data-f="all">すべて</button>
+    </div>
+    <input id="q" type="search" placeholder="花や理由で絞り込み（例：ハナズオウ、プリン）" aria-label="絞り込み">
   </div>
-  <div class="list" id="list"><div class="empty">まだ台本がない。キューを生成すると、ここに並ぶ。</div></div>
+  <div class="status" id="shown"></div>
+  <div class="list" id="list"><div class="empty">読み込み中……</div></div>
+  <button type="button" id="bMore" hidden>もっと見る</button>
 </div>
 
 <script>
@@ -198,7 +206,8 @@ function validate(o,f){
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let queue=PILOT.map(x=>x.slice()), running=false, ctl=null, sample=null, db=null, docs=[], filt='all';
+let queue=PILOT.map(x=>x.slice()), running=false, ctl=null, sample=null, db=null, docs=[], filt='check', limit=30;
+const PAGE=30;
 try{const q=JSON.parse(localStorage.getItem('kobo-queue')||'null');if(Array.isArray(q))queue=q.filter(x=>FLM[x[0]]&&RSM[x[1]])}catch(e){}
 const saveQ=()=>{try{localStorage.setItem('kobo-queue',JSON.stringify(queue))}catch(e){}};
 
@@ -223,8 +232,8 @@ $('#bNext').onclick=()=>{
 $('#bAdd').onclick=()=>{queue.push([$('#selF').value,$('#selR').value]);saveQ();drawQueue()};
 
 function status(){
-  const n=docs.length,ok=docs.filter(d=>d.status==='ok').length,ng=docs.filter(d=>d.status==='ng').length;
-  $('#status').innerHTML=(!sample?'Claude を呼べない環境です（claude.ai で開いてください）。':!db?'保存先に接続できません。':'')+` 台本 <b>${n}</b> 本（採用 <b>${ok}</b>・ボツ <b>${ng}</b>・未判定 <b>${n-ok-ng}</b>）`;
+  const n=docs.length,ok=docs.filter(d=>d.status==='ok').length,ng=docs.filter(d=>d.status==='ng').length,ck=docs.filter(d=>d.check).length;
+  $('#status').innerHTML=(!sample?'Claude を呼べない環境です（claude.ai で開いてください）。':!db?'保存先に接続できません。':'')+` 台本 <b>${n}</b> 本（採用 <b>${ok}</b>・ボツ <b>${ng}</b>・未判定 <b>${n-ok-ng}</b>）／要確認 <b>${ck}</b> 本`;
 }
 function cardHTML(d){
   const f=FLM[d.fid]||{name:d.fid,d:0},r=RSM[d.rid]||{cause:d.rid,line:''};
@@ -232,25 +241,38 @@ function cardHTML(d){
   const W={boy:'蒼真',girl:'ひより',narration:'地の文'};
   return `<article class="card" data-id="${esc(d._id)}">
   <header><h2>${esc(f.name)} × ${esc(r.cause)}</h2><span class="meta">${RR[f.d]||''}　『${esc(d.used_meaning)}』／${esc(d.technique)}／こじつけ度 ${d.kojitsuke}%${d.angle?'／切り口：'+esc(d.angle):''}</span>
-  <span class="badge ${d.status||'new'}">${d.status==='ok'?'採用':d.status==='ng'?'ボツ':'未判定'}</span></header>
+  <span class="badge ${d.status||'new'}">${d.status==='ok'?'採用':d.status==='ng'?'ボツ':'未判定'}</span>${d.check?`<span class="badge check">要確認${d.checkNote?'：'+esc(d.checkNote):''}</span>`:''}</header>
   <div class="script">${lines.map(l=>`<div class="ln ${l.who}${l.fixed?' fixed':''}"><span class="w">${W[l.who]}</span><span class="t">${esc(l.text)}</span></div>`).join('')}</div>
   <div class="tsk">${esc(d.tsukkomi)}${d.tsukkomiOld?'<div class="meta">前のツッコミ：'+esc(d.tsukkomiOld)+'</div>':''}${d.tsukkomiBanned?'<span class="meta">（禁止型だったため定型に差し替え）</span>':''}</div>
   ${(d.cands&&d.cands.length)?`<div class="cands"><span class="meta">候補（押すと差し替えて採用）</span>${d.cands.map((c,i)=>`<button type="button" class="cand" data-act="pick" data-i="${i}">${esc(c)}</button>`).join('')}</div>`:''}
   <div class="acts"><button type="button" class="ok" data-act="ok">採用</button><button type="button" class="ng" data-act="ng">ボツ</button><button type="button" data-act="tsk">ツッコミだけ作り直す</button><button type="button" data-act="cand">候補を5つ出す</button><button type="button" data-act="again">同じ組み合わせをもう1本</button></div>
   </article>`;
 }
-function drawList(){
+/* 1000本超を毎回全部描くと重いので、絞り込んだ上で PAGE 枚ずつ描く。保存のたびの再描画もまとめる */
+let drawT=0;
+function drawList(){clearTimeout(drawT);drawT=setTimeout(drawNow,250)}
+function drawNow(){
   status();
-  const v=docs.filter(d=>filt==='all'||(d.status||'new')===filt).sort((a,b)=>(a.fid+a.rid).localeCompare(b.fid+b.rid)||a.createdAt-b.createdAt);
-  $('#list').innerHTML=v.length?v.map(cardHTML).join(''):'<div class="empty">該当する台本はまだない。</div>';
+  const q=$('#q').value.trim();
+  const v=docs.filter(d=>{
+    if(filt==='check'?!d.check:filt!=='all'&&(d.status||'new')!==filt)return false;
+    if(!q)return true;
+    const f=FLM[d.fid]||{},r=RSM[d.rid]||{};
+    return [f.name,f.kana,r.cause,r.text,d.fid,d.rid].some(s=>s&&String(s).includes(q));
+  }).sort((a,b)=>(a.fid+a.rid).localeCompare(b.fid+b.rid)||a.createdAt-b.createdAt);
+  $('#list').innerHTML=v.length?v.slice(0,limit).map(cardHTML).join(''):`<div class="empty">${filt==='check'&&!q?'要確認の台本はない。':'該当する台本はない。'}</div>`;
+  $('#shown').textContent=v.length?`${v.length} 本中 ${Math.min(limit,v.length)} 本を表示`:'';
+  $('#bMore').hidden=v.length<=limit;
 }
-document.querySelector('.filter').addEventListener('click',e=>{const b=e.target.closest('button[data-f]');if(!b)return;filt=b.dataset.f;document.querySelectorAll('.filter button').forEach(x=>x.classList.toggle('on',x===b));drawList()});
+document.querySelector('.filter').addEventListener('click',e=>{const b=e.target.closest('button[data-f]');if(!b)return;filt=b.dataset.f;limit=PAGE;document.querySelectorAll('.filter button').forEach(x=>x.classList.toggle('on',x===b));drawNow()});
+$('#q').addEventListener('input',()=>{limit=PAGE;drawList()});
+$('#bMore').onclick=()=>{limit+=PAGE;drawNow()};
 $('#list').addEventListener('click',async e=>{
   const b=e.target.closest('button[data-act]');if(!b||!db)return;
   const id=b.closest('.card').dataset.id,d=docs.find(x=>x._id===id);if(!d)return;
   if(b.dataset.act==='again'){if(!running){queue.unshift([d.fid,d.rid]);saveQ();drawQueue();$('#msg').textContent='キューの先頭に追加した。「キューを順に生成」で作る。'}return}
   if(b.dataset.act==='pick'){const c=(d.cands||[])[+b.dataset.i];if(!c)return;b.disabled=true;
-    try{await db.collection('scripts').doc(id).update({tsukkomi:c,tsukkomiOld:d.tsukkomiOld||d.tsukkomi,cands:[],status:'ok'})}catch(err){$('#msg').textContent='保存できなかった（'+(err&&err.code||'不明')+'）。'}
+    try{await db.collection('scripts').doc(id).update({tsukkomi:c,tsukkomiOld:d.tsukkomiOld||d.tsukkomi,cands:[],status:'ok',check:false})}catch(err){$('#msg').textContent='保存できなかった（'+(err&&err.code||'不明')+'）。'}
     return}
   if(b.dataset.act==='cand'){if(running)return;b.disabled=true;$('#msg').textContent='候補を考えている……';
     try{const f=FLM[d.fid],r=RSM[d.rid];ctl=new AbortController();
@@ -264,7 +286,7 @@ $('#list').addEventListener('click',async e=>{
     try{await redoTsk(d);$('#msg').textContent='ツッコミを作り直した。'}catch(err){$('#msg').textContent=(CODE[err&&err.code]||'うまくいかなかった（'+(err&&err.code||'不明')+'）。')}
     b.disabled=false;return}
   b.disabled=true;
-  try{await db.collection('scripts').doc(id).update({status:b.dataset.act})}catch(err){$('#msg').textContent='保存できなかった（'+(err&&err.code||'不明')+'）。'}
+  try{await db.collection('scripts').doc(id).update({status:b.dataset.act,check:false})}catch(err){$('#msg').textContent='保存できなかった（'+(err&&err.code||'不明')+'）。'}
   b.disabled=false;
 });
 
