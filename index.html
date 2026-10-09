@@ -472,6 +472,14 @@ function syncBtns(){$('#bAuto').classList.toggle('on',autoMode);$('#bSkip').clas
 function setMode(txt){$('#mode').textContent='台詞: '+txt}
 function modeText(){return ''}
 
+/* 長い台詞が枠からはみ出さないよう、全文を入れて測ってから文字を縮める（スマホ縦で5行を超えると下が切れていた） */
+function fitTb(full){
+  tbText.style.fontSize='';
+  if(!full)return;
+  tbText.textContent=full;
+  let fs=parseFloat(getComputedStyle(tbText).fontSize)||20;
+  while(tbText.scrollHeight>tbText.clientHeight+1&&fs>12){fs-=1;tbText.style.fontSize=fs+'px'}
+}
 async function say(who,text,o={}){
   const t=token;chk(t);
   const nar=who!=='boy'&&who!=='girl';
@@ -480,7 +488,7 @@ async function say(who,text,o={}){
   pushLog(name,shown,nar?'nr':'');
   tb.hidden=false;tbName.hidden=!name;tbName.textContent=name;
   tb.classList.toggle('nar',nar);tb.classList.toggle('big',!!o.big);
-  arrow.hidden=true;tbText.textContent='';
+  arrow.hidden=true;fitTb(o.big?'':shown);tbText.textContent='';
   ui.typing=true;ui.skipType=false;ui.guard=performance.now()+150;
   const sp=cfg.speed;
   for(let i=1;i<=shown.length;i++){
